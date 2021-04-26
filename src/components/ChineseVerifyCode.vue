@@ -1,0 +1,104 @@
+<template>
+<div class="chinese-verify-code">
+  <div class="chinese-verify-code-image-box" v-on:click="onVerifyCodeClick">
+    <el-image :src="'/verify-code?t=' + verifyCodeTimestamp" />
+    <div
+        class="chinese-verify-code-point"
+        v-for="(point, index) in points" :key="point.x + '-' + point.y" :style="'left: ' + point.x + 'px; top: ' + point.y + 'px'"
+        :data-index="index"
+    >
+      {{index + 1}}
+    </div>
+  </div>
+  <div>
+    <el-button type="text" v-on:click="refresh">看不清？换一张</el-button>
+  </div>
+</div>
+</template>
+
+<script lang="ts">
+import CommonUtils from "@/utils/CommonUtils";
+import NotificationError from "@/error/NotificationError";
+
+interface Point{
+  x: number
+  y: number
+}
+interface Data{
+  verifyCodeTimestamp: number,
+  points: Point[]
+}
+export default {
+  name: "ChineseVerifyCode",
+  props: {
+    minPointLen: {
+      type: Number,
+      default: 2
+    },
+    maxPointLen: {
+      type: Number,
+      default: 4
+    }
+  },
+  data(): Data{
+    return {
+      verifyCodeTimestamp: new Date().getTime(),
+      points: []
+    }
+  },
+  methods: {
+    refresh(): void{
+      this.points = []
+      this.verifyCodeTimestamp = new Date().getTime()
+    },
+    onVerifyCodeClick(e: MouseEvent): void{
+      const target = e.target as HTMLElement
+      if(target.className === "chinese-verify-code-point"){
+        const index = parseInt(target.dataset.index)
+        if(index >= 0 && index < this.points.length){
+          this.points.splice(index, this.points.length - index)
+        }
+        return;
+      }
+      if(this.points.length >= this.maxPointLen) return
+      const position = CommonUtils.getElementPosition(target)
+      this.points.push({
+        x: e.clientX - position.x,
+        y: e.clientY - position.y
+      })
+    },
+    /**
+     * 获取验证提交所需数据
+     */
+    getParams(): any{
+      if(this.points.length < this.minPointLen){
+        throw new NotificationError("请完成验证码验证")
+      }
+      return CommonUtils.map2obj(new Map(this.points.map((p, i)=>['point' + i, p.x + ',' + p.y])))
+    }
+  }
+}
+</script>
+
+<style scoped lang="scss">
+.chinese-verify-code-image-box{
+  display: inline-block;
+  position: relative;
+}
+.chinese-verify-code-point{
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: white solid 3px;
+  border-radius: 16px;
+  text-align: center;
+  overflow: hidden;
+  background-color: #0099ff;
+  color: white;
+  box-shadow: #333333 0 0 10px 3px;
+  margin-left: -11px;
+  margin-top: -11px;
+  line-height: 15px;
+  user-select: none;
+}
+</style>

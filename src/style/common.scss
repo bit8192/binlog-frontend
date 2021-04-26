@@ -1,0 +1,39 @@
+//常用mixin
+@mixin padding-horizontal($padding){
+  padding-left: $padding;
+  padding-right: $padding;
+}
+@mixin padding-vertical($padding){
+  padding-top: $padding;
+  padding-bottom: $padding;
+}
+
+//全局背景
+@mixin background{
+  background: #f4f6f8;
+}
+//导航背景
+@mixin background-nav {
+  background: white;
+}
+//内容主题背景
+@mixin background-content {
+  background: transparent;
+}
+//条目背景
+@mixin background-item {
+  background: white;
+}
+//条目圆角
+$item-border-radius: 5px;
+
+
+//text
+@mixin text-ellipsis($lines){
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+}
+

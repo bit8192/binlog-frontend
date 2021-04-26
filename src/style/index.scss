@@ -1,0 +1,77 @@
+//这个文件主要存放全局样式配置
+@import "common";
+@import "animate";
+
+html{
+  font-size: 14px;
+}
+body, h1, h2, h3, h4, h5, h6{
+  padding: 0;
+  margin: 0;
+}
+a{
+  color: inherit;
+  text-decoration: none;
+}
+#app{
+  @include background;
+}
+#header{
+  padding: 0;
+}
+#main{
+  padding-top: 0;
+  overflow: unset;
+}
+#footer{
+  background-color: white;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  font-size: .85em;
+  span{
+    margin-right: 3em;
+  }
+}
+#content{
+  @include background-content;
+}
+
+//常用边距调整
+.no-margin-vertical{
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+.no-margin-horizontal{
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+//text
+.text-title{
+  color: #202020;
+}
+.text-sub{
+  color: #909699;
+}
+.text-content{
+  color: #232323;
+}
+//单行文本省略
+.text-ellipsis{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+//修改el-tag样式
+.el-tag{
+  background-color: transparent;
+}
+.tag-group{
+  display: flex;
+  justify-content: left;
+  .el-tag{
+    margin-right: 1em;
+  }
+}
