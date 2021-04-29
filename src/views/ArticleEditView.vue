@@ -1,9 +1,23 @@
 <template>
   <el-card class="article-edit-view">
-    <h1>{{ title }}</h1>
     <el-form>
+      <el-form-item>
+        <el-input placeholder="文章标题" />
+      </el-form-item>
+      <el-form-item label="分类">
+        <el-select value/>
+      </el-form-item>
+      <el-form-item label="标签">
+        <el-select />
+      </el-form-item>
+      <el-form-item label="封面">
+        <el-upload />
+      </el-form-item>
+      <el-form-item label="摘要">
+        <el-input type="textarea" />
+      </el-form-item>
     </el-form>
-    <markdown-editor />
+    <markdown-editor v-model="content" />
   </el-card>
 </template>
 
@@ -12,14 +26,14 @@ import MarkdownEditor from "@/components/MarkdownEditor.vue";
 import {Component, Vue} from "vue-property-decorator";
 
 interface Data{
-  title: string
+  content: string
 }
 
 @Component({
   components: {MarkdownEditor},
   data(): Data{
     return {
-      title: "写文章"
+      content: "# title  \nabcdefg\n> afwf\n* feda\n- afew\n+ afef\n"
     }
   }
 })
