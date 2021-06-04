@@ -91,22 +91,22 @@ export default {
     //章节点击事件
     $_sectionClickEventListener(section: Section): void{
       const scrollingElement = document.scrollingElement
-      let sectionTop = CommonUtils.getElementPosition(section.element as HTMLElement).y + (this.$el as HTMLElement).offsetTop
+      let sectionTop = CommonUtils.getElementPosition(section.element as HTMLElement).offsetTop + (this.$el as HTMLElement).offsetTop
       scrollingElement.scroll(0, sectionTop + 1)
     },
     //文章滚动事件
     $_targetScrollEventListener(evt: Event): void{
       const scrollingElement = (evt.target as HTMLDocument).scrollingElement
-      let progress = scrollingElement.scrollTop - targetElementOffset.y
+      let progress = scrollingElement.scrollTop - targetElementOffset.offsetTop
       if(progress < 0) progress = 0
-      let totalProgress = scrollingElement.scrollHeight - scrollingElement.clientHeight - targetElementOffset.y
+      let totalProgress = scrollingElement.scrollHeight - scrollingElement.clientHeight - targetElementOffset.offsetTop
       //计算阅读进度
       this.progress = parseInt((progress / totalProgress * 1000).toString()) / 10 + "%"
       //查找当前阅读章节
       let top = 0
       let currentElement: Element|null = null
       for (let header of headers) {
-        top = CommonUtils.getElementPosition(header).y
+        top = CommonUtils.getElementPosition(header).offsetTop
         if(top < scrollingElement.scrollTop){
           currentElement = header
         }else{
@@ -121,7 +121,7 @@ export default {
         const catalogScrollElement = (this.$el as HTMLElement).querySelector(".catalog-section-container") as HTMLElement
         const catalogOffsetElement = (this.$el as HTMLElement).offsetParent as HTMLElement
         const currentSectionElement = this.$el.querySelector("#section-" + this.currentSectionId) as HTMLElement
-        const currentSectionTop = CommonUtils.getElementPosition(currentSectionElement, catalogOffsetElement).y
+        const currentSectionTop = CommonUtils.getElementPosition(currentSectionElement, catalogOffsetElement).offsetTop
         const catalogScrollElementHalfHeight = catalogScrollElement.clientHeight / 2;
         if (
             currentSectionTop > catalogScrollElementHalfHeight && currentSectionTop < catalogScrollElement.scrollTop + catalogScrollElementHalfHeight

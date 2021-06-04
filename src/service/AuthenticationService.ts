@@ -8,7 +8,6 @@ import {URL_AUTHENTICATION, URL_LOGOUT, URL_SELF_INFO} from "@/constants/UrlApiA
 export default class AuthenticationService{
     /**
      * 获取用户信息
-     * 因为浏览器会为我们考虑缓存，所以没必要浪费内存
      * 当没有登录时会抛出异常
      */
     @Synchronized()

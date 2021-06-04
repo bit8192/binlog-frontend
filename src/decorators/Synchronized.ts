@@ -8,9 +8,8 @@ export default function () :any{
         descriptor.value = function (...args) :any{
             let cache = promiseMap.get(method)
             if(!cache){
-                cache = method.apply(this, args)
+                cache = method.apply(this, args).finally(()=>promiseMap.delete(method))
                 promiseMap.set(method, cache)
-                cache.then(()=>promiseMap.delete(method))
             }
             return cache
         }

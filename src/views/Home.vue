@@ -15,9 +15,12 @@ import ArticleList from "@/components/ArticleList.vue";
 import TagList from "@/components/TagList.vue";
 import CommonService from "@/service/CommonService";
 import UserStatePanel from "@/components/UserStatePanel.vue";
+import {Component, Vue} from "vue-property-decorator";
 
-export default {
+@Component({
   components: {UserStatePanel, TagList, ArticleList},
+})
+export default class Home extends Vue{
   async created() : Promise<void>{
     const systemProfile = await CommonService.getSystemProfile()
     document.title = systemProfile.name

@@ -1,7 +1,9 @@
 <template>
   <div id="app">
     <el-header id="header">
-      <nav-menu :profile="systemProfile" />
+      <transition name="transition-from-top" appear>
+        <nav-menu :profile="systemProfile" />
+      </transition>
     </el-header>
     <el-main id="main">
       <el-row type="flex" justify="center">
@@ -28,19 +30,24 @@ import CommonService from "@/service/CommonService";
 import NavMenu from "@/components/NavMenu.vue";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {faGithub} from "@fortawesome/free-brands-svg-icons";
+import {Component, Vue} from "vue-property-decorator";
 
 library.add(faGithub)
 
 interface Data{
   systemProfile: SystemProfile
 }
-export default {
+@Component({
   components: {NavMenu},
+})
+export default class App extends Vue{
+  systemProfile!: SystemProfile
+
   data(): Data {
     return {
       systemProfile: {}
     }
-  },
+  }
   async created(): Promise<void> {
     this.systemProfile = await CommonService.getSystemProfile()
   }

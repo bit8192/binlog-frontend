@@ -1,0 +1,48 @@
+//淡入mixin
+@mixin mixin-fade-in($name, $direction, $speed-in, $speed-out, $distance, $transition-fun){
+  .transition-from-#{$name}-enter-active{
+    transition: opacity $speed-in $transition-fun, transform $speed-in $transition-fun;
+  }
+  .transition-from-#{$name}-leave-active{
+    transition: opacity $speed-out $transition-fun, transform $speed-out $transition-fun;
+  }
+  .transition-from-#{$name}-enter, .transition-from-#{$name}-leave-to{
+    position: relative;
+    opacity: 0;
+    @if($direction == top or $direction == bottom){
+      transform: translateY($distance);
+    }@else {
+      transform: translateX($distance);
+    }
+  }
+  .transition-from-#{$name}-enter-to, .transition-from-#{$name}-leave{
+    position: relative;
+    opacity: 100;
+    @if($direction == top or $direction == bottom){
+      transform: translateY(0);
+    }@else {
+      transform: translateX(0);
+    }
+  }
+}
+
+$fade-in-time: .5s;
+$fade-in-distance: 10px;
+//从顶部淡入
+@include mixin-fade-in(top, top, $fade-in-time, $fade-in-time, -#{$fade-in-distance}, ease-in);
+//从底部淡入
+@include mixin-fade-in(bottom, bottom, $fade-in-time, $fade-in-time, #{$fade-in-distance}, ease-in);
+//从左侧淡入
+@include mixin-fade-in(left, left, $fade-in-time, $fade-in-time, -#{$fade-in-distance}, ease-in);
+//从右侧淡入
+@include mixin-fade-in(right, right, $fade-in-time, $fade-in-time, #{$fade-in-distance}, ease-in);
+
+$fade-in-time-fast: .3s;
+//从顶部淡入快速
+@include mixin-fade-in(top-fast, top, $fade-in-time-fast, $fade-in-time-fast, -#{$fade-in-distance}, ease);
+//从底部淡入快速
+@include mixin-fade-in(bottom-fast, bottom, $fade-in-time-fast, $fade-in-time-fast, #{$fade-in-distance}, ease);
+//从左侧淡入快速
+@include mixin-fade-in(left-fast, left, $fade-in-time-fast, $fade-in-time-fast, -#{$fade-in-distance}, ease);
+//从右侧淡入快速
+@include mixin-fade-in(right-fast, right, $fade-in-time-fast, $fade-in-time-fast, #{$fade-in-distance}, ease);

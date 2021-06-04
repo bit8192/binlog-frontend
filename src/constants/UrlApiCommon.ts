@@ -1,2 +1,3 @@
-export const URL_VERIFY_CODE = "/api/verify-code"
-export const URL_SYSTEM_PROFILE = "/api/profile"
+export const URL_BASE = "/api"
+export const URL_VERIFY_CODE = URL_BASE + "/verify-code"
+export const URL_SYSTEM_PROFILE = URL_BASE + "/profile"

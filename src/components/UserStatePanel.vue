@@ -54,7 +54,7 @@ export default {
       try {
         this.userInfo = await AuthenticationService.getSelfInfo()
       }catch (e) {
-        console.log("not login")
+        console.error("not login", e)
       }
     },
     logged(): void{

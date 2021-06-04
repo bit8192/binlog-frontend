@@ -1,5 +1,5 @@
 import axios, {AxiosError, AxiosRequestConfig} from "axios"
-import { Notification } from 'element-ui'
+import {Message} from 'element-ui'
 
 interface AxiosConfig {
     baseURL: string
@@ -9,12 +9,13 @@ export interface MyAxiosRequestConfig extends AxiosRequestConfig{
 }
 export default function configAxios(axiosConfig: AxiosConfig): void{
     axios.defaults.baseURL = axiosConfig.baseURL
+    axios.defaults.headers.common.Accept = "application/hal+json, text/plain, */*"
 
     axios.interceptors.response.use(
         function(response){
             if(!response) throw new Error()
             if(response.data?.msg){
-                Notification.success(response.data?.msg);
+                Message.success(response.data?.msg);
             }
             return response.data ? response.data : response;
         },
@@ -45,8 +46,13 @@ export default function configAxios(axiosConfig: AxiosConfig): void{
                         msg = "请求失败"
                 }
             }
-            if(needNotify(config.ignoreNotifyOnStatus, response.status))
-                Notification.error(msg);
+            if(needNotify(config.ignoreNotifyOnStatus, response.status)) {
+                Message.error({
+                    message: msg,
+                    showClose: true,
+                    duration: 10000
+                })
+            }
             return Promise.reject(error)
         }
     )

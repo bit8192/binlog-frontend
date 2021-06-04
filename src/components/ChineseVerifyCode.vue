@@ -1,7 +1,7 @@
 <template>
 <div class="chinese-verify-code">
   <div class="chinese-verify-code-image-box" v-on:click="onVerifyCodeClick">
-    <el-image :src="'/verify-code?t=' + verifyCodeTimestamp" />
+    <el-image :src="'/api/verify-code?t=' + verifyCodeTimestamp" />
     <div
         class="chinese-verify-code-point"
         v-for="(point, index) in points" :key="point.x + '-' + point.y" :style="'left: ' + point.x + 'px; top: ' + point.y + 'px'"
@@ -51,8 +51,9 @@ export default {
       this.points = []
       this.verifyCodeTimestamp = new Date().getTime()
     },
-    onVerifyCodeClick(e: MouseEvent): void{
+    onVerifyCodeClick(e: MouseEvent | any): void{
       const target = e.target as HTMLElement
+      //点到已经选择的点，那么删除点
       if(target.className === "chinese-verify-code-point"){
         const index = parseInt(target.dataset.index)
         if(index >= 0 && index < this.points.length){
@@ -60,12 +61,20 @@ export default {
         }
         return;
       }
+      //如果超出数量那么不再添加
       if(this.points.length >= this.maxPointLen) return
-      const position = CommonUtils.getElementPosition(target)
-      this.points.push({
-        x: e.clientX - position.x,
-        y: e.clientY - position.y
-      })
+      if(e.layerX !== undefined && e.layerY !== undefined){
+        this.points.push({
+          x: e.layerX,
+          y: e.layerY
+        })
+      }else{
+        const position = CommonUtils.getElementPosition(target)
+        this.points.push({
+          x: e.clientX - position.clientLeft,
+          y: e.clientY - position.clientTop
+        })
+      }
     },
     /**
      * 获取验证提交所需数据

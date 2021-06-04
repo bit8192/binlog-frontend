@@ -29,3 +29,11 @@ export default function (keyGen: (args: any[])=>string = stringParamKeyGen) :any
 export function stringParamKeyGen(args: any[]) :string{
     return args.join(",")
 }
+
+/**
+ * 清除缓存
+ * @param fun
+ */
+export function clearCache(fun: (...args: any)=>any): void{
+    cache.delete(fun)
+}

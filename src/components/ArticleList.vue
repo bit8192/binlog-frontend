@@ -1,21 +1,27 @@
 <template>
   <div id="container-article">
-      <article-list-item v-for="article in articleList" :key="article.id" :info="article" />
+    <transition name="transition-from-bottom">
+      <template v-if="articleList.length">
+        <article-list-item v-for="article in articleList" :key="article.id" :info="article" />
+      </template>
+      <empty-data v-else />
+    </transition>
   </div>
 </template>
 
 <script lang="ts">
 import ArticleListItem from "@/components/ArticleListItem.vue";
 import Article from "@/domain/Article";
+import EmptyData from "@/components/EmptyData.vue";
 
-const pageSize = 20;
+// const pageSize = 20;
 interface Data{
   articleList: Article[]
   pageIndex: number
 }
 export default {
   name: "ArticleList",
-  components: {ArticleListItem},
+  components: {EmptyData, ArticleListItem},
   data() : Data{
     return {
       articleList: [],
@@ -68,14 +74,10 @@ export default {
     }
   },
   created(): void {
-    this.loadArticleList()
+    // this.loadArticleList()
   }
 
 }
 </script>
-
 <style scoped lang="scss">
-@import 'src/style/common';
-#container-article{
-}
 </style>

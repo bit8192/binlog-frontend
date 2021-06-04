@@ -106,7 +106,7 @@ export default {
 }
 </script>
 <style scoped lang="scss">
-@import "src/style/common";
+@import "src/style/mixin-common";
 
 $nav-padding-horizontal: 1em;
 #nav{

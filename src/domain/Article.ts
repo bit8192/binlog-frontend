@@ -1,19 +1,20 @@
 import Tag from "@/domain/Tag";
-import UploadFile from "@/domain/UploadFile";
 import ArticleClass from "@/domain/ArticleClass";
 import Author from "./Author";
+import NetDiskFile from "@/domain/NetDiskFile";
 
 export default interface Article {
     id?: number
     title?: string
     describe?: string
     tags?: Tag[]
-    cover?: string
+    cover?: NetDiskFile
     articleClass?: ArticleClass
     content?: string
-    isOrigin?: boolean
+    isOriginal?: boolean
     recommend?: boolean
     top?: boolean
+    public?: boolean
     orderNum?: number
     viewingNum?: number
     agreedNum?: number

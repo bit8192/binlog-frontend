@@ -1,5 +1,5 @@
 export default interface ArticleClass{
-    id: number
+    id?: number
     title: string
     visible?: boolean
     orderNum?: number

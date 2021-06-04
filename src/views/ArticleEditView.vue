@@ -1,51 +1,277 @@
 <template>
-  <el-card class="article-edit-view">
-    <el-form>
-      <el-form-item>
-        <el-input placeholder="文章标题" />
-      </el-form-item>
-      <el-form-item label="分类">
-        <el-select value/>
-      </el-form-item>
-      <el-form-item label="标签">
-        <el-select />
-      </el-form-item>
-      <el-form-item label="封面">
-        <el-upload />
-      </el-form-item>
-      <el-form-item label="摘要">
-        <el-input type="textarea" />
-      </el-form-item>
-    </el-form>
-    <markdown-editor v-model="content" />
-  </el-card>
+  <transition name="transition-from-bottom" appear>
+    <el-card class="article-edit-view">
+      <el-form ref="form" :model="article" :rules="formRules">
+        <el-form-item prop="title">
+          <el-input placeholder="文章标题" v-model="article.title" />
+        </el-form-item>
+        <el-form-item prop="articleClass">
+          <el-input
+              :value="article.articleClass ? article.articleClass.title : ''"
+              placeholder="类型"
+              style="width: 100%"
+              v-on:focus="()=>this.showArticleClassSelectDialog = true"
+              v-on:clear="()=>this.article.articleClass = null"
+              clearable
+          />
+        </el-form-item>
+        <el-form-item prop="tags">
+          <el-select
+              v-model="article.tags"
+              placeholder="标签"
+              style="width: 100%"
+              value-key="id"
+              :filter-method="tagSelectFilterFun"
+              v-on:change="onTagSelectChange"
+              :loading="tagSelectLoading"
+              multiple
+              filterable
+              default-first-option
+          >
+            <el-option v-for="tag of tagSearchResult" :key="tag.id" :value="tag" :label="tag.title">
+              <span v-if="tag.id === -1" class="text-primary" style="font-size: .85em; margin-right: 1em">新建</span>
+              <span>{{tag.title}}</span>
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="封面" prop="cover">
+          <img v-if="article.cover" :src="imagePath + article.cover.id" alt="封面图片" height="100%" style="cursor: pointer" v-on:click="showCoverSelectDialog = !showCoverSelectDialog" />
+          <div v-else class="article-edit-view-cover-select" v-on:click="showCoverSelectDialog = !showCoverSelectDialog">
+            <el-icon name="plus" style="display: block" />
+          </div>
+          <el-dialog :visible="showCoverSelectDialog" v-on:close="()=>(this.showCoverSelectDialog = false) || this.$refs.form.validateField('cover')">
+            <span slot="title">选择封面</span>
+            <net-disk-file-view v-on:open="onSelectCover" />
+          </el-dialog>
+        </el-form-item>
+        <el-form-item label="选项">
+          <el-checkbox label="公开" v-model="article.public" />
+          <el-checkbox label="原创" v-model="article.isOriginal" />
+          <el-checkbox label="推荐" v-model="article.recommend" />
+          <el-checkbox label="置顶" v-model="article.top" />
+        </el-form-item>
+        <el-form-item label="排序" prop="orderNum">
+          <el-input-number v-model="article.orderNum" :min="0" :max="999" />
+        </el-form-item>
+        <el-form-item label="摘要" prop="describe">
+          <el-input type="textarea" v-model="article.describe" />
+        </el-form-item>
+        <el-form-item label="正文" prop="content">
+          <markdown-editor :value="article.content" v-on:change="c=>article.content = c" style="width: 100%; line-height: initial" v-on:blur="()=>this.$refs.form.validateField('content')" />
+        </el-form-item>
+        <article-class-select-dialog
+            ref="articleClassSelectDialog"
+            :visible="showArticleClassSelectDialog"
+            v-on:select="onSelectArticleClass"
+            v-on:close="()=>(this.showArticleClassSelectDialog = false) || this.$refs.form.validateField('articleClass')"
+        />
+        <el-form-item>
+          <el-button type="success" size="lg" v-on:click="submit">提交</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+  </transition>
 </template>
 
 <script lang="ts">
 import MarkdownEditor from "@/components/MarkdownEditor.vue";
 import {Component, Vue} from "vue-property-decorator";
+import ArticleClassSelectDialog from "@/components/article-class/ArticleClassSelectDialog.vue";
+import ArticleClassVo from "@/domain/ArticleClassVo";
+import Article from "@/domain/Article";
+import Tag from "@/domain/Tag";
+import TagService from "@/service/TagService";
+import NetDiskFileView from "@/components/net-disk-file/NetDiskFileView.vue";
+import {URL_NET_DISK_FILE} from "@/constants/UrlApiNetDiskFile";
+import NetDiskFile from "@/domain/NetDiskFile";
+import {REG_EXP_IMAGE_FILE} from "@/constants/RegExp";
+import {ElForm} from "element-ui/types/form";
+import ArticleService from "@/service/ArticleService";
 
-interface Data{
-  content: string
+declare interface Data{
+  showArticleClassSelectDialog: boolean
+  showCoverSelectDialog: boolean
+  article: Article
+  tagList: Tag[]
+  tagSearchResult: Tag[]
+  tagSelectLoading: boolean
+  imagePath: string
 }
 
 @Component({
-  components: {MarkdownEditor},
+  components: {NetDiskFileView, ArticleClassSelectDialog, MarkdownEditor},
   data(): Data{
     return {
-      content: "# title  \nabcdefg\n> afwf\n* feda\n- afew\n+ afef\n"
+      showArticleClassSelectDialog: false,
+      showCoverSelectDialog: false,
+      article: {
+        title: '',
+        articleClass: null,
+        tags: [],
+        cover: null,
+        describe: '',
+        content: '',
+        isOriginal: true,
+        recommend: false,
+        top: false,
+        public: true,
+        orderNum: undefined,
+      },
+      tagList: [],
+      tagSearchResult: [],
+      tagSelectLoading: true,
+      imagePath: URL_NET_DISK_FILE + "/get/"
     }
   }
 })
 export default class ArticleEditView extends Vue{
+  showArticleClassSelectDialog!: boolean
+  showCoverSelectDialog!: boolean
+  article!: Article
+  tagList!: Tag[]
+  tagSearchResult!: Tag[]
+  tagSelectLoading!: boolean
+  formRules = {
+    title: [
+      { required: true, message: "必填项" },
+      { min: 2, max: 255, message: "输入2-255个字符" },
+    ],
+    articleClass: { required: true, message: "必填项" },
+    cover: { required: true, message: "必填项" },
+    orderNum: { min: 0, max: 999, message: "范围[0, 999]" },
+    describe: { required: true, message: "必填项" },
+    content: { required: true, message: "必填项" }
+  }
+  autoSaveInterval: number
+
   created(): void{
-    console.log(this.$route.params)
+    this.loadData()
+  }
+
+  async loadData(): Promise<void>{
+    if(this.$route.params.id !== 'new'){
+      if(localStorage.article){
+        try {
+          await this.$confirm("检测到本地保存有数据，是否进行编辑（否则将覆盖）")
+          this.article = JSON.parse(localStorage.article)
+        }catch (e) {
+          this.article = await ArticleService.getDetail(this.$route.params.id)
+        }
+      }
+    }else if(localStorage.article){
+      this.article = JSON.parse(localStorage.article)
+    }
+    await this.loadTagList()
+    this.autoSaveInterval = setInterval(this.autoSave, 30000)
+  }
+
+  destroyed(): void{
+    clearInterval(this.autoSaveInterval)
+  }
+
+  /**
+   * 自动保存
+   */
+  autoSave(): void{
+    if(this.article.content) {
+      localStorage.article = JSON.stringify(this.article)
+      this.$message.info("本地已保存")
+    }
+  }
+
+  /**
+   * 加载标签列表
+   */
+  private async loadTagList(): Promise<void>{
+    this.tagSelectLoading = true
+    try {
+      this.tagSearchResult = this.tagList = await TagService.listAll()
+    }finally {
+      this.tagSelectLoading = false
+    }
+  }
+
+  /**
+   * 当select改变时，查询是否选择了新增条目，如果选择了新增条目，那么进行创建操作
+   * @param data
+   * @private
+   */
+  private async onTagSelectChange(data: Tag[]): Promise<void>{
+    const newItem = data.find(i=>i.id === -1);
+    if(!newItem) {
+      this.tagSearchResult = this.tagList
+      return;
+    }
+    this.tagSelectLoading = true
+    try {
+      const result = await TagService.post(newItem)
+      const valueIndex = this.article.tags.findIndex(tag=>tag.id === -1)
+      this.article.tags[valueIndex] = result
+      this.tagList.push(result)
+      this.tagSearchResult = this.tagList
+    }finally {
+      this.tagSelectLoading = false
+    }
+  }
+
+  /**
+   * 标签列表过滤方法，添加新增选项
+   */
+  private tagSelectFilterFun(keyword: string){
+    let isFound = false
+    const result = this.tagList.filter(tag=>{
+      const index = tag.title.indexOf(keyword)
+      isFound = index === 0 && tag.title.length === keyword.length
+      return index > -1;
+    });
+    if(!isFound && keyword !== "" && keyword.length > 1) result.unshift({id: -1, title: keyword} as Tag)
+    this.tagSearchResult = result
+  }
+
+  /**
+   * 文章分类被选择
+   */
+  private onSelectArticleClass(articleClass: ArticleClassVo): void{
+    this.showArticleClassSelectDialog = false
+    this.article.articleClass = articleClass
+  }
+
+  private onSelectCover(file: NetDiskFile){
+    if(!file.name.match(REG_EXP_IMAGE_FILE)){
+      this.$message.error("请选择（jpg、jpeg、png、webp）文件")
+      return
+    }
+    this.article.cover = file
+    this.showCoverSelectDialog = false
+  }
+
+  private async submit(): Promise<void>{
+    const form = this.$refs.form as ElForm;
+    if(! await form.validate()) {
+      this.$message.error("请完成表单")
+      return
+    }
+    await ArticleService.add(this.article)
+    localStorage.removeItem('article')
+    this.$router.back()
   }
 }
 </script>
 
 <style scoped lang="scss">
+@import "src/style/var-color";
 .article-edit-view{
   margin-top: 1em;
+}
+.article-edit-view-cover-select{
+  display: inline-block;
+  border: #aaa dashed 1px;
+  border-radius: 6px;
+  padding: 3em;
+  cursor: pointer;
+}
+.is-error .article-edit-view-cover-select{
+  border: $color-danger dashed 1px;
+  color: $color-danger;
 }
 </style>

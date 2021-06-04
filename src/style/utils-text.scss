@@ -1,0 +1,37 @@
+//text
+.text-title{
+  color: #202020;
+}
+.text-sub{
+  color: #909699;
+}
+.text-content, .text-normal{
+  color: #232323;
+}
+.text-warning{
+  color: #f96e6e;
+}
+.text-danger{
+  color: #f93030;
+}
+.text-primary{
+  color: #0099ff;
+}
+.text-disable{
+  color: #d6d6d6;
+}
+.text-center{
+  text-align: center;
+}
+.text-left{
+  text-align: left;
+}
+.text-right{
+  text-align: right;
+}
+//单行文本省略
+.text-ellipsis{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

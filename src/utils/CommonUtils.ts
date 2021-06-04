@@ -19,14 +19,31 @@ export default class CommonUtils{
      * @param target 目标元素
      * @param relativeTarget 相对目标元素
      */
-    static getElementPosition(target: HTMLElement, relativeTarget: Element = document.scrollingElement): ElementPosition{
-        const result:ElementPosition = {x:0, y:0}
+    static getElementPosition(target: HTMLElement, relativeTarget: Element = document.body): ElementPosition{
+        const result:ElementPosition = {offsetLeft:0, offsetTop:0, clientLeft: 0, clientTop: 0}
         while (target && target !== relativeTarget && target !== target.parentElement){
-            result.x += target.offsetLeft
-            result.y += target.offsetTop
+            result.offsetLeft += target.offsetLeft
+            result.offsetTop += target.offsetTop
+            result.clientLeft += target.offsetLeft - target.scrollLeft
+            result.clientTop += target.offsetTop - target.scrollTop
             target = target.offsetParent as HTMLElement
         }
+        result.clientLeft -= document.scrollingElement.scrollLeft
+        result.clientTop -= document.scrollingElement.scrollTop
         return result
+    }
+
+    /**
+     * 判断一个节点是否是另一个节点的子节点
+     * @param target
+     * @param parent
+     */
+    static inElement(target: HTMLElement, parent: HTMLElement): boolean{
+        while (target){
+            target = target.parentElement
+            if(parent === target) return true
+        }
+        return false
     }
 
     /**
@@ -46,5 +63,30 @@ export default class CommonUtils{
             }
         }
         return result
+    }
+
+    /**
+     * 空函数, 一般用于忽略catch
+     */
+    static emptyFun() : void{
+        /*empty*/
+    }
+
+    /**
+     * 将字节大小转为人类可读
+     * @param size
+     */
+    static humanReadableSize(size: number): string{
+        if(size > 1024*1024*1024*1024){
+            return Math.floor(size/(1024*1024*1024*1024) * 100)/100 + "TB"
+        }else if(size > 1024*1024*1024){
+            return Math.floor(size/(1024*1024*1024) * 100)/100 + "GB"
+        }else if(size > 1024*1024){
+            return Math.floor(size/(1024*1024) * 100)/100 + "MB"
+        }else if(size > 1024){
+            return Math.floor(size/1024 * 100)/100 + "KB"
+        }else {
+            return size + "B"
+        }
     }
 }

@@ -13,7 +13,7 @@ module.exports = {
     //     loaderOptions: {
     //         sass: {
     //             additionalData: `
-    //             @import "src/style/common.scss";
+    //             @import "src/style/mixin-common.scss";
     //             `
     //         }
     //     }

@@ -1,0 +1,48 @@
+//float utils
+.clearfix::after{
+  content: '';
+  display: block;
+  clear: both;
+}
+.float-left{
+  float: left;
+}
+.float-right{
+  float: right;
+}
+
+//flex
+.flex-row{
+  display: flex;
+  flex-flow: row nowrap;
+}
+.flex-column{
+  display: flex;
+  flex-flow: column nowrap;
+}
+.justify-content-start{
+  justify-content: start;
+}
+.justify-content-end{
+  justify-content: end;
+}
+.justify-content-center{
+  justify-content: center;
+}
+.justify-content-between{
+  justify-content: space-between;
+}
+.align-items-start{
+  align-items: start;
+}
+.align-items-end{
+  align-items: end;
+}
+.align-items-center{
+  align-items: center;
+}
+
+//display
+.inline-block{
+  display: inline-block;
+}

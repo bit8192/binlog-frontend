@@ -1,6 +1,8 @@
 //这个文件主要存放全局样式配置
-@import "common";
+@import "mixin-common";
 @import "animate";
+@import "utils-layout";
+@import "utils-text";
 
 html{
   font-size: 14px;
@@ -48,22 +50,6 @@ a{
   margin-right: 0 !important;
 }
 
-//text
-.text-title{
-  color: #202020;
-}
-.text-sub{
-  color: #909699;
-}
-.text-content{
-  color: #232323;
-}
-//单行文本省略
-.text-ellipsis{
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 //修改el-tag样式
 .el-tag{
   background-color: transparent;
@@ -74,4 +60,9 @@ a{
   .el-tag{
     margin-right: 1em;
   }
+}
+
+//修改element dialog 样式
+.el-dialog>.el-dialog__body{
+  padding-top: 0;
 }

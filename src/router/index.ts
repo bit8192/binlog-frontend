@@ -7,6 +7,12 @@ Vue.use(VueRouter)
 
 const routes: Array<RouteConfig> = [
   {
+    path: '/test',
+    name: "Test",
+    meta: {title: "测试"},
+    component: ()=>import('../views/Test.vue')
+  },
+  {
     path: '/',
     name: 'Home',
     meta: {title: "首页"},
@@ -74,8 +80,12 @@ const router = new VueRouter({
 router.beforeEach(async (to, from, next) => {
   if(to.meta.title){
     document.title = to.meta.title
-    const systemProfile = await CommonService.getSystemProfile()
-    document.title = systemProfile.name + "|" + to.meta.title
+    try {
+      const systemProfile = await CommonService.getSystemProfile()
+      document.title = systemProfile.name + "|" + to.meta.title
+    }catch (e) {
+      //ignore
+    }
   }
   next()
 })
