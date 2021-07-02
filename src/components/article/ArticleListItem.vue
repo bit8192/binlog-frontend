@@ -3,7 +3,9 @@
     <el-card class="article-item" :body-style="{padding: 0}" shadow="hover">
       <router-link :to="'/article/' + info.id">
         <div class="article-item-header">
-          <el-image class="article-item-cover" :src="info.cover" fit="cover" lazy/>
+          <el-image class="article-item-cover" v-if="info.cover" :src="imagePath + info.cover.id" fit="cover" lazy>
+            <error-image slot="error" />
+          </el-image>
           <h2 class="article-item-title text-title text-ellipsis">
             {{info.title}}
           </h2>
@@ -11,9 +13,9 @@
       </router-link>
       <div class="article-item-body">
         <div>
-          <span class="text-sub text-article-item-info">{{ info.author && info.author.name || "未知作者" }}</span>
+          <span class="text-sub text-article-item-info">{{ info.createdUser.nickname || info.createdUser.username }}</span>
           <span class="text-sub text-article-item-info">发表于{{ info.createdDate }}</span>
-          <span class="text-sub text-article-item-info" v-if="info.isOrigin">原创文章</span>
+          <span class="text-sub text-article-item-info" v-if="info.isOriginal">原创文章</span>
           <span class="text-sub text-article-item-info" v-if="info.articleClass">
           <font-awesome-icon :icon="['fas', 'bars']" />
           {{info.articleClass.title}}
@@ -63,15 +65,22 @@ import {library} from "@fortawesome/fontawesome-svg-core"
 import {faShareSquare, faComment, faThumbsUp, faEye} from "@fortawesome/free-regular-svg-icons"
 import {faBars} from "@fortawesome/free-solid-svg-icons";
 import TransitionScrollView from "@/components/TransitionScrollView.vue";
+import ErrorImage from "@/components/ErrorImage.vue";
+import {URL_NET_DISK_FILE} from "@/constants/UrlApiNetDiskFile";
 
 library.add(faShareSquare, faComment, faThumbsUp, faEye, faBars)
 
 export default {
   name: "ArticleListItem",
-  components: {TransitionScrollView},
+  components: {ErrorImage, TransitionScrollView},
   props: {
     info: Object
   },
+  data(): any{
+    return {
+      imagePath: URL_NET_DISK_FILE + "/get/"
+    }
+  }
 }
 </script>
 <style scoped lang="scss">

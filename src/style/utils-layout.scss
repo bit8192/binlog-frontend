@@ -1,3 +1,4 @@
+@use "sass:map";
 //float utils
 .clearfix::after{
   content: '';
@@ -12,6 +13,11 @@
 }
 
 //flex
+@for $i from 1 through 3 {
+  .flex-#{$i}{
+    flex: $i;
+  }
+}
 .flex-row{
   display: flex;
   flex-flow: row nowrap;
@@ -41,8 +47,77 @@
 .align-items-center{
   align-items: center;
 }
+.align-items-baseline{
+  align-items: baseline;
+}
 
 //display
-.inline-block{
+.d-inline-block{
   display: inline-block;
+}
+.d-block{
+  display: block;
+}
+.position-relative{
+  position: relative;
+}
+.position-absolute{
+  position: absolute;
+}
+
+//margin and padding
+$spacer: 1rem;
+$spacers: (
+        0: 0,
+        1: $spacer / 4,
+        2: $spacer / 2,
+        3: $spacer,
+        4: $spacer * 1.5,
+        5: $spacer * 3,
+);
+@for $i from 0 through 5 {
+  .m-#{$i}{
+    margin: map.get($spacers, $i);
+  }
+  .mt-#{$i}{
+    margin-top: map.get($spacers, $i);
+  }
+  .mr-#{$i}{
+    margin-right: map.get($spacers, $i);
+  }
+  .mb-#{$i} {
+    margin-bottom: map.get($spacers, $i);
+  }
+  .ml-#{$i} {
+    margin-left: map.get($spacers, $i);
+  }
+  .mx-#{$i} {
+    margin-left: map.get($spacers, $i);
+    margin-right: map.get($spacers, $i);
+  }
+  .my-#{$i} {
+    margin-top: map.get($spacers, $i);
+    margin-bottom: map.get($spacers, $i);
+  }
+
+  .p-#{$i}{
+    padding: map.get($spacers, $i);
+  }
+  .pt-#{$i}{
+    padding-top: map.get($spacers, $i);
+  }
+  .pr-#{$i}{
+    padding-right: map.get($spacers, $i);
+  }
+  .pb-#{$i} {
+    padding-left: map.get($spacers, $i);
+  }
+  .px-#{$i} {
+    padding-left: map.get($spacers, $i);
+    padding-right: map.get($spacers, $i);
+  }
+  .py-#{$i} {
+    padding-top: map.get($spacers, $i);
+    padding-bottom: map.get($spacers, $i);
+  }
 }

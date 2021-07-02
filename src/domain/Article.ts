@@ -1,7 +1,7 @@
 import Tag from "@/domain/Tag";
 import ArticleClass from "@/domain/ArticleClass";
-import Author from "./Author";
 import NetDiskFile from "@/domain/NetDiskFile";
+import UserInfo from "@/domain/UserInfo";
 
 export default interface Article {
     id?: number
@@ -14,13 +14,14 @@ export default interface Article {
     isOriginal?: boolean
     recommend?: boolean
     top?: boolean
-    public?: boolean
+    isPublic?: boolean
     orderNum?: number
     viewingNum?: number
     agreedNum?: number
     commentNum?: number
     forwardingNum?: number
-    author?: Author
+    createdUser?: UserInfo
     createdDate?: string
     lastModifiedDate?: string
+    isAgreed?: boolean
 }

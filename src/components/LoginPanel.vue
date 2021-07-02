@@ -45,7 +45,7 @@ export default class LoginPanel extends Vue{
     try{
       const success = await AuthenticationService.authentication(this.username, this.password, verifyCode.getParams())
       if(success){
-        this.$emit("logged")
+        this.$emit("logged", await AuthenticationService.getSelfInfo())
       }else {
         //登录失败了，刷新验证码
         (this.$refs.verifyCode as any).refresh()

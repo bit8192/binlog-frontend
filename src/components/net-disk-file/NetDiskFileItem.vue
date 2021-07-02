@@ -7,7 +7,7 @@
       v-on:dblclick="e=>$emit('dblclick', e)"
       v-on:contextmenu="e=>$emit('contextmenu', e)"
   >
-    <div class="inline-block"><font-awesome-icon :icon="file.isDirectory ? 'folder' : 'file'" size="4x" /></div>
+    <div class="d-inline-block"><font-awesome-icon :icon="file.isDirectory ? 'folder' : 'file'" size="4x" /></div>
     <div>
       <input ref="renameInput" v-if="rename" class="net-disk-file-item-rename-input" v-model="renameValue" v-on:blur="renameComplete" v-on:keydown="e=>e.key === 'Enter' && renameComplete()" autofocus />
       <span v-else class="net-disk-file-item-title">{{file.name}}</span>

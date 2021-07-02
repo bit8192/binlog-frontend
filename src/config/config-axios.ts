@@ -1,5 +1,6 @@
 import axios, {AxiosError, AxiosRequestConfig} from "axios"
 import {Message} from 'element-ui'
+import NetworkError from "@/error/NetworkError";
 
 interface AxiosConfig {
     baseURL: string
@@ -53,7 +54,7 @@ export default function configAxios(axiosConfig: AxiosConfig): void{
                     duration: 10000
                 })
             }
-            return Promise.reject(error)
+            return Promise.reject(new NetworkError(error))
         }
     )
 }

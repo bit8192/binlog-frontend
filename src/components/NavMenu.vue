@@ -48,52 +48,52 @@ export default {
         },
         {
           id: 1,
-          title: "笔记",
+          title: "分类",
           visible: true,
-          route: "/article-list/note"
+          route: "/article/article-class"
         },
         {
-          id: 6,
-          title: "项目",
+          id: 2,
+          title: "标签",
           visible: true,
-          route: "/article-list/project"
+          route: "/article/tags"
         },
-        {
-          id: 7,
-          title: "杂谈",
-          visible: true,
-          route: "/article-list/other"
-        },
-        {
-          id: 9,
-          title: "工具",
-          visible: true,
-          route: "/tools"
-        },
-        {
-          id: 10,
-          title: "草稿",
-          visible: true,
-          route: "/draft"
-        },
-        {
-          id: 11,
-          title: "音乐",
-          visible: true,
-          route: "/music"
-        },
-        {
-          id: 12,
-          title: "软件",
-          visible: true,
-          route: "/article-list/program"
-        },
-        {
-          id: 13,
-          title: "生活",
-          visible: true,
-          route: "/article-list/life"
-        },
+        // {
+        //   id: 6,
+        //   title: "项目",
+        //   visible: true,
+        //   route: "/article-list/project"
+        // },
+        // {
+        //   id: 9,
+        //   title: "工具",
+        //   visible: true,
+        //   route: "/tools"
+        // },
+        // {
+        //   id: 10,
+        //   title: "草稿",
+        //   visible: true,
+        //   route: "/draft"
+        // },
+        // {
+        //   id: 11,
+        //   title: "音乐",
+        //   visible: true,
+        //   route: "/music"
+        // },
+        // {
+        //   id: 12,
+        //   title: "软件",
+        //   visible: true,
+        //   route: "/article-list/program"
+        // },
+        // {
+        //   id: 13,
+        //   title: "生活",
+        //   visible: true,
+        //   route: "/article-list/life"
+        // },
         {
           id: 14,
           title: "关于",

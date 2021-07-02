@@ -3,6 +3,7 @@
 @import "animate";
 @import "utils-layout";
 @import "utils-text";
+@import "utils-background";
 
 html{
   font-size: 14px;
@@ -24,6 +25,7 @@ a{
 #main{
   padding-top: 0;
   overflow: unset;
+  min-height: calc(100vh - 120px);
 }
 #footer{
   background-color: white;

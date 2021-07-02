@@ -1,24 +1,25 @@
 <template>
   <el-row class="container" type="flex" :gutter="10">
     <el-col :md="18" :xs="24">
-      <ArticleList style="margin-top: 1em" />
+      <article-page />
     </el-col>
     <el-col :md="6" :xs="24" class="home-panel-right">
       <user-state-panel style="margin-bottom: .5em" />
-      <tag-list class="tag-list" />
+      <tag-list-hot class="tag-list" />
     </el-col>
   </el-row>
 </template>
 
 <script lang="ts">
-import ArticleList from "@/components/ArticleList.vue";
-import TagList from "@/components/TagList.vue";
+import ArticlePage from "@/components/article/ArticlePage.vue";
+import TagListHot from "@/components/TagListHot.vue";
 import CommonService from "@/service/CommonService";
 import UserStatePanel from "@/components/UserStatePanel.vue";
 import {Component, Vue} from "vue-property-decorator";
 
 @Component({
-  components: {UserStatePanel, TagList, ArticleList},
+  components: {UserStatePanel, TagListHot, ArticlePage},
+  inject: ['app']
 })
 export default class Home extends Vue{
   async created() : Promise<void>{
@@ -38,7 +39,6 @@ export default class Home extends Vue{
   top: 1em;
 }
 .home-panel-right{
-  padding-top: 1em;
 }
 @media screen and (max-width: $device-width-xs){
   .container{

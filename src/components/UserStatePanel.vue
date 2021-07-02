@@ -5,62 +5,61 @@
       <div v-if="userInfo">
         <span>{{ userInfo.nickname || userInfo.username }}</span>
       </div>
-      <el-button type="text" v-else v-on:click="showLoginDialog = !showLoginDialog">登录/注册</el-button>
+      <el-button type="text" v-else v-on:click="openLoginDialog">登录/注册</el-button>
     </div>
     <div class="user-state-panel-btns" v-if="userInfo">
       <router-link to="/article/edit/new">
         <el-button style="width: 100%" size="small"><font-awesome-icon icon="plus" /></el-button>
       </router-link>
     </div>
-    <el-dialog
-        show-close
-        close-on-press-escape
-        :visible="showLoginDialog"
-        v-on:close="showLoginDialog = false"
-      >
-      <h2 slot="title">登录</h2>
-      <login-panel slot="default" v-on:logged="logged" />
-    </el-dialog>
   </el-card>
 </template>
 
 <script lang="ts">
 import UserInfo from "../domain/UserInfo";
 import AuthenticationService from "../service/AuthenticationService";
-import LoginPanel from "@/components/LoginPanel.vue";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {faPlus} from "@fortawesome/free-solid-svg-icons";
+import {Component, Vue} from "vue-property-decorator";
+import {AppProvider} from "@/App.vue";
 
 library.add(faPlus)
 
 interface Data{
   userInfo: UserInfo
-  showLoginDialog: boolean
 }
-export default {
-  name: "UserStatePanel",
-  components: {LoginPanel},
+@Component({
+  inject: ["app"],
+})
+export default class UserStatePanel extends Vue{
+  userInfo!: UserInfo
+  app!: AppProvider
+
   data(): Data{
     return {
       userInfo: null,
-      showLoginDialog: false
     }
-  },
+  }
+
   created(): void{
-    this.$_readUserInfo()
-  },
-  methods:{
-    async $_readUserInfo(): Promise<void>{
-      try {
-        this.userInfo = await AuthenticationService.getSelfInfo()
-      }catch (e) {
-        console.error("not login", e)
-      }
-    },
-    logged(): void{
-      this.showLoginDialog = false
-      this.$_readUserInfo()
-    }
+    this.app.registerOnLoggedEvent(this.logged)
+    this.readUserInfo()
+  }
+
+  beforeDestroy(): void{
+    this.app.removeOnLoggedEvent(this.logged)
+  }
+
+  private async readUserInfo(): Promise<void>{
+    this.userInfo = await AuthenticationService.getSelfInfo()
+  }
+
+  logged(userInfo: UserInfo): void{
+    this.userInfo = userInfo
+  }
+
+  openLoginDialog(): void{
+    this.app.openLoginDialog();
   }
 }
 </script>

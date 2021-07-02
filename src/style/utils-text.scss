@@ -20,6 +20,12 @@
 .text-disable{
   color: #d6d6d6;
 }
+.text-gainsboro{
+  color: gainsboro;
+}
+.text-white{
+  color: white;
+}
 .text-center{
   text-align: center;
 }
@@ -28,6 +34,9 @@
 }
 .text-right{
   text-align: right;
+}
+.text-bold{
+  font-weight: bold;
 }
 //单行文本省略
 .text-ellipsis{

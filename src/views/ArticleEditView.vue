@@ -45,7 +45,7 @@
           </el-dialog>
         </el-form-item>
         <el-form-item label="选项">
-          <el-checkbox label="公开" v-model="article.public" />
+          <el-checkbox label="公开" v-model="article.isPublic" />
           <el-checkbox label="原创" v-model="article.isOriginal" />
           <el-checkbox label="推荐" v-model="article.recommend" />
           <el-checkbox label="置顶" v-model="article.top" />
@@ -114,7 +114,7 @@ declare interface Data{
         isOriginal: true,
         recommend: false,
         top: false,
-        public: true,
+        isPublic: true,
         orderNum: undefined,
       },
       tagList: [],
@@ -157,6 +157,8 @@ export default class ArticleEditView extends Vue{
         }catch (e) {
           this.article = await ArticleService.getDetail(this.$route.params.id)
         }
+      }else{
+        this.article = await ArticleService.getDetail(this.$route.params.id)
       }
     }else if(localStorage.article){
       this.article = JSON.parse(localStorage.article)
@@ -251,7 +253,11 @@ export default class ArticleEditView extends Vue{
       this.$message.error("请完成表单")
       return
     }
-    await ArticleService.add(this.article)
+    if(this.$route.params.id === "new"){
+      await ArticleService.add(this.article)
+    }else{
+      await ArticleService.update(this.article)
+    }
     localStorage.removeItem('article')
     this.$router.back()
   }
