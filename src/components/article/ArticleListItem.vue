@@ -16,10 +16,10 @@
           <span class="text-sub text-article-item-info">{{ info.createdUser.nickname || info.createdUser.username }}</span>
           <span class="text-sub text-article-item-info">发表于{{ info.createdDate }}</span>
           <span class="text-sub text-article-item-info" v-if="info.isOriginal">原创文章</span>
-          <span class="text-sub text-article-item-info" v-if="info.articleClass">
-          <font-awesome-icon :icon="['fas', 'bars']" />
-          {{info.articleClass.title}}
-        </span>
+          <router-link :to="'/article/article-class/' + info.articleClass.id" class="text-sub text-article-item-info" v-if="info.articleClass">
+            <font-awesome-icon :icon="['fas', 'bars']" />
+            {{info.articleClass.title}}
+          </router-link>
         </div>
         <p class="text-content">
           {{ info.describe }}
@@ -35,7 +35,10 @@
           </el-col>
         </el-row>
         <div class="tag-group" v-if="info.tags && info.tags.length">
-          <el-tag v-for="tag in info.tags" :key="tag.id" size="mini" effect="plain">{{tag.title}}</el-tag>
+          <!--suppress JSUnresolvedVariable, JSUnusedLocalSymbols -->
+          <router-link v-for="tag of info.tags" :key="tag.id" :to="'/article/tags/' + tag.id">
+            <el-tag size="mini" effect="plain">{{tag.title}}</el-tag>
+          </router-link>
         </div>
         <div class="article-item-button-group no-margin-horizontal" :gutter="20">
           <el-button type="text" class="text-sub article-item-button">

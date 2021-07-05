@@ -3,7 +3,7 @@ import axios from "axios";
 import {MyAxiosRequestConfig} from "@/config/config-axios";
 import SuccessMsg from "@/domain/SuccessMsg";
 import Synchronized from "@/decorators/Synchronized";
-import {URL_AUTHENTICATION, URL_LOGOUT, URL_SELF_INFO} from "@/constants/UrlApiAuthentication";
+import {URL_AUTHORIZE, URL_LOGOUT, URL_SELF_INFO} from "@/constants/UrlApiAuthentication";
 
 export default class AuthenticationService{
     /**
@@ -23,7 +23,7 @@ export default class AuthenticationService{
      */
     static async authentication(username: string, password: string, verifyCode: unknown): Promise<boolean>{
         const result = await axios.post<SuccessMsg, SuccessMsg>(
-            URL_AUTHENTICATION,
+            URL_AUTHORIZE,
             `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`,
             {
                 headers: {

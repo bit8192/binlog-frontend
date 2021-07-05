@@ -83,6 +83,12 @@ const routes: Array<RouteConfig> = [
     name: "Tools",
     meta: {title: "工具"},
     component: () => import('../views/Tools.vue')
+  },
+  {
+    path: "*",
+    name: "404",
+    meta: {title: "404"},
+    component: () => import('../views/404.vue')
   }
 ]
 
