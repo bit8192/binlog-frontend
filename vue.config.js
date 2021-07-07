@@ -1,3 +1,7 @@
+// noinspection NodeCoreCodingAssistance
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const path = require('path')
+
 module.exports = {
     devServer: {
         proxy: {
@@ -8,6 +12,7 @@ module.exports = {
             }
         }
     },
+    outputDir: path.resolve("../binlog/target/classes/static")
     //自动倒入没有提示，IDE会出现警告，索性手敲
     // css: {
     //     loaderOptions: {

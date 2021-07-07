@@ -21,7 +21,7 @@ configNProgress()
 Vue.use(ElementUI)
 
 //系统配置
-configAxios({baseURL: "http://localhost:8080"})
+configAxios({})
 
 new Vue({
   router,

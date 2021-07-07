@@ -3,7 +3,7 @@ import {Message} from 'element-ui'
 import NetworkError from "@/error/NetworkError";
 
 interface AxiosConfig {
-    baseURL: string
+    baseURL?: string
 }
 export interface MyAxiosRequestConfig extends AxiosRequestConfig{
     ignoreNotifyOnStatus?: number | number[]

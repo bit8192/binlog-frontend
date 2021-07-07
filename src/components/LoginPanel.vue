@@ -13,7 +13,7 @@
         </el-form-item>
       </el-form>
       <el-divider><span class="text-sub">合作帐号登录</span></el-divider>
-      <el-button type="primary" v-on:click="qqLogin">
+      <el-button type="primary" v-on:click="qqLogin" v-if="useQQAuthorize">
         <div style="line-height: 30px">
           <img alt="qq-logo" :src="qqImage" style="width: 25px; height: 30px; float: left" class="pr-2" /> QQ帐号登录
         </div>
@@ -32,6 +32,7 @@ import AuthenticationService from "@/service/AuthenticationService";
 import { Component, Vue } from 'vue-property-decorator';
 import NotificationErrorHandler from "@/decorators/NotificationErrorHandler";
 import { URL_AUTHORIZE_QQ } from "@/constants/UrlApiAuthentication";
+import CommonService from "@/service/CommonService";
 
 @Component({
   components: {ChineseVerifyCode},
@@ -39,13 +40,25 @@ import { URL_AUTHORIZE_QQ } from "@/constants/UrlApiAuthentication";
     return {
       username: "",
       password: "",
-      qqImage: require('@/assets/qq.png')
+      qqImage: require('@/assets/qq.png'),
+      useQQAuthorize: false
     }
   }
 })
 export default class LoginPanel extends Vue{
   username: string
   password: string
+  useQQAuthorize: boolean
+
+  async created(): Promise<void>{
+    const profiles = await CommonService.getSystemProfile()
+    this.useQQAuthorize = profiles.useQQAuthorize;
+  }
+
+  refreshVerifyCode(): void{
+    const verifyCode = this.$refs.verifyCode as ChineseVerifyCode
+    verifyCode.refresh()
+  }
 
   @NotificationErrorHandler()
   async login(): Promise<void>{
@@ -53,6 +66,8 @@ export default class LoginPanel extends Vue{
     try{
       const success = await AuthenticationService.authentication(this.username, this.password, verifyCode.getParams())
       if(success){
+        this.username = ""
+        this.password = ""
         this.$emit("logged", await AuthenticationService.getSelfInfo())
       }else {
         //登录失败了，刷新验证码
@@ -70,7 +85,7 @@ export default class LoginPanel extends Vue{
    * qq帐号登录
    */
   private async qqLogin(): Promise<void>{
-    var result = window.open(URL_AUTHORIZE_QQ, "TencentLogin", "width=450,height=320,menubar=0,scrollbars=1,resizable=1,status=1,titlebar=0,toolbar=0,location=1")
+    const result = window.open(URL_AUTHORIZE_QQ, "TencentLogin", "width=450,height=320,menubar=0,scrollbars=1,resizable=1,status=1,titlebar=0,toolbar=0,location=1")
     console.log(result)
   }
 }

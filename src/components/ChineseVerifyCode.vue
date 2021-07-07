@@ -19,17 +19,13 @@
 <script lang="ts">
 import CommonUtils from "@/utils/CommonUtils";
 import NotificationError from "@/error/NotificationError";
+import {Component, Vue} from "vue-property-decorator";
 
 interface Point{
   x: number
   y: number
 }
-interface Data{
-  verifyCodeTimestamp: number,
-  points: Point[]
-}
-export default {
-  name: "ChineseVerifyCode",
+@Component({
   props: {
     minPointLen: {
       type: Number,
@@ -40,51 +36,58 @@ export default {
       default: 4
     }
   },
-  data(): Data{
+  data(): any{
     return {
       verifyCodeTimestamp: new Date().getTime(),
       points: []
     }
-  },
-  methods: {
-    refresh(): void{
-      this.points = []
-      this.verifyCodeTimestamp = new Date().getTime()
-    },
-    onVerifyCodeClick(e: MouseEvent | any): void{
-      const target = e.target as HTMLElement
-      //点到已经选择的点，那么删除点
-      if(target.className === "chinese-verify-code-point"){
-        const index = parseInt(target.dataset.index)
-        if(index >= 0 && index < this.points.length){
-          this.points.splice(index, this.points.length - index)
-        }
-        return;
+  }
+})
+export default class ChineseVerifyCode extends Vue{
+  minPointLen: number
+  maxPointLen: number
+  verifyCodeTimestamp: number
+  points: Point[]
+
+  refresh(): void{
+    this.points = []
+    this.verifyCodeTimestamp = new Date().getTime()
+  }
+
+  onVerifyCodeClick(e: MouseEvent | any): void{
+    const target = e.target as HTMLElement
+    //点到已经选择的点，那么删除点
+    if(target.className === "chinese-verify-code-point"){
+      const index = parseInt(target.dataset.index)
+      if(index >= 0 && index < this.points.length){
+        this.points.splice(index, this.points.length - index)
       }
-      //如果超出数量那么不再添加
-      if(this.points.length >= this.maxPointLen) return
-      if(e.layerX !== undefined && e.layerY !== undefined){
-        this.points.push({
-          x: e.layerX,
-          y: e.layerY
-        })
-      }else{
-        const position = CommonUtils.getElementPosition(target)
-        this.points.push({
-          x: e.clientX - position.clientLeft,
-          y: e.clientY - position.clientTop
-        })
-      }
-    },
-    /**
-     * 获取验证提交所需数据
-     */
-    getParams(): any{
-      if(this.points.length < this.minPointLen){
-        throw new NotificationError("请完成验证码验证")
-      }
-      return CommonUtils.map2obj(new Map(this.points.map((p, i)=>['point' + i, p.x + ',' + p.y])))
+      return;
     }
+    //如果超出数量那么不再添加
+    if(this.points.length >= this.maxPointLen) return
+    if(e.layerX !== undefined && e.layerY !== undefined){
+      this.points.push({
+        x: e.layerX,
+        y: e.layerY
+      })
+    }else{
+      const position = CommonUtils.getElementPosition(target)
+      this.points.push({
+        x: e.clientX - position.clientLeft,
+        y: e.clientY - position.clientTop
+      })
+    }
+  }
+
+  /**
+   * 获取验证提交所需数据
+   */
+  getParams(): any{
+    if(this.points.length < this.minPointLen){
+      throw new NotificationError("请完成验证码验证")
+    }
+    return CommonUtils.map2obj(new Map(this.points.map((p, i)=>['point' + i, p.x + ',' + p.y])))
   }
 }
 </script>

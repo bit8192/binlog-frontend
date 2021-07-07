@@ -17,10 +17,6 @@ import ArticleClass from "@/domain/ArticleClass";
 import {Component, Vue} from "vue-property-decorator";
 import {ElForm} from "element-ui/types/form";
 
-declare interface Data{
-  articleClass: ArticleClass
-  formRules: any
-}
 @Component({
   name: "ArticleClassForm",
   props: {
@@ -41,9 +37,9 @@ export default class ArticleClassForm extends Vue{
   articleClass!: ArticleClass
   formRules!: any
 
-  data(): Data{
+  data(): any{
     return {
-      articleClass: {title: ""},
+      articleClass: {title: "", visible: true},
       formRules: {
         title: [
           {required: true, message: '请输入标题', trigger: 'blur'},

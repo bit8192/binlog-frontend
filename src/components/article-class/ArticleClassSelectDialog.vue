@@ -100,7 +100,7 @@ export default class ArticleClassSelect extends Vue{
    * 添加新的文章分类
    */
   private addArticleClass(): void{
-    this.articleClass = {title: ""}
+    this.articleClass = {title: "", visible: true}
     this.addArticleClassParent = null
     this.addOrEdit = true
     this.showArticleClassDialog = true
@@ -111,7 +111,7 @@ export default class ArticleClassSelect extends Vue{
    */
   private addSubArticleClass(e: TouchEvent, data: ArticleClassVo): void{
     e.stopPropagation()
-    this.articleClass = {title: ""}
+    this.articleClass = {title: "", visible: true}
     this.addArticleClassParent = data
     this.addOrEdit = true
     this.showArticleClassDialog = true

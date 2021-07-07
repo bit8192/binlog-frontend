@@ -1,7 +1,8 @@
 import { VueLoaderPlugin } from 'vue-loader'
 
 module.exports = {
-    mode: "development",
+    // mode: "development",
+    mode: "production",
     module: {
         rules: [
             {

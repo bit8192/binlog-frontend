@@ -29,7 +29,7 @@
         v-on:close="showLoginDialog = false"
     >
       <h2 slot="title">登录</h2>
-      <login-panel slot="default" v-on:logged="logged" />
+      <login-panel ref="loginPanel" slot="default" v-on:logged="logged" />
     </el-dialog>
   </div>
 </template>
@@ -79,6 +79,13 @@ export interface AppProvider{
           if(index < 0) return
           this.onLoggedEventFunctions.splice(index, 1)
         }
+      }
+    }
+  },
+  watch: {
+    showLoginDialog(value: boolean): void{
+      if(value && this.$refs.loginPanel){
+        (this.$refs.loginPanel as LoginPanel).refreshVerifyCode()
       }
     }
   }

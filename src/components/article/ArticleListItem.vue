@@ -13,6 +13,8 @@
       </router-link>
       <div class="article-item-body">
         <div>
+          <span class="text-warning text-article-item-info" v-if="info.top"><font-awesome-icon icon="thumbtack" />置顶</span>
+          <span class="text-warning text-article-item-info" v-if="info.recommend"><font-awesome-icon icon="fire" />推荐</span>
           <span class="text-sub text-article-item-info">{{ info.createdUser.nickname || info.createdUser.username }}</span>
           <span class="text-sub text-article-item-info">发表于{{ info.createdDate }}</span>
           <span class="text-sub text-article-item-info" v-if="info.isOriginal">原创文章</span>
@@ -66,12 +68,12 @@
 <script lang="ts">
 import {library} from "@fortawesome/fontawesome-svg-core"
 import {faShareSquare, faComment, faThumbsUp, faEye} from "@fortawesome/free-regular-svg-icons"
-import {faBars} from "@fortawesome/free-solid-svg-icons";
+import {faBars, faFire, faThumbtack} from "@fortawesome/free-solid-svg-icons";
 import TransitionScrollView from "@/components/TransitionScrollView.vue";
 import ErrorImage from "@/components/ErrorImage.vue";
 import {URL_NET_DISK_FILE} from "@/constants/UrlApiNetDiskFile";
 
-library.add(faShareSquare, faComment, faThumbsUp, faEye, faBars)
+library.add(faShareSquare, faComment, faThumbsUp, faEye, faBars, faThumbtack, faFire)
 
 export default {
   name: "ArticleListItem",

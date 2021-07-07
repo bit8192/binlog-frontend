@@ -3,4 +3,5 @@ export default interface SystemProfile{
     copyRight?: string
     ipc?: string
     github?: string
+    useQQAuthorize?: boolean
 }
