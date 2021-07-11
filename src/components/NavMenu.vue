@@ -1,6 +1,7 @@
 <template>
   <div id="nav">
-    <h1 style="flex: 1;">{{profile && profile.name || "Blog"}}</h1>
+    <img :src="logo" alt="logo" height="50" />
+    <h1 id="nav-title" style="flex: 1;">{{profile && profile.name || "Blog"}}</h1>
     <slot/>
     <el-menu mode="horizontal" router :default-active="$route.path" class="hidden-sm-and-down">
       <template v-for="item in menu">
@@ -27,19 +28,16 @@
 </template>
 
 <script lang="ts">
-import NavMenuItem from "@/domain/NavMenuItem";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {faBars} from "@fortawesome/free-solid-svg-icons";
 library.add(faBars)
 
-interface Data{
-  menu: NavMenuItem[]
-}
 export default {
   name: "NavMenu",
   props: ['profile'],
-  data(): Data{
+  data(): any{
     return {
+      logo: require("@/assets/logo.png"),
       menu: [
         {
           id: 0,
@@ -107,6 +105,7 @@ export default {
 </script>
 <style scoped lang="scss">
 @import "src/style/mixin-common";
+@import "src/style/var-device-width";
 
 $nav-padding-horizontal: 1em;
 #nav{
@@ -119,6 +118,12 @@ $nav-padding-horizontal: 1em;
   @include background-nav;
   .el-menu{
     border-bottom: none;
+  }
+}
+
+@media (max-width: $device-width-md) {
+  #nav-title{
+    font-size: 1.5em;
   }
 }
 </style>

@@ -98,7 +98,7 @@ export default class CommentList extends Vue{
     this.loadCommentPage()
   }
 
-  unmounted(): void{
+  beforeDestroy(): void{
     document.removeEventListener("scroll", this.onScroll)
   }
 

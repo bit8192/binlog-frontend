@@ -5,4 +5,5 @@ export default interface UserInfo{
     headImg: string
     roles?: string[]
     locked?: boolean
+    isBlogger?: boolean
 }

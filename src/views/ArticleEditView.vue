@@ -35,7 +35,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="封面" prop="cover">
-          <img v-if="article.cover" :src="imagePath + article.cover.id" alt="封面图片" height="100%" style="cursor: pointer" v-on:click="showCoverSelectDialog = !showCoverSelectDialog" />
+          <img v-if="article.cover" :src="imagePath + article.cover.id" alt="封面图片" height="100%" style="cursor: pointer; max-width: 100%" v-on:click="showCoverSelectDialog = !showCoverSelectDialog" />
           <div v-else class="article-edit-view-cover-select" v-on:click="showCoverSelectDialog = !showCoverSelectDialog">
             <el-icon name="plus" style="display: block" />
           </div>
@@ -164,10 +164,10 @@ export default class ArticleEditView extends Vue{
       this.article = JSON.parse(localStorage.article)
     }
     await this.loadTagList()
-    this.autoSaveInterval = setInterval(this.autoSave, 30000)
+    this.autoSaveInterval = setInterval(this.autoSave, 600000)//十分钟自动保存一次
   }
 
-  destroyed(): void{
+  beforeDestroy(): void{
     clearInterval(this.autoSaveInterval)
   }
 
@@ -223,7 +223,7 @@ export default class ArticleEditView extends Vue{
     let isFound = false
     const result = this.tagList.filter(tag=>{
       const index = tag.title.indexOf(keyword)
-      isFound = index === 0 && tag.title.length === keyword.length
+      if(!isFound) isFound = index === 0 && tag.title.length === keyword.length
       return index > -1;
     });
     if(!isFound && keyword !== "" && keyword.length > 1) result.unshift({id: -1, title: keyword} as Tag)
@@ -253,6 +253,8 @@ export default class ArticleEditView extends Vue{
       this.$message.error("请完成表单")
       return
     }
+
+    //提交
     if(this.$route.params.id === "new"){
       await ArticleService.add(this.article)
     }else{

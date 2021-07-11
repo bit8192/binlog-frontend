@@ -17,6 +17,7 @@
           </span>
             <div class="text-article-info article-tag-list">
               <font-awesome-icon icon="tag"/>
+              <!--suppress JSUnusedLocalSymbols, JSUnresolvedVariable -->
               <router-link v-for="tag of info.tags" :key="tag.id" :to="'/tag/' + tag.id" class="text-article-tag">
                 {{tag.title}}
               </router-link>
@@ -128,16 +129,16 @@ export default class ArticleView extends Vue{
   }
 
   created() : void{
-    setTimeout(()=>this.loadArticle(), 0)
-    this.app.registerOnLoggedEvent(this.logged)
+    this.loadArticle()
+    this.app.addUserInfoChangeListener(this.onUserInfoChange)
   }
 
-  logged(userInfo: UserInfo): void{
+  onUserInfoChange(userInfo: UserInfo): void{
     this.userInfo = userInfo
   }
 
   beforeDestroy(): void{
-    this.app.removeOnLoggedEvent(this.logged)
+    this.app.removeUserInfoChangeListener(this.onUserInfoChange)
   }
 
   beforeRouteUpdate(): void{

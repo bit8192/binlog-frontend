@@ -1,77 +1,147 @@
 <template>
   <el-card shadow="hover">
-    <div class="user-state-panel-head">
-      <el-avatar :src="userInfo ? userInfo.headImg : ''" class="user-state-panel-head-img" />
-      <div v-if="userInfo">
-        <span>{{ userInfo.nickname || userInfo.username }}</span>
+    <div class="text-center pt-5">
+      <el-avatar :src="userInfo ? userInfo.headImg : ''" :size="80" />
+      <div>
+        <span v-if="userInfo">{{ userInfo.nickname || userInfo.username }}</span>
+        <el-button v-else type="text" v-on:click="openLoginDialog">登录/注册</el-button>
       </div>
-      <el-button type="text" v-else v-on:click="openLoginDialog">登录/注册</el-button>
     </div>
-    <div class="user-state-panel-btns" v-if="userInfo">
-      <router-link to="/article/edit/new">
-        <el-button style="width: 100%" size="small"><font-awesome-icon icon="plus" /></el-button>
-      </router-link>
+    <div class="flex-row justify-content-center align-items-center">
+      <div class="text-center">
+        <span class="d-block user-integral">{{ (userInfo && userInfo.agreedNum) || "-"}}</span>
+        <span class="d-block text-sub">获赞</span>
+      </div>
+      <span class="user-state-panel-divider" />
+      <div class="text-center">
+        <span class="d-block user-integral">{{ (userInfo && userInfo.articleNum) || "-"}}</span>
+        <span class="d-block text-sub">文章</span>
+      </div>
     </div>
+    <div class="user-state-panel-btns flex-row justify-content-center align-items-center text-sub" v-if="userInfo">
+      <template v-if="userInfo.isBlogger">
+        <router-link to="/article/edit/new">
+          写文章
+        </router-link>
+        <span class="user-state-panel-divider" />
+      </template>
+      <el-button type="text" class="text-sub" v-on:click="()=>this.showChangePasswordDialog = !this.showChangePasswordDialog">
+        修改密码
+      </el-button>
+      <span class="user-state-panel-divider" />
+      <el-button type="text" class="text-sub" v-on:click="logout">
+        注销
+      </el-button>
+    </div>
+    <el-dialog :visible="showChangePasswordDialog">
+      <el-form :model="passwordFormData" :rules="passwordFormRule" ref="changePasswordForm">
+        <el-form-item label="新密码" prop="password">
+          <el-input type="password" v-model="passwordFormData.password" />
+        </el-form-item>
+        <el-form-item label="再次输入" prop="repeat_password">
+          <el-input type="password" v-model="passwordFormData.repeat_password" />
+        </el-form-item>
+        <el-button type="primary" v-on:click="submitChangePassword">确定</el-button>
+      </el-form>
+    </el-dialog>
   </el-card>
 </template>
 
 <script lang="ts">
-import UserInfo from "../domain/UserInfo";
 import AuthenticationService from "../service/AuthenticationService";
-import {library} from "@fortawesome/fontawesome-svg-core";
-import {faPlus} from "@fortawesome/free-solid-svg-icons";
 import {Component, Vue} from "vue-property-decorator";
 import {AppProvider} from "@/App.vue";
+import UserDetail from "@/domain/UserDetail";
+import {ElForm} from "element-ui/types/form";
 
-library.add(faPlus)
-
-interface Data{
-  userInfo: UserInfo
-}
 @Component({
   inject: ["app"],
 })
 export default class UserStatePanel extends Vue{
-  userInfo!: UserInfo
+  userInfo!: UserDetail
   app!: AppProvider
+  showChangePasswordDialog: boolean
+  passwordFormData: {password: string, repeat_password: string}
+  passwordFormRule: any
 
-  data(): Data{
+  data(): any{
     return {
       userInfo: null,
+      showChangePasswordDialog: false,
+      passwordFormData: {password: "", repeat_password: ""},
+      passwordFormRule: {
+        password: {pattern: "[a-zA-Z0-9~!@#$%^&*()_+`\\-=\\[\\]{}|\\\\;':\",./<>? ]{6,16}", message: "密码由6-16位的字母、数字、符号和空格组成"},
+        repeat_password: {
+          validator: (rule: any, value: string): Promise<any> => {
+            if(value === this.passwordFormData.password){
+              return Promise.resolve()
+            }else{
+              return Promise.reject("")
+            }
+          },
+          message: "两次输入密码不一致"
+        }
+      }
     }
   }
 
   created(): void{
-    this.app.registerOnLoggedEvent(this.logged)
+    this.app.addUserInfoChangeListener(this.onUserInfoChange)
     this.readUserInfo()
   }
 
   beforeDestroy(): void{
-    this.app.removeOnLoggedEvent(this.logged)
+    this.app.removeUserInfoChangeListener(this.onUserInfoChange)
   }
 
   private async readUserInfo(): Promise<void>{
-    this.userInfo = await AuthenticationService.getSelfInfo()
+    if(this.app.isLogged()){
+      this.userInfo = await AuthenticationService.getSelfInfo()
+    }
   }
 
-  logged(userInfo: UserInfo): void{
+  onUserInfoChange(userInfo: UserDetail): void{
     this.userInfo = userInfo
   }
 
   openLoginDialog(): void{
     this.app.openLoginDialog();
   }
+
+  /**
+   * 注销
+   */
+  async logout(): Promise<void>{
+    await this.app.logout()
+  }
+
+  /**
+   * 修改密码
+   */
+  async submitChangePassword(): Promise<void>{
+    const form = this.$refs.changePasswordForm as ElForm;
+    if(!(await form.validate())) return;
+    const result = await AuthenticationService.changePassword(this.passwordFormData.password)
+    if(result.value){
+      this.showChangePasswordDialog = false
+      this.$message.success("修改成功")
+    }else{
+      this.$message.warning("修改失败")
+    }
+  }
 }
 </script>
 
 <style scoped lang="scss">
-.user-state-panel-head{
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
+.user-integral{
+  font-size: 1.5em;
 }
-.user-state-panel-head-img{
-  margin-right: 1em;
+.user-state-panel-divider{
+  display: inline-block;
+  width: 1px;
+  height: 1.2em;
+  background-color: #dcdef6;
+  margin: 0 1em;
 }
 .user-state-panel-btns{
   margin-top: 1em;

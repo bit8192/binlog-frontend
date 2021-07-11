@@ -49,7 +49,7 @@ export default class ArticlePage extends Vue{
     this.elementPosition = CommonUtils.getElementPosition(this.$el as HTMLElement)
   }
 
-  unmounted(): void{
+  beforeDestroy(): void{
     document.removeEventListener("scroll", this.onStroll)
   }
 

@@ -7,7 +7,7 @@ export default function (keyGen: (args: any[])=>string = stringParamKeyGen) :any
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) :any{
         const method = descriptor.value
         descriptor.value = function (...args) {
-            let resultMap = cache.get(method)
+            let resultMap = cache.get(method) as Map<any, any>
             if(!resultMap){
                 resultMap = new Map()
                 cache.set(method, resultMap)
@@ -16,6 +16,9 @@ export default function (keyGen: (args: any[])=>string = stringParamKeyGen) :any
             let result = resultMap.get(key)
             if(!result){
                 result = method.apply(this, args)
+                if(result && result.then){
+                    result.catch(()=>resultMap.delete(key))
+                }
                 resultMap.set(key, result)
             }
             return result

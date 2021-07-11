@@ -42,17 +42,18 @@ import {faGithub} from "@fortawesome/free-brands-svg-icons";
 import {Component, Vue} from "vue-property-decorator";
 import LoginPanel from "@/components/LoginPanel.vue";
 import NetworkError from "@/error/NetworkError";
-import UserInfo from "@/domain/UserInfo";
 import AuthenticationService from "@/service/AuthenticationService";
+import UserDetail from "@/domain/UserDetail";
 
 library.add(faGithub)
 
 export interface AppProvider{
   isLogged: ()=>boolean
-  getLoggedUserInfo: ()=>UserInfo
+  getLoggedUserInfo: ()=>UserDetail
   openLoginDialog: ()=>void
-  registerOnLoggedEvent: (fun: (UserInfo)=>void)=>void
-  removeOnLoggedEvent: (fun: (UserInfo)=>void)=>void
+  addUserInfoChangeListener: (fun: (UserDetail)=>void)=>void
+  removeUserInfoChangeListener: (fun: (UserDetail)=>void)=>void
+  logout: ()=>Promise<void>
 }
 
 @Component({
@@ -71,13 +72,17 @@ export interface AppProvider{
           this.showLoginDialog = true
         },
         //向下级组件提供事件注册方法
-        registerOnLoggedEvent: (fun: (UserInfo)=>void)=>{
-          this.onLoggedEventFunctions.push(fun)
+        addUserInfoChangeListener: (fun: (UserDetail)=>void)=>{
+          this.userInfoChangeListeners.push(fun)
         },
-        removeOnLoggedEvent: (fun: (UserInfo)=>void)=>{
-          const index = this.onLoggedEventFunctions.findIndex(f=>f===fun)
+        removeUserInfoChangeListener: (fun: (UserDetail)=>void)=>{
+          const index = this.userInfoChangeListeners.findIndex(f=>f===fun)
           if(index < 0) return
-          this.onLoggedEventFunctions.splice(index, 1)
+          this.userInfoChangeListeners.splice(index, 1)
+        },
+        //通知注销
+        logout: async ()=>{
+          this.logout()
         }
       }
     }
@@ -93,8 +98,8 @@ export interface AppProvider{
 export default class App extends Vue{
   systemProfile!: SystemProfile
   showLoginDialog!: boolean
-  onLoggedEventFunctions = new Array<(UserInfo) => void>()
-  userInfo?: UserInfo
+  userInfoChangeListeners = new Array<(UserInfo) => void>()
+  userInfo?: UserDetail
 
   data(): any {
     return {
@@ -113,13 +118,26 @@ export default class App extends Vue{
     }
   }
 
-  logged(userInfo: UserInfo): void{
+  logged(userInfo: UserDetail): void{
     this.userInfo = userInfo
     this.showLoginDialog = false
-    this.onLoggedEventFunctions.forEach(fun=>{
+    this.userInfoChangeListeners.forEach(fun=>{
       try{
         fun(userInfo)
       }catch (e){
+        console.error(e)
+      }
+    })
+  }
+
+  async logout(): Promise<void>{
+    await AuthenticationService.logout()
+    this.userInfo = null
+    this.showLoginDialog = true
+    this.userInfoChangeListeners.forEach(fun=>{
+      try {
+        fun(null)
+      }catch (e) {
         console.error(e)
       }
     })

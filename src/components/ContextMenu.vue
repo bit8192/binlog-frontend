@@ -50,7 +50,7 @@ export default class ContextMenu extends Vue{
     this.offsetParent.addEventListener("contextmenu", this.onContextMenu)
   }
 
-  unmounted(): void{
+  beforeDestroy(): void{
     this.offsetParent.removeEventListener("contextmenu", this.onContextMenu)
   }
 

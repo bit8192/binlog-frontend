@@ -9,6 +9,9 @@
           <el-input type="password" placeholder="密码" v-model="password" />
         </el-form-item>
         <el-form-item>
+          <el-checkbox label="下次记住我" v-model="rememberMe" />
+        </el-form-item>
+        <el-form-item>
           <el-button type="primary" style="width: 100%" v-on:click="login">登录</el-button>
         </el-form-item>
       </el-form>
@@ -40,6 +43,7 @@ import CommonService from "@/service/CommonService";
     return {
       username: "",
       password: "",
+      rememberMe: false,
       qqImage: require('@/assets/qq.png'),
       useQQAuthorize: false
     }
@@ -49,6 +53,7 @@ export default class LoginPanel extends Vue{
   username: string
   password: string
   useQQAuthorize: boolean
+  rememberMe: boolean
 
   async created(): Promise<void>{
     const profiles = await CommonService.getSystemProfile()
@@ -64,7 +69,7 @@ export default class LoginPanel extends Vue{
   async login(): Promise<void>{
     const verifyCode: any = this.$refs.verifyCode
     try{
-      const success = await AuthenticationService.authentication(this.username, this.password, verifyCode.getParams())
+      const success = await AuthenticationService.authentication(this.username, this.password, verifyCode.getParams(), this.rememberMe)
       if(success){
         this.username = ""
         this.password = ""

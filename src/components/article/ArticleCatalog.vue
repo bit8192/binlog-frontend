@@ -89,9 +89,8 @@ export default class ArticleCatalog extends Vue{
     }
   }
 
-  unmounted() : void{
+  beforeDestroy() : void{
     document.removeEventListener("scroll", this.$_targetScrollEventListener)
-    console.log("unmounted")
   }
 
     //章节点击事件
@@ -160,6 +159,9 @@ export default class ArticleCatalog extends Vue{
     const tmpHeaders = headers.concat()
     //开始遍历
     while ((header = tmpHeaders.shift())){
+      // if((header as HTMLElement).innerText === "expect_user"){
+      //   debugger;
+      // }
       //父节点
       let prevSection :Section|null
       //当前节点
@@ -197,9 +199,13 @@ export default class ArticleCatalog extends Vue{
         else{
           do{
             sectionStack.pop()
-          }while (sectionStack.length && sectionStack[sectionStack.length - 1].parent != null && sectionStack[sectionStack.length - 1].nodeName[1] < header.nodeName[1])
+          }while (sectionStack.length && sectionStack[sectionStack.length - 1].parent != null && sectionStack[sectionStack.length - 1].nodeName[1] > header.nodeName[1])
           if(sectionStack.length){
-            section.parent = sectionStack[sectionStack.length - 1].parent
+            const parentSection = sectionStack[sectionStack.length - 1].parent
+            if(parentSection) {
+              section.parent = parentSection
+              parentSection.children.push(section)
+            }
           }
           sectionStack.push(section)
         }
@@ -253,6 +259,6 @@ function getSectionFromHeader(header: HTMLElement): Section{
 }
 .catalog-section-container{
   overflow-y: auto;
-  max-height: calc(100vh - 2.5em - 49px);
+  max-height: calc(100vh - 2.5em - 100px);
 }
 </style>
