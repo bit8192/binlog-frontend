@@ -38,7 +38,7 @@
       <el-button size="small" v-on:click="fullscreen"><font-awesome-icon :icon="fullscreen ? 'compress' : 'expand'" size="lg" /></el-button>
     </el-tooltip>
     <el-dialog :visible="showUploadPanel" v-on:close="showUploadPanel = false">
-      <net-disk-file-view v-on:open="onSelectFile" />
+      <net-disk-file-list v-on:open="onSelectFile" />
     </el-dialog>
   </div>
   <div class="markdown-editor-main">
@@ -99,7 +99,7 @@ import CodeMirror from "codemirror";
 import NetDiskFile from "@/domain/NetDiskFile";
 import {URL_NET_DISK_FILE} from "@/constants/UrlApiNetDiskFile";
 import {REG_EXP_IMAGE_FILE} from "@/constants/RegExp";
-import NetDiskFileView from "@/components/net-disk-file/NetDiskFileView.vue";
+import NetDiskFileList from "@/components/net-disk-file/NetDiskFileList.vue";
 library.add(
     faBold,
     faItalic,
@@ -134,7 +134,7 @@ interface Data{
 let prevEditorWidth = 0
 @Component({
   components: {
-    NetDiskFileView,
+    NetDiskFileList,
     DragSplit, MarkdownItVue: MarkdownItVue as VueComponent, VueCodemirror: codemirror as VueComponent},
   props: {
     value: String

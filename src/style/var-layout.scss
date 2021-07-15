@@ -1,0 +1,5 @@
+$nav-height: 60px;
+$footer-height: 60px;
+$content-padding-top: 1em;
+$content-padding-bottom: 2em;
+$router-view-height: calc(100vh - #{$nav-height} - #{$footer-height} - #{$content-padding-top} - #{$content-padding-bottom})

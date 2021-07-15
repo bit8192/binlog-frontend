@@ -41,7 +41,7 @@
           </div>
           <el-dialog :visible="showCoverSelectDialog" v-on:close="()=>(this.showCoverSelectDialog = false) || this.$refs.form.validateField('cover')">
             <span slot="title">选择封面</span>
-            <net-disk-file-view v-on:open="onSelectCover" />
+            <net-disk-file-list v-on:open="onSelectCover" />
           </el-dialog>
         </el-form-item>
         <el-form-item label="选项">
@@ -81,7 +81,7 @@ import ArticleClassVo from "@/domain/ArticleClassVo";
 import Article from "@/domain/Article";
 import Tag from "@/domain/Tag";
 import TagService from "@/service/TagService";
-import NetDiskFileView from "@/components/net-disk-file/NetDiskFileView.vue";
+import NetDiskFileList from "@/components/net-disk-file/NetDiskFileList.vue";
 import {URL_NET_DISK_FILE} from "@/constants/UrlApiNetDiskFile";
 import NetDiskFile from "@/domain/NetDiskFile";
 import {REG_EXP_IMAGE_FILE} from "@/constants/RegExp";
@@ -99,7 +99,7 @@ declare interface Data{
 }
 
 @Component({
-  components: {NetDiskFileView, ArticleClassSelectDialog, MarkdownEditor},
+  components: {NetDiskFileList, ArticleClassSelectDialog, MarkdownEditor},
   data(): Data{
     return {
       showArticleClassSelectDialog: false,

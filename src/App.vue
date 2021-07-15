@@ -7,7 +7,7 @@
     </el-header>
     <el-main id="main">
       <el-row type="flex" justify="center">
-        <el-col :sm="16" :xs="24" id="content" style="padding-top: 1em">
+        <el-col :sm="16" :xs="24" id="content">
           <router-view/>
         </el-col>
       </el-row>
@@ -23,6 +23,7 @@
       </span>
     </el-footer>
     <el-dialog
+        id="login-dialog"
         show-close
         close-on-press-escape
         :visible="showLoginDialog"
@@ -50,6 +51,7 @@ library.add(faGithub)
 export interface AppProvider{
   isLogged: ()=>boolean
   getLoggedUserInfo: ()=>UserDetail
+  updateUserInfo: ()=>Promise<void>
   openLoginDialog: ()=>void
   addUserInfoChangeListener: (fun: (UserDetail)=>void)=>void
   removeUserInfoChangeListener: (fun: (UserDetail)=>void)=>void
@@ -67,6 +69,12 @@ export interface AppProvider{
         },
         //获取当前登录用户信息
         getLoggedUserInfo: ()=>this.userInfo,
+        /**
+         * 通知更新用户信息
+         */
+        updateUserInfo: async ()=>{
+          this.logged(await AuthenticationService.getSelfInfo())
+        },
         //提供打开登录页面弹窗接口
         openLoginDialog: ()=>{
           this.showLoginDialog = true
@@ -116,6 +124,13 @@ export default class App extends Vue{
     }catch (e){
       //ignore
     }
+    this.checkRedirect()
+  }
+
+  checkRedirect(): void{
+    if(this.$route.query.redirectUrl){
+      location.replace(this.$route.query.redirectUrl as string)
+    }
   }
 
   logged(userInfo: UserDetail): void{
@@ -162,3 +177,8 @@ export default class App extends Vue{
   }
 }
 </script>
+
+<style lang="scss">
+@import "src/style/var-device-width";
+
+</style>

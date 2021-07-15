@@ -1,7 +1,10 @@
 <template>
   <el-card shadow="hover">
     <div class="text-center pt-5">
-      <el-avatar :src="userInfo ? userInfo.headImg : ''" :size="80" />
+      <router-link to="/user/change-head-image" title="更换头像" v-if="userInfo">
+        <el-avatar :src="userInfo ? userInfo.headImg : ''" :size="80" style="cursor: pointer"/>
+      </router-link>
+      <el-avatar src="" :size="80" v-else/>
       <div>
         <span v-if="userInfo">{{ userInfo.nickname || userInfo.username }}</span>
         <el-button v-else type="text" v-on:click="openLoginDialog">登录/注册</el-button>
@@ -19,13 +22,13 @@
       </div>
     </div>
     <div class="user-state-panel-btns flex-row justify-content-center align-items-center text-sub" v-if="userInfo">
-      <template v-if="userInfo.isBlogger">
+      <template v-if="userInfo.isBlogger || userInfo.isAdmin">
         <router-link to="/article/edit/new">
           写文章
         </router-link>
         <span class="user-state-panel-divider" />
       </template>
-      <el-button type="text" class="text-sub" v-on:click="()=>this.showChangePasswordDialog = !this.showChangePasswordDialog">
+      <el-button type="text" class="text-sub" v-on:click="()=>this.showChangePasswordDialog = true">
         修改密码
       </el-button>
       <span class="user-state-panel-divider" />
@@ -33,7 +36,7 @@
         注销
       </el-button>
     </div>
-    <el-dialog :visible="showChangePasswordDialog">
+    <el-dialog :visible="showChangePasswordDialog" v-on:close="()=>this.showChangePasswordDialog = false">
       <el-form :model="passwordFormData" :rules="passwordFormRule" ref="changePasswordForm">
         <el-form-item label="新密码" prop="password">
           <el-input type="password" v-model="passwordFormData.password" />
@@ -81,7 +84,7 @@ export default class UserStatePanel extends Vue{
           },
           message: "两次输入密码不一致"
         }
-      }
+      },
     }
   }
 

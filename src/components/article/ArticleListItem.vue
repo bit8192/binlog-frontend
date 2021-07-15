@@ -1,68 +1,66 @@
 <template>
-  <transition-scroll-view name="transition-from-bottom">
-    <el-card class="article-item" :body-style="{padding: 0}" shadow="hover">
-      <router-link :to="'/article/' + info.id">
-        <div class="article-item-header">
-          <el-image class="article-item-cover" v-if="info.cover" :src="imagePath + info.cover.id" fit="cover" lazy>
-            <error-image slot="error" />
-          </el-image>
-          <h2 class="article-item-title text-title text-ellipsis">
-            {{info.title}}
-          </h2>
-        </div>
-      </router-link>
-      <div class="article-item-body">
-        <div>
-          <span class="text-warning text-article-item-info" v-if="info.top"><font-awesome-icon icon="thumbtack" />置顶</span>
-          <span class="text-warning text-article-item-info" v-if="info.recommend"><font-awesome-icon icon="fire" />推荐</span>
-          <span class="text-sub text-article-item-info">{{ info.createdUser.nickname || info.createdUser.username }}</span>
-          <span class="text-sub text-article-item-info">发表于{{ info.createdDate }}</span>
-          <span class="text-sub text-article-item-info" v-if="info.isOriginal">原创文章</span>
-          <router-link :to="'/article/article-class/' + info.articleClass.id" class="text-sub text-article-item-info" v-if="info.articleClass">
-            <font-awesome-icon :icon="['fas', 'bars']" />
-            {{info.articleClass.title}}
-          </router-link>
-        </div>
-        <p class="text-content">
-          {{ info.describe }}
-        </p>
-        <el-row class="article-item-image" :gutter="5" v-if="info.images && info.images.length">
-          <el-col
-              v-for="img in info.images"
-              :key="img"
-              :xs="info.images.length > 3 ? 6 : 24/info.images.length"
-              :sm="4"
-          >
-            <el-image :src="img" :preview-src-list="info.images" fit="contain"/>
-          </el-col>
-        </el-row>
-        <div class="tag-group" v-if="info.tags && info.tags.length">
-          <!--suppress JSUnresolvedVariable, JSUnusedLocalSymbols -->
-          <router-link v-for="tag of info.tags" :key="tag.id" :to="'/article/tags/' + tag.id">
-            <el-tag size="mini" effect="plain">{{tag.title}}</el-tag>
-          </router-link>
-        </div>
-        <div class="article-item-button-group no-margin-horizontal" :gutter="20">
-          <el-button type="text" class="text-sub article-item-button">
-            <font-awesome-icon :icon="['far', 'share-square']" />
-            <span style="padding-left: .5em">{{info.forwardingNum}}</span>
-          </el-button>
-          <el-button type="text" class="text-sub article-item-button">
-            <font-awesome-icon :icon="['far', 'comment']" />
-            <span style="padding-left: .5em">{{info.commentNum}}</span>
-          </el-button>
-          <el-button type="text" class="text-sub article-item-button">
-            <font-awesome-icon :icon="['far', 'thumbs-up']" />
-            <span style="padding-left: .5em">{{info.agreedNum}}</span>
-          </el-button>
-          <el-button type="text" class="text-sub article-item-button">
-            <font-awesome-icon :icon="['far', 'eye']" />
-            <span style="padding-left: .5em">{{info.viewingNum}}</span>
-          </el-button>
-        </div>
+  <el-card class="article-item" :body-style="{padding: 0}" shadow="hover">
+    <router-link :to="'/article/' + info.id">
+      <div class="article-item-header">
+        <el-image class="article-item-cover" v-if="info.cover" :src="imagePath + info.cover.id" fit="cover" lazy>
+          <error-image slot="error" />
+        </el-image>
+        <h2 class="article-item-title text-title text-ellipsis">
+          {{info.title}}
+        </h2>
       </div>
-    </el-card>
-  </transition-scroll-view>
+    </router-link>
+    <div class="article-item-body">
+      <div>
+        <span class="text-warning text-article-item-info" v-if="info.top"><font-awesome-icon icon="thumbtack" />置顶</span>
+        <span class="text-warning text-article-item-info" v-if="info.recommend"><font-awesome-icon icon="fire" />推荐</span>
+        <span class="text-sub text-article-item-info">{{ info.createdUser.nickname || info.createdUser.username }}</span>
+        <span class="text-sub text-article-item-info">发表于{{ info.createdDate }}</span>
+        <span class="text-sub text-article-item-info" v-if="info.isOriginal">原创文章</span>
+        <router-link :to="'/article/article-class/' + info.articleClass.id" class="text-sub text-article-item-info" v-if="info.articleClass">
+          <font-awesome-icon :icon="['fas', 'bars']" />
+          {{info.articleClass.title}}
+        </router-link>
+      </div>
+      <p class="text-content">
+        {{ info.describe }}
+      </p>
+      <el-row class="article-item-image" :gutter="5" v-if="info.images && info.images.length">
+        <el-col
+            v-for="img in info.images"
+            :key="img"
+            :xs="info.images.length > 3 ? 6 : 24/info.images.length"
+            :sm="4"
+        >
+          <el-image :src="img" :preview-src-list="info.images" fit="contain"/>
+        </el-col>
+      </el-row>
+      <div class="tag-group" v-if="info.tags && info.tags.length">
+        <!--suppress JSUnresolvedVariable, JSUnusedLocalSymbols -->
+        <router-link v-for="tag of info.tags" :key="tag.id" :to="'/article/tags/' + tag.id">
+          <el-tag size="mini" effect="plain">{{tag.title}}</el-tag>
+        </router-link>
+      </div>
+      <div class="article-item-button-group no-margin-horizontal" :gutter="20">
+        <el-button type="text" class="text-sub article-item-button">
+          <font-awesome-icon :icon="['far', 'share-square']" />
+          <span style="padding-left: .5em">{{info.forwardingNum}}</span>
+        </el-button>
+        <el-button type="text" class="text-sub article-item-button">
+          <font-awesome-icon :icon="['far', 'comment']" />
+          <span style="padding-left: .5em">{{info.commentNum}}</span>
+        </el-button>
+        <el-button type="text" class="text-sub article-item-button">
+          <font-awesome-icon :icon="['far', 'thumbs-up']" />
+          <span style="padding-left: .5em">{{info.agreedNum}}</span>
+        </el-button>
+        <el-button type="text" class="text-sub article-item-button">
+          <font-awesome-icon :icon="['far', 'eye']" />
+          <span style="padding-left: .5em">{{info.viewingNum}}</span>
+        </el-button>
+      </div>
+    </div>
+  </el-card>
 </template>
 
 <script lang="ts">
@@ -72,11 +70,11 @@ import {faBars, faFire, faThumbtack} from "@fortawesome/free-solid-svg-icons";
 import TransitionScrollView from "@/components/TransitionScrollView.vue";
 import ErrorImage from "@/components/ErrorImage.vue";
 import {URL_NET_DISK_FILE} from "@/constants/UrlApiNetDiskFile";
+import {Component, Vue} from "vue-property-decorator";
 
 library.add(faShareSquare, faComment, faThumbsUp, faEye, faBars, faThumbtack, faFire)
 
-export default {
-  name: "ArticleListItem",
+@Component({
   components: {ErrorImage, TransitionScrollView},
   props: {
     info: Object
@@ -86,6 +84,8 @@ export default {
       imagePath: URL_NET_DISK_FILE + "/get/"
     }
   }
+})
+export default class ArticleListItem extends Vue{
 }
 </script>
 <style scoped lang="scss">

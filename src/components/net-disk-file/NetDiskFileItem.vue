@@ -7,9 +7,17 @@
       v-on:dblclick="e=>$emit('dblclick', e)"
       v-on:contextmenu="e=>$emit('contextmenu', e)"
   >
-    <div class="d-inline-block"><font-awesome-icon :icon="file.isDirectory ? 'folder' : 'file'" size="4x" /></div>
-    <div>
-      <input ref="renameInput" v-if="rename" class="net-disk-file-item-rename-input" v-model="renameValue" v-on:blur="renameComplete" v-on:keydown="e=>e.key === 'Enter' && renameComplete()" autofocus />
+    <div :class="'d-inline-block' + (file.isDirectory ? ' icon-folder' : ' icon-file')"><font-awesome-icon :icon="file.isDirectory ? 'folder' : 'file'" size="4x" /></div>
+    <div class="px-1">
+      <input
+          ref="renameInput"
+          v-if="rename"
+          class="net-disk-file-item-rename-input"
+          v-model="renameValue"
+          v-on:blur="()=>$emit('renameCancel')"
+          v-on:keydown="e=>e.key === 'Enter' && renameComplete()"
+          autofocus
+      />
       <span v-else class="net-disk-file-item-title">{{file.name}}</span>
     </div>
   </div>
@@ -56,6 +64,7 @@ export default class NetDiskFileItem extends Vue{
   }
 
   getTitle(): string{
+    if(this.file.isDirectory) return this.file.name;
     return this.file.name + "," + CommonUtils.humanReadableSize(this.file.size)
   }
 
@@ -83,9 +92,7 @@ export default class NetDiskFileItem extends Vue{
   line-height: initial;
 }
 .net-disk-file-item-title{
-  margin-left: .5em;
-  margin-right: .5em;
-  @include text-ellipsis(2)
+  @include text-ellipsis(1)
 }
 .net-disk-file-item-rename-input{
   max-width: 100%;
@@ -93,5 +100,14 @@ export default class NetDiskFileItem extends Vue{
 .net-disk-file-item-selected .net-disk-file-item-title{
   background-color: $color-selected;
   color: $color-text-selected;
+  word-wrap: anywhere;
+  @include text-ellipsis(2)
+}
+.icon-folder{
+  //color: gold;
+  color: orange;
+}
+.icon-file{
+  color: gray;
 }
 </style>

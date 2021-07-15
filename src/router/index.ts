@@ -85,6 +85,18 @@ const routes: Array<RouteConfig> = [
     component: () => import('../views/Tools.vue')
   },
   {
+    path: "/user/change-head-image",
+    name: "ChangeHeadImage",
+    meta: {title: "修改头像"},
+    component: () => import('../views/UserChangeHeadImageView.vue')
+  },
+  {
+    path: "/net-disk-file/*",
+    name: "NetDiskFile",
+    meta: {title: "网盘"},
+    component: () => import('../views/NetDiskFileView.vue')
+  },
+  {
     path: "*",
     name: "404",
     meta: {title: "404"},

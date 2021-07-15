@@ -4,6 +4,8 @@
 @import "utils-layout";
 @import "utils-text";
 @import "utils-background";
+@import "var-layout";
+@import "var-device-width";
 
 html{
   font-size: 14px;
@@ -21,13 +23,16 @@ a{
 }
 #header{
   padding: 0;
+  height: $nav-height !important;
 }
 #main{
   padding-top: 0;
+  padding-bottom: 0;
   overflow: unset;
   min-height: calc(100vh - 120px);
 }
 #footer{
+  height: $footer-height;
   background-color: white;
   display: flex;
   flex-wrap: wrap;
@@ -39,6 +44,8 @@ a{
   }
 }
 #content{
+  padding-top: $content-padding-top;
+  padding-bottom: $content-padding-bottom;
   @include background-content;
 }
 
@@ -67,4 +74,14 @@ a{
 //修改element dialog 样式
 .el-dialog>.el-dialog__body{
   padding-top: 0;
+}
+.el-dialog>.el-dialog__header>.el-dialog__headerbtn{
+  top: 8px;
+  right: 10px;
+}
+@media (max-width: $device-width-md) {
+  .el-dialog{
+    width: 90%;
+    margin-top: 10vh !important;
+  }
 }

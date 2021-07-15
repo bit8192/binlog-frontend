@@ -25,6 +25,10 @@ export default class ArticleService{
         })
     }
 
+    public static view(articleId: number | string): Promise<void>{
+        return axios.post(URL_ARTICLE + "/" + articleId + "/view")
+    }
+
     /**
      * 通过分类分页查找
      * @param id

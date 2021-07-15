@@ -6,4 +6,5 @@ export default interface UserInfo{
     roles?: string[]
     locked?: boolean
     isBlogger?: boolean
+    isAdmin?: boolean
 }

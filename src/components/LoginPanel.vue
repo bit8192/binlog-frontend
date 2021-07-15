@@ -1,32 +1,33 @@
 <template>
-  <el-row type="flex">
-    <el-col :span="12">
-      <el-form ref="form">
-        <el-form-item>
-          <el-input placeholder="帐号/手机/邮箱" v-model="username" />
-        </el-form-item>
-        <el-form-item>
-          <el-input type="password" placeholder="密码" v-model="password" />
-        </el-form-item>
-        <el-form-item>
-          <el-checkbox label="下次记住我" v-model="rememberMe" />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" style="width: 100%" v-on:click="login">登录</el-button>
-        </el-form-item>
-      </el-form>
-      <el-divider><span class="text-sub">合作帐号登录</span></el-divider>
+  <el-tabs>
+    <el-tab-pane label="合作帐号登录" v-if="useQQAuthorize">
       <el-button type="primary" v-on:click="qqLogin" v-if="useQQAuthorize">
         <div style="line-height: 30px">
           <img alt="qq-logo" :src="qqImage" style="width: 25px; height: 30px; float: left" class="pr-2" /> QQ帐号登录
         </div>
       </el-button>
-    </el-col>
-    <el-divider direction="vertical" />
-    <el-col :span="12">
-      <chinese-verify-code ref="verifyCode" />
-    </el-col>
-  </el-row>
+    </el-tab-pane>
+    <el-tab-pane label="帐号密码登录" class="usernamePasswordLoginPanel flex-row justify-content-between">
+      <div class="flex-1">
+        <el-form ref="form">
+          <el-form-item>
+            <el-input placeholder="帐号/手机/邮箱" v-model="username" />
+          </el-form-item>
+          <el-form-item>
+            <el-input type="password" placeholder="密码" v-model="password" />
+          </el-form-item>
+          <el-form-item>
+            <el-checkbox label="下次记住我" v-model="rememberMe" />
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" style="width: 100%" v-on:click="login">登录</el-button>
+          </el-form-item>
+        </el-form>
+      </div>
+      <chinese-verify-code ref="verifyCode" class="ml-2" />
+    </el-tab-pane>
+  </el-tabs>
+
 </template>
 
 <script lang="ts">
@@ -96,6 +97,11 @@ export default class LoginPanel extends Vue{
 }
 </script>
 
-<style scoped>
-
+<style lang="scss" scoped>
+@import "src/style/var-device-width";
+@media (max-width: $device-width-md) {
+  .usernamePasswordLoginPanel{
+    flex-direction: column;
+  }
+}
 </style>

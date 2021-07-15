@@ -1,5 +1,5 @@
 <template>
-<div>
+<div class="flex-column">
   <div class="flex-row align-items-center net-disk-file-view-tools-bar">
     <el-button-group style="margin-right: 1em">
       <el-button size="small" :disabled="!(currentHistoryIndex !== -1 && currentHistoryIndex !== 0 && history.length > 1)" v-on:click="back">
@@ -21,7 +21,7 @@
     </el-input>
   </div>
   <!--suppress HtmlDeprecatedAttribute -->
-  <div ref="files" class="net-disk-file-view-files" v-on:click="onBoxClick" v-on:contextmenu="onBoxContextmenu">
+  <div ref="files" class="net-disk-file-view-files flex-1 flex-row align-items-start" v-on:click="onBoxClick" v-on:contextmenu="onBoxContextmenu">
     <template v-if="fileList.length">
       <!--suppress HtmlDeprecatedAttribute -->
       <net-disk-file-item
@@ -31,6 +31,7 @@
           :rename="renameFileId === file.id"
           :selected="selectedFileIds.has(file.id)"
           v-on:renameComplete="name=>onRenameComplete(file, name)"
+          v-on:renameCancel="()=>onRenameCancel(file)"
           v-on:click="e=>onItemClick(e, file)"
           v-on:contextmenu="e=>onItemContextMenu(e, file)"
           v-on:dblclick="e=>onItemDblclick(e, file)"
@@ -39,7 +40,13 @@
     <empty-data v-else />
     <context-menu :items="menuItems" v-on:click-item="onContextMenuItemClick" />
     <el-dialog :visible="showUploadPanel" v-on:close="showUploadPanel = false" append-to-body>
-      <net-disk-file-upload-panel :additional-permission="currentDirectory.writable" :parent-id="currentDirectory ? currentDirectory.id : null" v-on:complete="onUploadComplete" />
+      <net-disk-file-upload-panel :additional-permission="currentDirectory && currentDirectory.writable" :parent-id="currentDirectory ? currentDirectory.id : null" v-on:complete="onUploadComplete" />
+    </el-dialog>
+    <el-dialog :visible="showMoveToDirSelectDialog" v-on:close="showMoveToDirSelectDialog = false" append-to-body>
+      <net-disk-file-tree ref="moveToDirSelect" :is-directory="true" v-on:clickItem="moveSelectedTo" show-root />
+    </el-dialog>
+    <el-dialog :visible="showPropertiesDialog" v-on:close="showPropertiesDialog = false" append-to-body>
+      <net-disk-file-properties :id="showPropertiesTargetId" v-if="showPropertiesTargetId" />
     </el-dialog>
   </div>
 </div>
@@ -55,22 +62,13 @@ import EmptyData from "@/components/EmptyData.vue";
 import ContextMenu, {ContextMenuItem} from "@/components/ContextMenu.vue";
 import NetDiskFileItem from "@/components/net-disk-file/NetDiskFileItem.vue";
 import NetDiskFileUploadPanel from "@/components/net-disk-file/NetDiskFileUploadPanel.vue";
+import {URL_NET_DISK_FILE} from "@/constants/UrlApiNetDiskFile";
+import NetDiskFileTree from "@/components/net-disk-file/NetDiskFileTree.vue";
+import NetDiskFileProperties from "@/components/net-disk-file/NetDiskFileProperties.vue";
 library.add(faAngleLeft, faAngleRight)
 
-declare interface Data{
-  currentHistoryIndex: number
-  history: number[]
-  fileList: NetDiskFile[]
-  parents: NetDiskFile[]
-  menuItems: {[key:string]: ContextMenuItem}
-  //重命名文件下标
-  renameFileId: number | null
-  selectedFileIds: Set<number>
-  currentDirectory: NetDiskFile
-  showUploadPanel: boolean
-}
 @Component({
-  components: {NetDiskFileUploadPanel, NetDiskFileItem, ContextMenu, EmptyData},
+  components: {NetDiskFileProperties, NetDiskFileTree, NetDiskFileUploadPanel, NetDiskFileItem, ContextMenu, EmptyData},
   props: {
     initPathId: Number
   },
@@ -87,19 +85,19 @@ declare interface Data{
         this.menuItems.createDirectory.disabled = true
         this.menuItems.upload.disabled = true
       }
+      this.$emit("change", value)
     },
     selectedFileIds(value: Set<number>): void{
       const hasSelected = !!value.size
       this.menuItems.rename.disabled = !hasSelected
-      this.menuItems.properties.disabled = !hasSelected
       this.menuItems.delete.disabled = !hasSelected
-      this.menuItems.copy.disabled = !hasSelected
-      this.menuItems.paste.disabled = !hasSelected
-      this.menuItems.download.disabled = !(value.size === 1 && !this.fileList[0].isDirectory)
+      this.menuItems.download.disabled = !(value.size === 1 && !this.fileList.find(f=>value.has(f.id)).isDirectory);
+      this.menuItems.move.disabled = !hasSelected
+      this.menuItems.properties.disabled = !hasSelected
     }
   }
 })
-export default class NetDiskFileView extends Vue implements Data{
+export default class NetDiskFileList extends Vue{
   currentHistoryIndex!: number
   history!: number[]
   initPathId!: number
@@ -110,8 +108,11 @@ export default class NetDiskFileView extends Vue implements Data{
   selectedFileIds!: Set<number>;
   currentDirectory!: NetDiskFile
   showUploadPanel!: boolean
+  showMoveToDirSelectDialog: boolean
+  showPropertiesDialog: boolean
+  showPropertiesTargetId: number
 
-  data(): Data{
+  data(): any{
     return {
       currentHistoryIndex: -1,
       history: [],
@@ -121,6 +122,9 @@ export default class NetDiskFileView extends Vue implements Data{
       selectedFileIds: new Set<number>(),
       currentDirectory: null,
       showUploadPanel: false,
+      showMoveToDirSelectDialog: false,
+      showPropertiesDialog: false,
+      showPropertiesTargetId: null,
       menuItems: {
         refresh: {
           title: '刷新'
@@ -143,12 +147,8 @@ export default class NetDiskFileView extends Vue implements Data{
           title: '删除',
           disabled: true
         },
-        copy: {
-          title: '复制',
-          disabled: true
-        },
-        paste: {
-          title: '粘贴',
+        move: {
+          title: '移动',
           disabled: true
         },
         properties: {
@@ -160,7 +160,7 @@ export default class NetDiskFileView extends Vue implements Data{
   }
 
   created(): void{
-    this.goto(null)
+    this.goto(this.initPathId)
   }
 
   /**
@@ -168,10 +168,14 @@ export default class NetDiskFileView extends Vue implements Data{
    */
   private async goto(id: number, record = true): Promise<void>{
     if(record) {
+      if(this.currentHistoryIndex !== this.history.length - 1){//当前不是历史的最顶端，那么对当前位置到顶端进行翻转
+        const lastHistory = this.history.splice(this.currentHistoryIndex);
+        this.history = this.history.splice(0).concat(lastHistory.reverse())
+      }
       this.history.push(id)
       this.currentHistoryIndex = this.history.length - 1
     }
-    if(this.history.length > 3){
+    if(this.history.length > 20){
       this.history.shift()
       this.currentHistoryIndex --
     }
@@ -220,6 +224,9 @@ export default class NetDiskFileView extends Vue implements Data{
       case "refresh":
         this.refresh()
         break;
+      case "download":
+        window.open(URL_NET_DISK_FILE + "/download/" + this.selectedFileIds.values().next().value, "_blank")
+        break;
       case "createDirectory":
         this.fileList.push({
           id: -1,
@@ -231,11 +238,46 @@ export default class NetDiskFileView extends Vue implements Data{
       case "upload":
         this.showUploadPanel = true
         break;
+      case "rename":
+        this.renameFileId = this.selectedFileIds.values().next().value
+        break;
+      case "delete":
+        this.deleteSelected()
+        break;
+      case "move":
+        this.showMoveToDirSelectDialog = true
+        break;
+      case "properties":
+        this.showPropertiesTargetId = this.selectedFileIds.values().next().value
+        this.showPropertiesDialog = true
+        break;
+    }
+  }
+
+  async deleteSelected(): Promise<void>{
+    const files = this.fileList.filter(f=>this.selectedFileIds.has(f.id));
+    if(!files.length) return;
+    let msg: string
+    if(files.length > 3){
+      msg = "是否删除[" + files.concat().splice(0, 3).map(f=>f.name).join("、") + "]等 " + files.length + " 个文件";
+    }else{
+      msg = "是否删除文件[" + files.map(f=>f.name).join("、") + "]";
+    }
+    const result = await this.$alert(msg)
+    if(result !== "confirm") return
+    for (let file of files) {
+      try{
+        await NetDiskFileService.delete(file.id)
+      }catch (e) {
+        if((await this.$alert("删除文件[" + file.name + "]失败, 是否继续")) !== "confirm") return
+      }
+      this.fileList.splice(this.fileList.findIndex(f=>f===file), 1)
+      this.selectedFileIds.delete(file.id)
     }
   }
 
   /**
-   * 重命名
+   * 完成重命名
    */
   async onRenameComplete(file: NetDiskFile, name: string): Promise<void>{
     try {
@@ -261,6 +303,19 @@ export default class NetDiskFileView extends Vue implements Data{
       file.name = name
     }finally {
       this.renameFileId = null
+    }
+  }
+
+  /**
+   * 取消重命名
+   */
+  onRenameCancel(file: NetDiskFile): void{
+    this.renameFileId = null
+    if(file.id == -1){
+      const fileIndex = this.fileList.findIndex(f=>f === file);
+      if(fileIndex){
+        this.fileList.splice(fileIndex, 1)
+      }
     }
   }
 
@@ -327,6 +382,40 @@ export default class NetDiskFileView extends Vue implements Data{
   private onUploadComplete(): void{
     this.refresh()
   }
+
+  /**
+   * 移动当前选中的文件到指定的文件夹
+   * @param targetDir 目的文件夹
+   */
+  private async moveSelectedTo(targetDir: NetDiskFile): Promise<void>{
+    this.showMoveToDirSelectDialog = false
+    const files = this.fileList.filter(f=>this.selectedFileIds.has(f.id));
+    let msg: string
+    if(files.length > 3){
+      msg = "是否确定将[" + files.concat().splice(0, 3).map(f=>f.name).join("、") + "...等" + files.length + "个文件]移动到[" + targetDir.name + "]?"
+    }else{
+      msg = "是否确定将[" + files.map(f=>f.name).join("、") + "]移动到[" + targetDir.name + "]?"
+    }
+    if((await this.$alert(msg)) !== "confirm") return;
+    for (let file of files) {
+      const detail = await NetDiskFileService.getDetail(file.id);
+      try {
+        await NetDiskFileService.put({
+          id: detail.id,
+          name: detail.name,
+          parentId: targetDir.id,
+          everyoneWritable: detail.everyoneWritable,
+          everyoneReadable: detail.everyoneReadable,
+          writableUserList: detail.writableUserList.map(u => u.id),
+          readableUserList: detail.writableUserList.map(u => u.id)
+        })
+      }catch (e){
+        if((await this.$alert("文件[" + file.name + "]移动失败，是否继续?")) !== "confirm") return;
+      }
+      this.fileList.splice(this.fileList.findIndex(f=>f.id === file.id), 1)
+      this.selectedFileIds.delete(file.id)
+    }
+  }
 }
 </script>
 
@@ -335,7 +424,5 @@ export default class NetDiskFileView extends Vue implements Data{
 .net-disk-file-view-files{
   min-height: 100px;
   position: relative;
-  display: flex;
-  flex-flow: row wrap;
 }
 </style>

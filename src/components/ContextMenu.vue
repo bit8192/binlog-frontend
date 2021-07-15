@@ -44,7 +44,7 @@ export default class ContextMenu extends Vue{
 
   mounted(): void{
     this.el = this.$el as HTMLElement
-    this.offsetParent = (this.el.offsetParent || document) as HTMLElement
+    this.offsetParent = (this.el.parentElement || document) as HTMLElement
     this.el.focus()
     this.offsetParent.oncontextmenu = ()=>false
     this.offsetParent.addEventListener("contextmenu", this.onContextMenu)
@@ -102,8 +102,7 @@ export interface ContextMenuItem{
   }
 }
 .context-menu-item{
-  padding-left: 1em;
-  padding-right: 1em;
+  padding: .5em 1em;
   cursor: pointer;
 }
 .context-menu-item-disabled{

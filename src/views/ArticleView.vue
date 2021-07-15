@@ -131,6 +131,31 @@ export default class ArticleView extends Vue{
   created() : void{
     this.loadArticle()
     this.app.addUserInfoChangeListener(this.onUserInfoChange)
+    this.viewArticle()
+  }
+
+  /**
+   * 判断是否阅读过，没有阅读过提交阅读
+   */
+  async viewArticle(): Promise<void> {
+    let viewedIds = localStorage.getItem("viewedArticleIds") as string || ""
+    if(!viewedIds.includes(this.info.id.toString())){
+      await ArticleService.view(this.info.id)
+      if(viewedIds.length){
+        viewedIds = this.info.id + "," + viewedIds
+      }else{
+        viewedIds = this.info.id.toString()
+      }
+      localStorage.setItem("viewedArticleIds", viewedIds);
+    }
+    if(viewedIds.length > 2000){
+      let i = viewedIds.length;
+      while (i > 2000) {
+        i = viewedIds.lastIndexOf(",", i - 1)
+      }
+      viewedIds = viewedIds.substr(0, i)
+      localStorage.setItem("viewedArticleIds", viewedIds)
+    }
   }
 
   onUserInfoChange(userInfo: UserInfo): void{
