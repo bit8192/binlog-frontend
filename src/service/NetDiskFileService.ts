@@ -1,8 +1,9 @@
 import NetDiskFile from "@/domain/NetDiskFile";
 import axios from "axios";
-import {URL_NET_DISK_FILE} from "@/constants/UrlApiNetDiskFile";
+import {URL_NET_DISK_FILE, URL_NET_DISK_FILE_DOWNLOAD_URL} from "@/constants/UrlApiNetDiskFile";
 import NetDiskFileDto from "@/domain/NetDiskFileDto";
 import SortOrder from "@/domain/SortOrder";
+import ValueVo from "@/domain/ValueVo";
 
 export default class NetDiskFileService{
     public static async listChildren(id: number, isDirectory: boolean = null, mediaType: string = null, suffix: string = null, sort: SortOrder[] = []): Promise<Array<NetDiskFile>>{
@@ -36,5 +37,9 @@ export default class NetDiskFileService{
 
     static async getDetail(id: number): Promise<NetDiskFile>{
         return await axios.get(URL_NET_DISK_FILE + "/" + id)
+    }
+
+    static async getDownloadUrl(id: number): Promise<ValueVo<string>>{
+        return await axios.get(URL_NET_DISK_FILE_DOWNLOAD_URL + "/" + id);
     }
 }

@@ -1,8 +1,12 @@
 <template>
   <div id="nav">
-    <img :src="logo" alt="logo" height="50" />
-    <h1 id="nav-title" style="flex: 1;">{{profile && profile.name || "Blog"}}</h1>
-    <slot/>
+    <router-link to="/" class="d-contents">
+      <img :src="logo" alt="logo" height="50" />
+      <h1 id="nav-title">{{profile && profile.name || "Blog"}}</h1>
+    </router-link>
+    <div class="flex-1">
+      <slot/>
+    </div>
     <el-menu mode="horizontal" router :default-active="$route.path" class="hidden-sm-and-down">
       <template v-for="item in menuList">
         <el-menu-item v-if="!item.children || !item.children.length" :key="item.title" :index="item.route">{{item.title}}</el-menu-item>

@@ -62,7 +62,6 @@ import EmptyData from "@/components/EmptyData.vue";
 import ContextMenu, {ContextMenuItem} from "@/components/ContextMenu.vue";
 import NetDiskFileItem from "@/components/net-disk-file/NetDiskFileItem.vue";
 import NetDiskFileUploadPanel from "@/components/net-disk-file/NetDiskFileUploadPanel.vue";
-import {URL_NET_DISK_FILE} from "@/constants/UrlApiNetDiskFile";
 import NetDiskFileTree from "@/components/net-disk-file/NetDiskFileTree.vue";
 import NetDiskFileProperties from "@/components/net-disk-file/NetDiskFileProperties.vue";
 library.add(faAngleLeft, faAngleRight)
@@ -225,7 +224,7 @@ export default class NetDiskFileList extends Vue{
         this.refresh()
         break;
       case "download":
-        window.open(URL_NET_DISK_FILE + "/download/" + this.selectedFileIds.values().next().value, "_blank")
+        this.downloadSelectedFile()
         break;
       case "createDirectory":
         this.fileList.push({
@@ -252,6 +251,11 @@ export default class NetDiskFileList extends Vue{
         this.showPropertiesDialog = true
         break;
     }
+  }
+
+  async downloadSelectedFile(): Promise<void>{
+    const value = await NetDiskFileService.getDownloadUrl(this.selectedFileIds.values().next().value);
+    window.open(value.value, "_blank")
   }
 
   async deleteSelected(): Promise<void>{
