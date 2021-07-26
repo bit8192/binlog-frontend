@@ -97,6 +97,12 @@ const routes: Array<RouteConfig> = [
     component: () => import('../views/NetDiskFileView.vue')
   },
   {
+    path: "/message",
+    name: "Message",
+    meta: {title: "消息"},
+    component: () => import('../views/MessageView.vue')
+  },
+  {
     path: "*",
     name: "404",
     meta: {title: "404"},

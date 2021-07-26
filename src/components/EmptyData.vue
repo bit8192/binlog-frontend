@@ -1,12 +1,15 @@
 <template>
 <div class="empty-data">
-  <span class="text-sub">啥玩儿都没有_(:3 ⌒ﾞ)_</span>
+  <p class="m-0"><span class="text-sub">_(:3 ⌒ﾞ)_</span></p>
+  <p class="m-0"><span class="text-sub">啥玩儿都没有</span></p>
 </div>
 </template>
 
-<script>
-export default {
-  name: "EmptyData"
+<script lang="ts">
+import {Component, Vue} from "vue-property-decorator";
+
+@Component({})
+export default class EmptyData extends Vue{
 }
 </script>
 
@@ -14,6 +17,5 @@ export default {
 .empty-data{
   padding: 3em;
   text-align: center;
-  width: 100%;
 }
 </style>

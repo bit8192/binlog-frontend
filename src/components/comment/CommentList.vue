@@ -8,12 +8,7 @@
         <div class="flex-1">
           <div class="comment-box-right">
             <h4>{{comment.createdUser.username}}</h4>
-            <p>
-              <template v-for="(c, index) of comment.renderContent">
-                <span :key="index" v-if="typeof c === 'string'">{{c}}</span>
-                <component :key="index" :is="c" v-else />
-              </template>
-            </p>
+            <comment-content :content="comment.content" :members="comment.members" />
             <div class="text-sub">
               <span class="mr-3">{{comment.createdDate}}</span>
               <el-button type="text" :class="'mr-3' + (comment.isAgreed ? '' : ' text-sub')" v-on:click="()=>toggleCommentAgree(comment.id)">
@@ -24,14 +19,13 @@
                 <font-awesome-icon :icon="[comment.isTrod ? 'fas' : 'far', 'thumbs-down']" />
                 {{ comment.treadNum ? comment.treadNum : '' }}
               </el-button>
-              <el-button type="text" v-on:click="()=>reply(comment, null)">回复</el-button>
+              <el-button type="text" class="text-sub" v-on:click="()=>reply(comment, null)">
+                <font-awesome-icon :icon="['far', 'comment']" />
+              </el-button>
             </div>
-            <sub-comment-list ref="subCommentList" :article-id="articleId" :comment-id="comment.id" :comments="comment.replies" :comment-count="comment.repliesNum" v-on:reply="subReply" />
+            <sub-comment-list v-if="comment.replies && comment.replies.length" ref="subCommentList" :article-id="articleId" :comment-id="comment.id" :comments="comment.replies" :comment-count="comment.repliesNum" v-on:reply="subReply" />
           </div>
-          <div class="flex-row" v-if="replyCommentId === comment.id">
-            <el-input type="textarea" :rows="2" :placeholder="'回复 @' + replyTargetUsername + ':'" v-model="replyContent"/>
-            <el-button class="ml-2" v-on:click="submitReply">发表</el-button>
-          </div>
+          <comment-reply-input v-if="replyCommentId === comment.id" v-model="replyContent" v-on:submit="submitReply" :placeholder="'回复 @' + replyTargetUsername + ':'" />
         </div>
       </div>
     </template>
@@ -48,18 +42,24 @@ import {
   faThumbsDown as faSolidThumbsDown,
   faUser
 } from "@fortawesome/free-solid-svg-icons";
-import {faThumbsUp as faRegularThumbsUp, faThumbsDown as faRegularThumbsDown} from "@fortawesome/free-regular-svg-icons";
+import {
+  faThumbsUp as faRegularThumbsUp,
+  faThumbsDown as faRegularThumbsDown,
+  faComment
+} from "@fortawesome/free-regular-svg-icons";
 import CommentService from "@/service/CommentService";
 import Pageable from "@/domain/Pageable";
 import EmptyData from "@/components/EmptyData.vue";
 import Throttle from "@/decorators/Throttle";
 import {AppProvider} from "@/App.vue";
 import SubCommentList from "@/components/comment/SubCommentList.vue";
+import CommentContent from "@/components/comment/CommentContent.vue";
+import CommentReplyInput from "@/components/comment/CommentReplyInput.vue";
 
-library.add(faUser, faSolidThumbsUp, faRegularThumbsUp, faSolidThumbsDown, faRegularThumbsDown)
+library.add(faUser, faSolidThumbsUp, faRegularThumbsUp, faSolidThumbsDown, faRegularThumbsDown, faComment)
 
 @Component({
-  components: {SubCommentList, EmptyData},
+  components: {CommentReplyInput, CommentContent, SubCommentList, EmptyData},
   props: {
     articleId: {
       required: true
@@ -143,7 +143,7 @@ export default class CommentList extends Vue{
    * 切换评论点赞
    */
   async toggleCommentAgree(commentId: number): Promise<void>{
-    const result = await CommentService.toggleCommentAgree(this.articleId, commentId);
+    const result = await CommentService.toggleCommentAgree(commentId);
     const comment = this.comments.find(c=>c.id === commentId);
     comment.agreedNum += result.value ? 1 : -1
     if(comment.isTrod && result.value) {
@@ -157,7 +157,7 @@ export default class CommentList extends Vue{
    * 切换评论点踩
    */
   private async toggleCommentTread(commentId: number): Promise<void>{
-    const result = await CommentService.toggleCommentTread(this.articleId, commentId)
+    const result = await CommentService.toggleCommentTread(commentId)
     const comment = this.comments.find(c=>c.id === commentId);
     comment.treadNum += result.value ? 1 : -1
     if(comment.isAgreed && result.value) {
@@ -204,10 +204,10 @@ export default class CommentList extends Vue{
     const subCommentList = subCommentListArr.find(l=>l.commentId === this.replyCommentId)
     let result: Comment
     if(this.replySubCommentId){
-      result = await CommentService.submitSubComment(this.articleId, this.replyCommentId, this.replySubCommentId, this.replyContent);
+      result = await CommentService.submitSubComment(this.replySubCommentId, this.replyContent);
       this.replySubCommentId = null
     }else{
-      result = await CommentService.submitComment(this.articleId, this.replyCommentId, this.replyContent);
+      result = await CommentService.submitComment(this.replyCommentId, this.replyContent);
     }
     if(subCommentList.isExpand){
       subCommentList.addReply(result)
@@ -225,6 +225,6 @@ export default class CommentList extends Vue{
 @import "src/style/var-color";
 
 .comment-box-right{
-  border-top: 1px solid $color-divider-border;
+  border-top: 1px solid $color-divider;
 }
 </style>

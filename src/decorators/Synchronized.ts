@@ -6,12 +6,27 @@ export default function () :any{
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) :any{
         const method = descriptor.value
         descriptor.value = function (...args) :any{
-            let cache = promiseMap.get(method)
-            if(!cache){
-                cache = method.apply(this, args).finally(()=>promiseMap.delete(method))
-                promiseMap.set(method, cache)
+            let result = promiseMap.get(method)
+            if(!result){
+                result = method.apply(this, args);
+                if(result instanceof Promise){
+                    result.finally(()=>{
+                        if(promiseMap.get(method) === result){
+                            promiseMap.delete(method)
+                        }
+                    })
+                    promiseMap.set(method, result)
+                }
+            }else{
+                result = result.finally(()=>{
+                    if(promiseMap.get(method) === result){
+                        promiseMap.delete(method)
+                    }
+                    return method.apply(this, args)
+                })
+                promiseMap.set(method, result)
             }
-            return cache
+            return result
         }
     }
 }

@@ -1,0 +1,14 @@
+@import "var-color";
+//一些小组件
+.util-divider-default{
+  height: 1px;
+  background-color: $color-divider;
+}
+.util-divider-to-right{
+  height: 1px;
+  background-image: linear-gradient(to right, $color-divider, transparent);
+}
+.util-divider-center{
+  height: 1px;
+  background-image: linear-gradient(to right, transparent, $color-divider, transparent);
+}

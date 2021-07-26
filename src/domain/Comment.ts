@@ -1,5 +1,4 @@
 import UserInfo from "@/domain/UserInfo";
-import {VNodeComponentOptions} from "vue";
 
 /**
  * 评论数据
@@ -7,7 +6,6 @@ import {VNodeComponentOptions} from "vue";
 export interface Comment{
     id: number
     content: string
-    renderContent?: Array<string|VNodeComponentOptions>
     agreedNum: number
     treadNum: number
     createdUser: UserInfo

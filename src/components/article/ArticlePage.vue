@@ -3,6 +3,7 @@
     <transition name="transition-from-bottom" mode="out-in">
       <div v-if="articleList.length">
         <article-list-item v-for="article in articleList" :key="article.id" :info="article" />
+        <p v-if="last" class="text-sub text-center py-3">说实话，我没了</p>
       </div>
       <empty-data v-else />
     </transition>

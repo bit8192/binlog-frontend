@@ -287,7 +287,10 @@ export default class NetDiskFileList extends Vue{
     try {
       if (file.id === undefined || file.id === -1) {
         try {
-          const result = await NetDiskFileService.createDirectory({name})
+          const result = await NetDiskFileService.createDirectory({
+            name,
+            parentId: this.currentDirectory.id
+          })
           Object.assign(file, result)
         } catch (e) {
           this.fileList.splice(this.fileList.findIndex(i => i === file, 1))

@@ -14,7 +14,7 @@
       <div>
         <span class="text-warning text-article-item-info" v-if="info.top"><font-awesome-icon icon="thumbtack" />置顶</span>
         <span class="text-warning text-article-item-info" v-if="info.recommend"><font-awesome-icon icon="fire" />推荐</span>
-        <span class="text-sub text-article-item-info">{{ info.createdUser.nickname || info.createdUser.username }}</span>
+        <span class="text-sub text-article-item-info">{{ info.createdUser.username }}</span>
         <span class="text-sub text-article-item-info">发表于{{ info.createdDate }}</span>
         <span class="text-sub text-article-item-info" v-if="info.isOriginal">原创文章</span>
         <router-link :to="'/article/article-class/' + info.articleClass.id" class="text-sub text-article-item-info" v-if="info.articleClass">
@@ -50,7 +50,7 @@
           <font-awesome-icon :icon="['far', 'comment']" />
           <span style="padding-left: .5em">{{info.commentNum}}</span>
         </el-button>
-        <el-button type="text" class="text-sub article-item-button">
+        <el-button type="text" :class="'article-item-button' + (info.isAgreed ? '' : ' text-sub')" v-on:click="toggleAgree">
           <font-awesome-icon :icon="['far', 'thumbs-up']" />
           <span style="padding-left: .5em">{{info.agreedNum}}</span>
         </el-button>
@@ -71,6 +71,8 @@ import TransitionScrollView from "@/components/TransitionScrollView.vue";
 import ErrorImage from "@/components/ErrorImage.vue";
 import {URL_NET_DISK_FILE} from "@/constants/UrlApiNetDiskFile";
 import {Component, Vue} from "vue-property-decorator";
+import ArticleService from "@/service/ArticleService";
+import Article from "@/domain/Article";
 
 library.add(faShareSquare, faComment, faThumbsUp, faEye, faBars, faThumbtack, faFire)
 
@@ -86,6 +88,13 @@ library.add(faShareSquare, faComment, faThumbsUp, faEye, faBars, faThumbtack, fa
   }
 })
 export default class ArticleListItem extends Vue{
+  info!: Article
+
+  async toggleAgree(): Promise<void>{
+    const result = await ArticleService.toggleAgree(this.info.id)
+    this.info.isAgreed = result.value
+    this.info.agreedNum += result.value ? 1 : -1
+  }
 }
 </script>
 <style scoped lang="scss">

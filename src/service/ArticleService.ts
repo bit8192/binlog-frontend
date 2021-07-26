@@ -5,6 +5,7 @@ import Page from "@/domain/Page";
 import Pageable, {pageable2RequestParameters} from "@/domain/Pageable";
 import ValueVo from "@/domain/ValueVo";
 import {Comment} from "@/domain/Comment";
+import {URL_ARTICLE_COMMENT} from "@/constants/UrlApiComment";
 
 export default class ArticleService{
     public static add(article: Article): Promise<Article>{
@@ -65,6 +66,6 @@ export default class ArticleService{
      * @param content
      */
     static submitComment(articleId: number|string, content: string): Promise<Comment>{
-        return axios.post(URL_ARTICLE + "/" + articleId + "/comment", {content});
+        return axios.post(URL_ARTICLE_COMMENT, {articleId, content});
     }
 }

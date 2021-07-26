@@ -26,18 +26,14 @@
         </div>
       </div>
     </transition>
-    <el-row class="mt-1" type="flex" style="align-items: stretch" :gutter="5">
-      <el-col :sm="5">
-        <el-card id="article-catalog-container" class="hidden-sm-and-down">
-          <article-catalog ref="catalog" id="article-catalog" element="article" />
-        </el-card>
-      </el-col>
-      <el-col :sm="19" :xs="24">
-        <el-card>
-          <markdown-it-vue id="article" :content="info.content || ''" />
-        </el-card>
-      </el-col>
-    </el-row>
+    <div class="mt-1 flex-row flex-direction-column-md align-items-start">
+      <el-card id="article-catalog-container" class="flex-1 d-none-md mr-1">
+        <article-catalog ref="catalog" id="article-catalog" element="article" />
+      </el-card>
+      <el-card class="flex-5 flex-1-md">
+        <markdown-it-vue id="article" :content="info.content || ''" />
+      </el-card>
+    </div>
 
     <el-card class="mt-1">
       <div class="flex-row justify-content-between align-items-center">
@@ -61,8 +57,7 @@
         <el-avatar :src="userInfo ? userInfo.headImg : ''" :size="50" class="mr-4">
           <font-awesome-icon icon="user" size="lg" />
         </el-avatar>
-        <el-input type="textarea" :rows="2" class="mx-2 flex-1" :autofocus="!!userInfo" v-model="commentContent" ></el-input>
-        <el-button v-on:click="submitComment">发表</el-button>
+        <comment-reply-input v-model="commentContent" v-on:submit="submitComment" class="flex-1" />
         <div v-if="!userInfo" class="flex-row justify-content-center align-items-center position-absolute bg-mask" style="left: 0; right:0; top:0; bottom: 0">
           <el-button v-on:click="this.app.openLoginDialog">登录后进行评论</el-button>
         </div>
@@ -90,10 +85,11 @@ import CommentList from "@/components/comment/CommentList.vue";
 import EmptyData from "@/components/EmptyData.vue";
 import {ElButton} from "element-ui/types/button";
 import {AppProvider} from "@/App.vue";
+import CommentReplyInput from "@/components/comment/CommentReplyInput.vue";
 library.add(faTag, faThumbsUp, faShare, faDonate, faUser, faEdit)
 
 @Component({
-  components: {EmptyData, CommentList, ErrorImage, ArticleCatalog, MarkdownItVue: MarkdownItVue as VueComponent},
+  components: {CommentReplyInput, EmptyData, CommentList, ErrorImage, ArticleCatalog, MarkdownItVue: MarkdownItVue as VueComponent},
   inject: ['app']
 })
 export default class ArticleView extends Vue{
@@ -105,7 +101,7 @@ export default class ArticleView extends Vue{
 
   data(): any{
     return {
-      info: {id: this.$route.params.id},
+      info: {id: parseInt(this.$route.params.id)},
       imagePath: URL_NET_DISK_FILE + "/get/",
       userInfo: this.app.getLoggedUserInfo(),
       commentContent: ""

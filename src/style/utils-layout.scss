@@ -1,4 +1,5 @@
 @use "sass:map";
+@import "var-device-width";
 //float utils
 .clearfix::after{
   content: '';
@@ -12,8 +13,15 @@
   float: right;
 }
 
+//height
+@for $i from 1 through 10 {
+  .height-#{$i}0{
+    height: #{$i}0#{'%'};
+  }
+}
+
 //flex
-@for $i from 1 through 3 {
+@for $i from 1 through 12 {
   .flex-#{$i}{
     flex: $i;
   }
@@ -25,6 +33,19 @@
 .flex-column{
   display: flex;
   flex-flow: column nowrap;
+}
+@media (max-width: $device-width-md) {
+  .flex-direction-row-md{
+    flex-direction: row !important;
+  }
+  .flex-direction-column-md{
+    flex-direction: column !important;
+  }
+  @for $i from 1 through 12 {
+    .flex-#{$i}-md{
+      flex: $i !important;
+    }
+  }
 }
 .justify-content-start{
   justify-content: start;
@@ -50,6 +71,9 @@
 .align-items-baseline{
   align-items: baseline;
 }
+.align-items-stretch{
+  align-items: stretch;
+}
 
 //display
 .d-inline-block{
@@ -57,6 +81,17 @@
 }
 .d-block{
   display: block;
+}
+.d-none{
+  display: none;
+}
+@media (max-width: $device-width-md) {
+  .d-none-md{
+    display: none !important;
+  }
+  .d-block-md{
+    display: block !important;
+  }
 }
 .d-contents{
   display: contents;
@@ -123,4 +158,8 @@ $spacers: (
     padding-top: map.get($spacers, $i);
     padding-bottom: map.get($spacers, $i);
   }
+}
+
+.list-style-none{
+  list-style: none;
 }

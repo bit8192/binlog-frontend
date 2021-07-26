@@ -7,12 +7,7 @@
       <div class="sub-comment-box-right flex-1 ml-2">
         <div class="flex-row align-items-baseline">
           <h5>{{replies.createdUser.username}}</h5>
-          <span class="ml-2">
-            <template v-for="(c, index) of replies.renderContent">
-              <span :key="index" v-if="typeof c === 'string'">{{c}}</span>
-              <component :key="index" v-else :is="c" />
-            </template>
-          </span>
+          <comment-content :content="replies.content" :members="replies.members" class="ml-2" />
         </div>
         <div class="text-sub">
           <span class="mr-3">{{replies.createdDate}}</span>
@@ -24,7 +19,9 @@
             <font-awesome-icon :icon="[replies.isTrod ? 'fas' : 'far', 'thumbs-down']"/>
             {{ replies.treadNum ? replies.treadNum : '' }}
           </el-button>
-          <el-button type="text" v-on:click="()=>reply(replies)">回复</el-button>
+          <el-button type="text" v-on:click="()=>reply(replies)" class="text-sub">
+            <font-awesome-icon :icon="['far', 'comment']" />
+          </el-button>
         </div>
       </div>
     </div>
@@ -49,9 +46,12 @@ import CommentService from "@/service/CommentService";
 import Page from "@/domain/Page";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {faUser} from "@fortawesome/free-solid-svg-icons";
-library.add(faUser)
+import CommentContent from "@/components/comment/CommentContent.vue";
+import {faComment} from "@fortawesome/free-regular-svg-icons";
+library.add(faUser, faComment)
 
 @Component({
+  components: {CommentContent},
   props: {
     articleId: {
       type: [String, Number],
@@ -96,7 +96,7 @@ export default class SubCommentList extends Vue{
   }
 
   private async loadPage(): Promise<void>{
-    this.commentPage = await CommentService.getArticleSubCommentPage(this.articleId, this.commentId, this.pageable)
+    this.commentPage = await CommentService.getArticleSubCommentPage(this.commentId, this.pageable)
   }
 
   /**
@@ -119,7 +119,7 @@ export default class SubCommentList extends Vue{
    * 切换子评论点赞
    */
   async toggleSubCommentAgree(subCommentId: number): Promise<void>{
-    const result = await CommentService.toggleSubCommentAgree(this.articleId, this.commentId, subCommentId);
+    const result = await CommentService.toggleSubCommentAgree(subCommentId);
     let comment: Comment;
     if(this.isExpand){
       comment = this.commentPage.content.find(c=>c.id === subCommentId);
@@ -138,7 +138,7 @@ export default class SubCommentList extends Vue{
    * 切换子评论点踩
    */
   async toggleSubCommentTread(subCommentId: number): Promise<void>{
-    const result = await CommentService.toggleSubCommentTread(this.articleId, this.commentId, subCommentId)
+    const result = await CommentService.toggleSubCommentTread(subCommentId)
     let comment: Comment
     if(this.isExpand){
       comment = this.commentPage.content.find(c=>c.id === subCommentId)
