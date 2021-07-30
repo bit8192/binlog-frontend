@@ -1,5 +1,5 @@
 <template>
-  <div class="text-center bg-gainsboro text-white" style="padding: 60px">
+  <div class="text-center bg-gainsboro color-white" style="padding: 60px">
     <font-awesome-icon icon="image" size="3x" />
   </div>
 </template>

@@ -1,15 +1,23 @@
 <template>
-  <div class="flex-row" v-on:keyup="onInputKeyUp">
-    <el-input type="textarea" v-model="inputValue" :rows="2" :placeholder="placeholder" ref="input" autofocus />
-    <el-button class="ml-2" v-on:click="()=>this.$emit('submit')">{{btnTitle}}</el-button>
+  <div>
+    <div class="flex-row" v-on:keyup="onInputKeyUp">
+      <el-input type="textarea" v-model="inputValue" :rows="2" :placeholder="placeholder" ref="input" autofocus />
+      <el-button class="ml-2" v-on:click="()=>this.$emit('submit')">{{btnTitle}}</el-button>
+    </div>
+    <emoji-popover v-on:select="emoji=>inputValue+=emoji" />
   </div>
 </template>
 
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
 import {ElInput} from "element-ui/types/input";
+import {library} from "@fortawesome/fontawesome-svg-core";
+import {faSmile} from "@fortawesome/free-solid-svg-icons";
+import EmojiPopover from "@/components/comment/EmojiPopover.vue";
+library.add(faSmile)
 
 @Component({
+  components: {EmojiPopover},
   model: {
     prop: 'value',
     event: 'change'

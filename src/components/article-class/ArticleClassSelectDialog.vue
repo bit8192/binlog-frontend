@@ -9,11 +9,11 @@
       <el-button size="small" v-on:click="addArticleClass">添加</el-button>
       <el-tree ref="tree" :props="treeProps" node-key="id" :load="loadNode" v-on:node-click="onSelect" :expand-on-click-node="false" lazy>
         <div class="flex-row justify-content-between align-items-center" style="flex: 1" slot-scope="{node, data}">
-          <span class="text-title">{{data.title}}</span>
+          <span class="color-text-title">{{data.title}}</span>
           <span>
-            <el-button type="text" class="text-primary" v-on:click="(e)=>addSubArticleClass(e, data)">添加</el-button>
-            <el-button type="text" class="text-sub" v-on:click="(e)=>editArticleClass(e, data)">修改</el-button>
-            <el-button type="text" class="text-warning" v-on:click="(e)=>deleteArticleClass(e, data)">删除</el-button>
+            <el-button type="text" class="color-primary" v-on:click="(e)=>addSubArticleClass(e, data)">添加</el-button>
+            <el-button type="text" class="color-text-sub" v-on:click="(e)=>editArticleClass(e, data)">修改</el-button>
+            <el-button type="text" class="color-warning" v-on:click="(e)=>deleteArticleClass(e, data)">删除</el-button>
           </span>
         </div>
       </el-tree>

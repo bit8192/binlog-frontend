@@ -40,13 +40,13 @@
         <el-button type="text" ref="agreeButton" :class="'article-action' + (this.info.isAgreed ? '' : ' text-sub ')" title="不错哦" v-on:click="toggleAgree">
           <font-awesome-icon icon="thumbs-up" size="2x" />&nbsp;{{info.agreedNum}}
         </el-button>
-        <el-button type="text" class="text-sub article-action" title="可怜可怜我吧">
+        <el-button type="text" class="color-text-sub article-action" title="可怜可怜我吧">
           <font-awesome-icon icon="donate" size="2x" />&nbsp;捐赠
         </el-button>
-        <el-button type="text" class="text-sub article-action" title="分享">
+        <el-button type="text" class="color-text-sub article-action" title="分享">
           <font-awesome-icon icon="share" size="2x"/>&nbsp;{{info.forwardingNum}}
         </el-button>
-        <router-link :to="'edit/' + info.id" class="text-sub" v-if="info.createdUser && userInfo && info.createdUser.id === userInfo.id">
+        <router-link :to="'edit/' + info.id" class="color-text-sub" v-if="info.createdUser && userInfo && info.createdUser.id === userInfo.id">
           <font-awesome-icon icon="edit" size="2x" />
         </router-link>
       </div>
@@ -86,6 +86,7 @@ import EmptyData from "@/components/EmptyData.vue";
 import {ElButton} from "element-ui/types/button";
 import {AppProvider} from "@/App.vue";
 import CommentReplyInput from "@/components/comment/CommentReplyInput.vue";
+import {LOCAL_STORAGE_KEY_VIEWED_ARTICLE_IDS} from "@/constants/LocalStorageKeys";
 library.add(faTag, faThumbsUp, faShare, faDonate, faUser, faEdit)
 
 @Component({
@@ -134,7 +135,7 @@ export default class ArticleView extends Vue{
    * 判断是否阅读过，没有阅读过提交阅读
    */
   async viewArticle(): Promise<void> {
-    let viewedIds = localStorage.getItem("viewedArticleIds") as string || ""
+    let viewedIds = localStorage.getItem(LOCAL_STORAGE_KEY_VIEWED_ARTICLE_IDS) as string || ""
     if(!viewedIds.includes(this.info.id.toString())){
       await ArticleService.view(this.info.id)
       if(viewedIds.length){
@@ -142,7 +143,7 @@ export default class ArticleView extends Vue{
       }else{
         viewedIds = this.info.id.toString()
       }
-      localStorage.setItem("viewedArticleIds", viewedIds);
+      localStorage.setItem(LOCAL_STORAGE_KEY_VIEWED_ARTICLE_IDS, viewedIds);
     }
     if(viewedIds.length > 2000){
       let i = viewedIds.length;
@@ -150,7 +151,7 @@ export default class ArticleView extends Vue{
         i = viewedIds.lastIndexOf(",", i - 1)
       }
       viewedIds = viewedIds.substr(0, i)
-      localStorage.setItem("viewedArticleIds", viewedIds)
+      localStorage.setItem(LOCAL_STORAGE_KEY_VIEWED_ARTICLE_IDS, viewedIds)
     }
   }
 

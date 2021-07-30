@@ -13,7 +13,12 @@
   float: right;
 }
 
-//height
+//width height
+@for $i from 1 through 10 {
+  .width-#{$i}0{
+    width: #{$i}0#{'%'};
+  }
+}
 @for $i from 1 through 10 {
   .height-#{$i}0{
     height: #{$i}0#{'%'};
@@ -28,11 +33,17 @@
 }
 .flex-row{
   display: flex;
-  flex-flow: row nowrap;
+  flex-direction: row;
 }
 .flex-column{
   display: flex;
-  flex-flow: column nowrap;
+  flex-direction: column;
+}
+.flex-wrap{
+  flex-wrap: wrap;
+}
+.flex-nowrap{
+  flex-wrap: nowrap;
 }
 @media (max-width: $device-width-md) {
   .flex-direction-row-md{
@@ -40,6 +51,12 @@
   }
   .flex-direction-column-md{
     flex-direction: column !important;
+  }
+  .flex-direction-row-reverse-md{
+    flex-direction: row-reverse !important;
+  }
+  .flex-direction-column-reverse-md{
+    flex-direction: column-reverse !important;
   }
   @for $i from 1 through 12 {
     .flex-#{$i}-md{
@@ -76,6 +93,9 @@
 }
 
 //display
+.d-inline{
+  display: inline;
+}
 .d-inline-block{
   display: inline-block;
 }
@@ -85,12 +105,17 @@
 .d-none{
   display: none;
 }
-@media (max-width: $device-width-md) {
-  .d-none-md{
-    display: none !important;
-  }
-  .d-block-md{
-    display: block !important;
+.d-flex{
+  display: flex;
+}
+@each $size, $width in $device-width-map {
+  @media (max-width: $width) {
+    .d-none-#{$size} {
+      display: none !important;
+    }
+    .d-block-#{$size} {
+      display: block !important;
+    }
   }
 }
 .d-contents{
@@ -101,6 +126,9 @@
 }
 .position-absolute{
   position: absolute;
+}
+.position-sticky{
+  position: sticky;
 }
 
 //margin and padding
@@ -113,53 +141,49 @@ $spacers: (
         4: $spacer * 1.5,
         5: $spacer * 3,
 );
+$margin-and-padding-props: (
+        "m": (margin),
+        "mt": (margin-top),
+        "mb": (margin-bottom),
+        "ml": (margin-left),
+        "mr": (margin-right),
+        "mx": (margin-left, margin-right),
+        "my": (margin-top, margin-bottom),
+        "p": (padding),
+        "pt": (padding-top),
+        "pb": (padding-bottom),
+        "pl": (padding-left),
+        "pr": (padding-right),
+        "px": (padding-left, padding-right),
+        "py": (padding-top, padding-bottom),
+);
 @for $i from 0 through 5 {
-  .m-#{$i}{
-    margin: map.get($spacers, $i);
+  @each $key, $props in $margin-and-padding-props {
+    .#{$key}-#{$i}{
+      $d: map.get($spacers, $i);
+      @each $p in $props{
+        #{$p}: $d !important;
+      }
+    }
   }
-  .mt-#{$i}{
-    margin-top: map.get($spacers, $i);
-  }
-  .mr-#{$i}{
-    margin-right: map.get($spacers, $i);
-  }
-  .mb-#{$i} {
-    margin-bottom: map.get($spacers, $i);
-  }
-  .ml-#{$i} {
-    margin-left: map.get($spacers, $i);
-  }
-  .mx-#{$i} {
-    margin-left: map.get($spacers, $i);
-    margin-right: map.get($spacers, $i);
-  }
-  .my-#{$i} {
-    margin-top: map.get($spacers, $i);
-    margin-bottom: map.get($spacers, $i);
-  }
-
-  .p-#{$i}{
-    padding: map.get($spacers, $i);
-  }
-  .pt-#{$i}{
-    padding-top: map.get($spacers, $i);
-  }
-  .pr-#{$i}{
-    padding-right: map.get($spacers, $i);
-  }
-  .pb-#{$i} {
-    padding-left: map.get($spacers, $i);
-  }
-  .px-#{$i} {
-    padding-left: map.get($spacers, $i);
-    padding-right: map.get($spacers, $i);
-  }
-  .py-#{$i} {
-    padding-top: map.get($spacers, $i);
-    padding-bottom: map.get($spacers, $i);
+}
+@each $size,$width in $device-width-map{
+  @media (max-width: $width) {
+    @for $i from 0 through 5 {
+      @each $key, $props in $margin-and-padding-props {
+        .#{$key}-#{$i}-#{$size}{
+          $d: map.get($spacers, $i);
+          @each $p in $props{
+            #{$p}: $d !important;
+          }
+        }
+      }
+    }
   }
 }
 
 .list-style-none{
   list-style: none;
+  padding: 0;
+  margin: 0;
 }

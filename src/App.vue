@@ -13,11 +13,11 @@
       </el-row>
     </el-main>
     <el-footer id="footer">
-      <span class="text-sub">{{systemProfile.copyRight}}</span>
-      <span class="text-sub">powered by <a  target="_blank" href="//bincker.cn">bincker</a></span>
-      <span><a href="https://beian.miit.gov.cn/" target="_blank" class="text-sub">{{systemProfile.ipc}}</a></span>
+      <span class="color-text-sub">{{systemProfile.copyRight}}</span>
+      <span class="color-text-sub">powered by <a target="_blank" href="//bincker.cn">bincker</a></span>
+      <span><a href="https://beian.miit.gov.cn/" target="_blank" class="color-text-sub">{{systemProfile.ipc}}</a></span>
       <span>
-        <a class="text-sub" target="_blank" :href="systemProfile.github" v-if="systemProfile.github">
+        <a class="color-text-sub" target="_blank" :href="systemProfile.github" v-if="systemProfile.github">
           <font-awesome-icon :icon="['fab', 'github']" size="2x" />
         </a>
       </span>

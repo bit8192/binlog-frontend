@@ -111,6 +111,11 @@ export default class NavMenu extends Vue{
           visible: true
         },
         {
+          title: "表情",
+          route: "/expression",
+          visible: true
+        },
+        {
           title: "关于",
           route: "/about",
           visible: true

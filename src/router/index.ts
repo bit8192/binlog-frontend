@@ -103,6 +103,12 @@ const routes: Array<RouteConfig> = [
     component: () => import('../views/MessageView.vue')
   },
   {
+    path: "/expression",
+    name: "Expression",
+    meta: {title: "表情"},
+    component: () => import('../views/Expression.vue')
+  },
+  {
     path: "*",
     name: "404",
     meta: {title: "404"},

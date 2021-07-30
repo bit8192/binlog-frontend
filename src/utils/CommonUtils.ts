@@ -15,6 +15,26 @@ export default class CommonUtils{
     }
 
     /**
+     * 格式化小数
+     * @param num
+     * @param len 小数点后保留几位
+     */
+    static formatDecimal(num: number, len: number): string{
+        const result = num.toString()
+        const dotIndex = result.indexOf(".");
+        if(dotIndex == -1){
+            return result + "." + [...Array(len)].map(()=>"0").join()
+        }else{
+            const dec = result.substr(dotIndex + 1);
+            if(dec.length > len){
+                return result.substr(0, dotIndex + 1) + dec.substr(0, len)
+            }else{
+                return result.substr(0, dotIndex + 1) + dec + [...Array(len - dec.length)].map(()=>"0").join()
+            }
+        }
+    }
+
+    /**
      * 获取元素相对位置
      * @param target 目标元素
      * @param relativeTarget 相对目标元素

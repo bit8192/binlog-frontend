@@ -1,9 +1,38 @@
 $color-primary: #15a5f9;
 $color-secondary: #b3b3b3;
 $color-selected: #3399ff;
-$color-danger: #f56c6c;
+$color-danger: #f94e4e;
+$color-warning: #f56c6c;
+$color-disabled: #d6d6d6;
+$color-gainsboro: gainsboro;
+$color-white: white;
 
 $color-text-disabled: #e5e5e5;
 $color-text-selected: white;
+$color-text-title: #202020;
+$color-text-sub: #909699;
+$color-text-content: #232323;
+$color-text-normal: #232323;
+$color-text-link: #09f;
+
+$color-map: (
+        "primary": $color-primary,
+        "secondary": $color-secondary,
+        "selected": $color-selected,
+        "danger": $color-danger,
+        "warning": $color-warning,
+        "disabled": $color-disabled,
+        "gainsboro": $color-gainsboro,
+        "white": $color-white
+);
+$text-color-map: (
+        "text-disabled": $color-text-disabled,
+        "text-selected": $color-text-selected,
+        "text-title": $color-text-title,
+        "text-sub": $color-text-sub,
+        "text-content": $color-text-content,
+        "text-normal": $color-text-normal,
+        "text-link": $color-text-link
+);
 
 $color-divider: #dcdfe7;

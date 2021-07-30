@@ -1,6 +1,7 @@
 import axios, {AxiosError, AxiosRequestConfig} from "axios"
 import {Message} from 'element-ui'
 import NetworkError from "@/error/NetworkError";
+import qs from "qs";
 
 interface AxiosConfig {
     baseURL?: string
@@ -12,6 +13,7 @@ export default function configAxios(axiosConfig: AxiosConfig): void{
     axios.defaults.baseURL = axiosConfig.baseURL
     axios.defaults.headers.common.Accept = "application/hal+json, text/plain, */*"
 
+    axios.defaults.paramsSerializer = params => qs.stringify(params, {arrayFormat: "repeat"})
     axios.interceptors.response.use(
         function(response){
             if(!response) throw new Error()

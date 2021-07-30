@@ -11,17 +11,18 @@
           <span v-else>{{type.title}}</span>
         </li>
       </ul>
+      <!--suppress HtmlUnknownAttribute -->
       <div ref="messageList" class="flex-1 height-100 py-1" :v-infinite-scroll="loadMessage" :infinite-scroll-immediate="false" v-on:scroll="onScroll" style="overflow-y: auto">
         <!--    文章评论    -->
         <template v-if="currentMsgType === articleCommentMsgType">
           <template v-if="articleCommentMsgType.messages.length">
             <MessageItem v-for="msg of articleCommentMsgType.messages" :key="msg.id" :message="msg" :data-id="msg.id" :data-is-read="msg.isRead">
-              <span class="text-sub" slot="user-describe">评论了我的文章</span>
+              <span class="color-text-sub" slot="user-describe">评论了我的文章</span>
               <template slot="actions">
                 <el-button type="text" :class="msg.isAgreed ? '' : 'text-sub'" v-on:click="()=>toggleAgree(msg)">
                   <font-awesome-icon :icon="[msg.isAgreed ? 'fas' : 'far', 'thumbs-up']" />
                 </el-button>
-                <el-button type="text" class="text-sub" v-on:click="currentReplyMessage = msg">
+                <el-button type="text" class="color-text-sub" v-on:click="currentReplyMessage = msg">
                   <font-awesome-icon :icon="['far', 'comment']" />
                 </el-button>
               </template>
@@ -34,12 +35,12 @@
         <template v-else-if="currentMsgType === replyMeMsgType">
           <template v-if="replyMeMsgType.messages.length">
             <MessageItem v-for="msg of replyMeMsgType.messages" :key="msg.id" :message="msg" :data-id="msg.id" :data-is-read="msg.isRead">
-              <span class="text-sub" slot="user-describe">回复了我</span>
+              <span class="color-text-sub" slot="user-describe">回复了我</span>
               <template slot="actions">
                 <el-button type="text" :class="msg.isAgreed ? '' : 'text-sub'" v-on:click="()=>toggleAgree(msg)">
                   <font-awesome-icon :icon="[msg.isAgreed ? 'fas' : 'far', 'thumbs-up']" />
                 </el-button>
-                <el-button type="text" class="text-sub" v-on:click="currentReplyMessage = msg">
+                <el-button type="text" class="color-text-sub" v-on:click="currentReplyMessage = msg">
                   <font-awesome-icon :icon="['far', 'comment']" />
                 </el-button>
               </template>
@@ -52,12 +53,12 @@
         <template v-else-if="currentMsgType === mentionMeMsgType">
           <template v-if="mentionMeMsgType.messages.length">
             <MessageItem v-for="msg of mentionMeMsgType.messages" :key="msg.id" :message="msg" :data-id="msg.id" :data-is-read="msg.isRead">
-              <span class="text-sub" slot="user-describe">提到了我</span>
+              <span class="color-text-sub" slot="user-describe">提到了我</span>
               <template slot="actions">
                 <el-button type="text" :class="msg.isAgreed ? '' : 'text-sub'" v-on:click="()=>toggleAgree(msg)">
                   <font-awesome-icon :icon="[msg.isAgreed ? 'fas' : 'far', 'thumbs-up']" />
                 </el-button>
-                <el-button type="text" class="text-sub" v-on:click="currentReplyMessage = msg">
+                <el-button type="text" class="color-text-sub" v-on:click="currentReplyMessage = msg">
                   <font-awesome-icon :icon="['far', 'comment']" />
                 </el-button>
               </template>
@@ -70,7 +71,7 @@
         <template v-else-if="currentMsgType === agreeMsgType">
           <template v-if="agreeMsgType.messages.length">
             <MessageItem v-for="msg of agreeMsgType.messages" :key="msg.id" :message="msg" :data-id="msg.id" :data-is-read="msg.isRead">
-              <span class="text-sub" slot="user-describe">赞了我</span>
+              <span class="color-text-sub" slot="user-describe">赞了我</span>
             </MessageItem>
           </template>
           <empty-data v-else />

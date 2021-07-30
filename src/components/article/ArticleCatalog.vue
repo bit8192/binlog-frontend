@@ -4,7 +4,7 @@
       <h2>目录</h2>
       <div>
         <div class="catalog-progress-container">
-          <span class="text-sub">你已经阅读了：{{progress}}</span>
+          <span class="color-text-sub">你已经阅读了：{{progress}}</span>
           <div class="catalog-progress">
             <div class="catalog-progress-bar" :style="'width:' + progress"></div>
           </div>

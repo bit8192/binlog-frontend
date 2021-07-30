@@ -9,7 +9,7 @@
           <div class="comment-box-right">
             <h4>{{comment.createdUser.username}}</h4>
             <comment-content :content="comment.content" :members="comment.members" />
-            <div class="text-sub">
+            <div class="color-text-sub">
               <span class="mr-3">{{comment.createdDate}}</span>
               <el-button type="text" :class="'mr-3' + (comment.isAgreed ? '' : ' text-sub')" v-on:click="()=>toggleCommentAgree(comment.id)">
                 <font-awesome-icon :icon="[comment.isAgreed ? 'fas' : 'far', 'thumbs-up']" />
@@ -19,7 +19,7 @@
                 <font-awesome-icon :icon="[comment.isTrod ? 'fas' : 'far', 'thumbs-down']" />
                 {{ comment.treadNum ? comment.treadNum : '' }}
               </el-button>
-              <el-button type="text" class="text-sub" v-on:click="()=>reply(comment, null)">
+              <el-button type="text" class="color-text-sub" v-on:click="()=>reply(comment, null)">
                 <font-awesome-icon :icon="['far', 'comment']" />
               </el-button>
             </div>

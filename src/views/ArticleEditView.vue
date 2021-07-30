@@ -16,23 +16,7 @@
           />
         </el-form-item>
         <el-form-item prop="tags">
-          <el-select
-              v-model="article.tags"
-              placeholder="标签"
-              style="width: 100%"
-              value-key="id"
-              :filter-method="tagSelectFilterFun"
-              v-on:change="onTagSelectChange"
-              :loading="tagSelectLoading"
-              multiple
-              filterable
-              default-first-option
-          >
-            <el-option v-for="tag of tagSearchResult" :key="tag.id" :value="tag" :label="tag.title">
-              <span v-if="tag.id === -1" class="text-primary" style="font-size: .85em; margin-right: 1em">新建</span>
-              <span>{{tag.title}}</span>
-            </el-option>
-          </el-select>
+          <tag-select v-model="article.tags" :action="tagAction" :add-action="tagAddAction" />
         </el-form-item>
         <el-form-item label="封面" prop="cover">
           <img v-if="article.cover" :src="imagePath + article.cover.id" alt="封面图片" height="100%" style="cursor: pointer; max-width: 100%" v-on:click="showCoverSelectDialog = !showCoverSelectDialog" />
@@ -67,6 +51,7 @@
         />
         <el-form-item>
           <el-button type="success" size="lg" v-on:click="submit">提交</el-button>
+          <el-button size="lg" v-on:click="autoSave">储存到本地</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -79,28 +64,19 @@ import {Component, Vue} from "vue-property-decorator";
 import ArticleClassSelectDialog from "@/components/article-class/ArticleClassSelectDialog.vue";
 import ArticleClassVo from "@/domain/ArticleClassVo";
 import Article from "@/domain/Article";
-import Tag from "@/domain/Tag";
-import TagService from "@/service/TagService";
 import NetDiskFileList from "@/components/net-disk-file/NetDiskFileList.vue";
 import {URL_NET_DISK_FILE} from "@/constants/UrlApiNetDiskFile";
 import NetDiskFile from "@/domain/NetDiskFile";
 import {REG_EXP_IMAGE_FILE} from "@/constants/RegExp";
 import {ElForm} from "element-ui/types/form";
 import ArticleService from "@/service/ArticleService";
-
-declare interface Data{
-  showArticleClassSelectDialog: boolean
-  showCoverSelectDialog: boolean
-  article: Article
-  tagList: Tag[]
-  tagSearchResult: Tag[]
-  tagSelectLoading: boolean
-  imagePath: string
-}
+import TagSelect from "@/components/TagSelect.vue";
+import {URL_TAG, URL_TAG_LIST_ALL} from "@/constants/UrlApiTag";
+import {LOCAL_STORAGE_KEY_ARTICLE} from "@/constants/LocalStorageKeys";
 
 @Component({
-  components: {NetDiskFileList, ArticleClassSelectDialog, MarkdownEditor},
-  data(): Data{
+  components: {TagSelect, NetDiskFileList, ArticleClassSelectDialog, MarkdownEditor},
+  data(): any{
     return {
       showArticleClassSelectDialog: false,
       showCoverSelectDialog: false,
@@ -117,9 +93,8 @@ declare interface Data{
         isPublic: true,
         orderNum: undefined,
       },
-      tagList: [],
-      tagSearchResult: [],
-      tagSelectLoading: true,
+      tagAction: URL_TAG_LIST_ALL,
+      tagAddAction: URL_TAG,
       imagePath: URL_NET_DISK_FILE + "/get/"
     }
   }
@@ -128,9 +103,8 @@ export default class ArticleEditView extends Vue{
   showArticleClassSelectDialog!: boolean
   showCoverSelectDialog!: boolean
   article!: Article
-  tagList!: Tag[]
-  tagSearchResult!: Tag[]
-  tagSelectLoading!: boolean
+  tagAction: string
+  tagAddAction: string
   formRules = {
     title: [
       { required: true, message: "必填项" },
@@ -149,21 +123,21 @@ export default class ArticleEditView extends Vue{
   }
 
   async loadData(): Promise<void>{
+    const articleCache = localStorage.getItem(LOCAL_STORAGE_KEY_ARTICLE)
     if(this.$route.params.id !== 'new'){
-      if(localStorage.article){
+      if(articleCache){
         try {
           await this.$confirm("检测到本地保存有数据，是否进行编辑（否则将覆盖）")
-          this.article = JSON.parse(localStorage.article)
+          this.article = JSON.parse(articleCache)
         }catch (e) {
           this.article = await ArticleService.getDetail(this.$route.params.id)
         }
       }else{
         this.article = await ArticleService.getDetail(this.$route.params.id)
       }
-    }else if(localStorage.article){
-      this.article = JSON.parse(localStorage.article)
+    }else if(articleCache){
+      this.article = JSON.parse(articleCache)
     }
-    await this.loadTagList()
     this.autoSaveInterval = setInterval(this.autoSave, 600000)//十分钟自动保存一次
   }
 
@@ -176,58 +150,9 @@ export default class ArticleEditView extends Vue{
    */
   autoSave(): void{
     if(this.article.content) {
-      localStorage.article = JSON.stringify(this.article)
+      localStorage.setItem(LOCAL_STORAGE_KEY_ARTICLE, JSON.stringify(this.article))
       this.$message.info("本地已保存")
     }
-  }
-
-  /**
-   * 加载标签列表
-   */
-  private async loadTagList(): Promise<void>{
-    this.tagSelectLoading = true
-    try {
-      this.tagSearchResult = this.tagList = await TagService.listAll()
-    }finally {
-      this.tagSelectLoading = false
-    }
-  }
-
-  /**
-   * 当select改变时，查询是否选择了新增条目，如果选择了新增条目，那么进行创建操作
-   * @param data
-   * @private
-   */
-  private async onTagSelectChange(data: Tag[]): Promise<void>{
-    const newItem = data.find(i=>i.id === -1);
-    if(!newItem) {
-      this.tagSearchResult = this.tagList
-      return;
-    }
-    this.tagSelectLoading = true
-    try {
-      const result = await TagService.post(newItem)
-      const valueIndex = this.article.tags.findIndex(tag=>tag.id === -1)
-      this.article.tags[valueIndex] = result
-      this.tagList.push(result)
-      this.tagSearchResult = this.tagList
-    }finally {
-      this.tagSelectLoading = false
-    }
-  }
-
-  /**
-   * 标签列表过滤方法，添加新增选项
-   */
-  private tagSelectFilterFun(keyword: string){
-    let isFound = false
-    const result = this.tagList.filter(tag=>{
-      const index = tag.title.indexOf(keyword)
-      if(!isFound) isFound = index === 0 && tag.title.length === keyword.length
-      return index > -1;
-    });
-    if(!isFound && keyword !== "" && keyword.length > 1) result.unshift({id: -1, title: keyword} as Tag)
-    this.tagSearchResult = result
   }
 
   /**
@@ -260,7 +185,7 @@ export default class ArticleEditView extends Vue{
     }else{
       await ArticleService.update(this.article)
     }
-    localStorage.removeItem('article')
+    localStorage.removeItem(LOCAL_STORAGE_KEY_ARTICLE)
     this.$router.back()
   }
 }

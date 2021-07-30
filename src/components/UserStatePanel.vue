@@ -13,26 +13,26 @@
     <div class="flex-row justify-content-center align-items-center">
       <div class="text-center">
         <span class="d-block user-integral">{{ (userInfo && userInfo.agreedNum) || "-"}}</span>
-        <span class="d-block text-sub">获赞</span>
+        <span class="d-block color-text-sub">获赞</span>
       </div>
       <span class="user-state-panel-divider" />
       <div class="text-center">
         <span class="d-block user-integral">{{ (userInfo && userInfo.articleNum) || "-"}}</span>
-        <span class="d-block text-sub">文章</span>
+        <span class="d-block color-text-sub">文章</span>
       </div>
     </div>
-    <div class="user-state-panel-btns flex-row justify-content-center align-items-center text-sub" v-if="userInfo">
+    <div class="user-state-panel-btns flex-row justify-content-center align-items-center color-text-sub" v-if="userInfo">
       <template v-if="userInfo.isBlogger || userInfo.isAdmin">
         <router-link to="/article/edit/new">
           写文章
         </router-link>
         <span class="user-state-panel-divider" />
       </template>
-      <el-button type="text" class="text-sub" v-on:click="()=>this.showChangePasswordDialog = true">
+      <el-button type="text" class="color-text-sub" v-on:click="()=>this.showChangePasswordDialog = true">
         修改密码
       </el-button>
       <span class="user-state-panel-divider" />
-      <el-button type="text" class="text-sub" v-on:click="logout">
+      <el-button type="text" class="color-text-sub" v-on:click="logout">
         注销
       </el-button>
     </div>

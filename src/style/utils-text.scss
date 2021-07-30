@@ -1,4 +1,5 @@
 @import "mixin-common";
+@import "var-color";
 //title
 .h1{
   font-size: 36px;
@@ -20,32 +21,26 @@
 }
 
 //text
-.text-title{
-  color: #202020;
+@each $name,$color in $text-color-map{
+  .color-#{$name}{
+    color: #{$color};
+  }
 }
-.text-sub{
-  color: #909699;
+@each $name,$color in $color-map{
+  .color-#{$name}{
+    color: #{$color};
+  }
 }
-.text-content, .text-normal{
-  color: #232323;
+//hover color
+@each $name,$color in $text-color-map{
+  .color-#{$name}-hover:hover{
+    color: #{$color} !important;
+  }
 }
-.text-warning{
-  color: #f96e6e;
-}
-.text-danger{
-  color: #f93030;
-}
-.text-primary{
-  color: #0099ff;
-}
-.text-disable{
-  color: #d6d6d6;
-}
-.text-gainsboro{
-  color: gainsboro;
-}
-.text-white{
-  color: white;
+@each $name,$color in $color-map{
+  .color-#{$name}-hover:hover{
+    color: #{$color} !important;
+  }
 }
 
 .text-center{
@@ -72,4 +67,9 @@
   .text-ellipsis-#{$i}{
     @include text-ellipsis($i)
   }
+}
+
+//选择
+.select-none{
+  user-select: none;
 }

@@ -1,7 +1,7 @@
 <template>
 <div class="empty-data">
-  <p class="m-0"><span class="text-sub">_(:3 ⌒ﾞ)_</span></p>
-  <p class="m-0"><span class="text-sub">啥玩儿都没有</span></p>
+  <p class="m-0"><span class="color-text-sub">_(:3 ⌒ﾞ)_</span></p>
+  <p class="m-0"><span class="color-text-sub">啥玩儿都没有</span></p>
 </div>
 </template>
 

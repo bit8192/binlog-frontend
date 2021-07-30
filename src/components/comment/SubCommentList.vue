@@ -9,7 +9,7 @@
           <h5>{{replies.createdUser.username}}</h5>
           <comment-content :content="replies.content" :members="replies.members" class="ml-2" />
         </div>
-        <div class="text-sub">
+        <div class="color-text-sub">
           <span class="mr-3">{{replies.createdDate}}</span>
           <el-button type="text" :class="'mr-3' + (replies.isAgreed ? '' : ' text-sub')" v-on:click="()=>toggleSubCommentAgree(replies.id)">
             <font-awesome-icon :icon="[replies.isAgreed ? 'fas' : 'far', 'thumbs-up']"/>
@@ -19,7 +19,7 @@
             <font-awesome-icon :icon="[replies.isTrod ? 'fas' : 'far', 'thumbs-down']"/>
             {{ replies.treadNum ? replies.treadNum : '' }}
           </el-button>
-          <el-button type="text" v-on:click="()=>reply(replies)" class="text-sub">
+          <el-button type="text" v-on:click="()=>reply(replies)" class="color-text-sub">
             <font-awesome-icon :icon="['far', 'comment']" />
           </el-button>
         </div>
@@ -34,7 +34,7 @@
         v-on:current-change="onCurrentPageChange"
         hide-on-single-page
     />
-    <span v-else-if="commentCount > 3" class="text-sub">共<span class="text-bold">{{commentCount}}</span>条回复，<el-button type="text" v-on:click="expand">点击查看</el-button></span>
+    <span v-else-if="commentCount > 3" class="color-text-sub">共<span class="text-bold">{{commentCount}}</span>条回复，<el-button type="text" v-on:click="expand">点击查看</el-button></span>
   </div>
 </template>
 

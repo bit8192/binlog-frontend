@@ -2,3 +2,10 @@ $device-width-xs: 768px;
 $device-width-md: 992px;
 $device-width-lg: 1200px;
 $device-width-xl: 1920px;
+
+$device-width-map: (
+        "xs": $device-width-xs,
+        "md": $device-width-md,
+        "lg": $device-width-lg,
+        "xl": $device-width-xl,
+)
