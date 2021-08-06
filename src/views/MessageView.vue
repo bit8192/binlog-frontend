@@ -3,7 +3,7 @@
     <div class="message-type-container flex-row align-items-start height-100">
       <ul class="list-style-none m-0 p-0 pr-5 message-type-list">
         <li
-            v-for="type of messageTypeList"
+            v-for="type of messageTypeList.filter(i=>i.visible)"
             :class="'message-type-btn text-sub p-2' + (currentMsgType === type ? ' active' : '')"
             :key="type.title"
             v-on:click="()=>onSelectMessageType(type)">
@@ -17,16 +17,42 @@
         <template v-if="currentMsgType === articleCommentMsgType">
           <template v-if="articleCommentMsgType.messages.length">
             <MessageItem v-for="msg of articleCommentMsgType.messages" :key="msg.id" :message="msg" :data-id="msg.id" :data-is-read="msg.isRead">
-              <span class="color-text-sub" slot="user-describe">评论了我的文章</span>
+              <span class="color-text-sub" slot="user-describe">
+                评论了我的文章
+                <font-awesome-icon v-if="msg.isAnonymous" icon="mask" title="匿名评论" class="mx-2" />
+                <font-awesome-icon v-if="msg.removed" icon="eraser" title="评论已删除" class="mx-2" />
+              </span>
               <template slot="actions">
-                <el-button type="text" :class="msg.isAgreed ? '' : 'text-sub'" v-on:click="()=>toggleAgree(msg)">
+                <el-button type="text" :class="msg.isAgreed ? '' : 'color-text-sub'" v-on:click="()=>toggleAgree(msg)">
                   <font-awesome-icon :icon="[msg.isAgreed ? 'fas' : 'far', 'thumbs-up']" />
                 </el-button>
                 <el-button type="text" class="color-text-sub" v-on:click="currentReplyMessage = msg">
                   <font-awesome-icon :icon="['far', 'comment']" />
                 </el-button>
               </template>
-              <comment-reply-input v-if="currentReplyMessage === msg" slot="additional" class="mb-3" v-model="currentReplyContent" v-on:submit="submitReply" :placeholder="'回复 @' + currentReplyMessage.fromUser.username + ':'" autofocus />
+              <comment-reply-input v-if="currentReplyMessage === msg" slot="additional" class="mb-3" v-model="currentReplyContent" v-on:submit="submitCommentReply" :placeholder="'回复 @' + currentReplyMessage.fromUser.username + ':'" autofocus />
+            </MessageItem>
+          </template>
+          <empty-data v-else />
+        </template>
+        <!--    文章评论    -->
+        <template v-if="currentMsgType === leftMsgType">
+          <template v-if="leftMsgType.messages.length">
+            <MessageItem v-for="msg of leftMsgType.messages" :key="msg.id" :message="msg" :data-id="msg.id" :data-is-read="msg.isRead">
+              <span class="color-text-sub" slot="user-describe">
+                留言
+                <font-awesome-icon v-if="msg.isAnonymous" icon="mask" title="匿名评论" class="mx-2" />
+                <font-awesome-icon v-if="msg.removed" icon="eraser" title="评论已删除" class="mx-2" />
+              </span>
+              <template slot="actions">
+                <el-button type="text" :class="msg.isAgreed ? '' : 'color-text-sub'" v-on:click="()=>toggleAgree(msg)">
+                  <font-awesome-icon :icon="[msg.isAgreed ? 'fas' : 'far', 'thumbs-up']" />
+                </el-button>
+                <el-button type="text" class="color-text-sub" v-on:click="currentReplyMessage = msg">
+                  <font-awesome-icon :icon="['far', 'comment']" />
+                </el-button>
+              </template>
+              <comment-reply-input v-if="currentReplyMessage === msg" slot="additional" class="mb-3" v-model="currentReplyContent" v-on:submit="submitCommentReply" :placeholder="'回复 @' + currentReplyMessage.fromUser.username + ':'" autofocus />
             </MessageItem>
           </template>
           <empty-data v-else />
@@ -35,16 +61,20 @@
         <template v-else-if="currentMsgType === replyMeMsgType">
           <template v-if="replyMeMsgType.messages.length">
             <MessageItem v-for="msg of replyMeMsgType.messages" :key="msg.id" :message="msg" :data-id="msg.id" :data-is-read="msg.isRead">
-              <span class="color-text-sub" slot="user-describe">回复了我</span>
+              <span class="color-text-sub" slot="user-describe">
+                回复了我
+                <font-awesome-icon v-if="msg.isAnonymous" icon="mask" title="匿名评论" class="mx-2" />
+                <font-awesome-icon v-if="msg.removed" icon="eraser" title="评论已删除" class="mx-2" />
+              </span>
               <template slot="actions">
-                <el-button type="text" :class="msg.isAgreed ? '' : 'text-sub'" v-on:click="()=>toggleAgree(msg)">
+                <el-button type="text" :class="msg.isAgreed ? '' : 'color-text-sub'" v-on:click="()=>toggleAgree(msg)">
                   <font-awesome-icon :icon="[msg.isAgreed ? 'fas' : 'far', 'thumbs-up']" />
                 </el-button>
                 <el-button type="text" class="color-text-sub" v-on:click="currentReplyMessage = msg">
                   <font-awesome-icon :icon="['far', 'comment']" />
                 </el-button>
               </template>
-              <comment-reply-input v-if="currentReplyMessage === msg" slot="additional" class="mb-3" v-model="currentReplyContent" v-on:submit="submitReply" :placeholder="'回复 @' + currentReplyMessage.fromUser.username + ':'" autofocus />
+              <comment-reply-input v-if="currentReplyMessage === msg" slot="additional" class="mb-3" v-model="currentReplyContent" v-on:submit="submitSubCommentReply" :placeholder="'回复 @' + currentReplyMessage.fromUser.username + ':'" autofocus />
             </MessageItem>
           </template>
           <empty-data v-else />
@@ -53,16 +83,20 @@
         <template v-else-if="currentMsgType === mentionMeMsgType">
           <template v-if="mentionMeMsgType.messages.length">
             <MessageItem v-for="msg of mentionMeMsgType.messages" :key="msg.id" :message="msg" :data-id="msg.id" :data-is-read="msg.isRead">
-              <span class="color-text-sub" slot="user-describe">提到了我</span>
+              <span class="color-text-sub" slot="user-describe">
+                提到了我
+                <font-awesome-icon v-if="msg.isAnonymous" icon="mask" title="匿名评论" class="mx-2" />
+                <font-awesome-icon v-if="msg.removed" icon="eraser" title="评论已删除" class="mx-2" />
+              </span>
               <template slot="actions">
-                <el-button type="text" :class="msg.isAgreed ? '' : 'text-sub'" v-on:click="()=>toggleAgree(msg)">
+                <el-button type="text" :class="msg.isAgreed ? '' : 'color-text-sub'" v-on:click="()=>toggleAgree(msg)">
                   <font-awesome-icon :icon="[msg.isAgreed ? 'fas' : 'far', 'thumbs-up']" />
                 </el-button>
                 <el-button type="text" class="color-text-sub" v-on:click="currentReplyMessage = msg">
                   <font-awesome-icon :icon="['far', 'comment']" />
                 </el-button>
               </template>
-              <comment-reply-input v-if="currentReplyMessage === msg" slot="additional" class="mb-3" v-model="currentReplyContent" v-on:submit="submitReply" :placeholder="'回复 @' + currentReplyMessage.fromUser.username + ':'" autofocus />
+              <comment-reply-input v-if="currentReplyMessage === msg" slot="additional" class="mb-3" v-model="currentReplyContent" v-on:submit="submitSubCommentReply" :placeholder="'回复 @' + currentReplyMessage.fromUser.username + ':'" autofocus />
             </MessageItem>
           </template>
           <empty-data v-else />
@@ -93,15 +127,22 @@ import {Component, Vue} from "vue-property-decorator";
 import MessageService from "@/service/MessageService";
 import {
   MESSAGE_TYPE_ARTICLE_AGREE,
-  MESSAGE_TYPE_ARTICLE_COMMENT, MESSAGE_TYPE_ARTICLE_COMMENT_AGREE, MESSAGE_TYPE_ARTICLE_COMMENT_MENTION,
-  MESSAGE_TYPE_ARTICLE_COMMENT_REPLY, MESSAGE_TYPE_ARTICLE_SUB_COMMENT_AGREE, MESSAGE_TYPE_ARTICLE_SUB_COMMENT_MENTION,
-  MESSAGE_TYPE_ARTICLE_SUB_COMMENT_REPLY, MESSAGE_TYPE_SYSTEM
+  MESSAGE_TYPE_ARTICLE_COMMENT,
+  MESSAGE_TYPE_ARTICLE_COMMENT_AGREE,
+  MESSAGE_TYPE_ARTICLE_COMMENT_MENTION,
+  MESSAGE_TYPE_ARTICLE_COMMENT_REPLY,
+  MESSAGE_TYPE_ARTICLE_SUB_COMMENT_AGREE,
+  MESSAGE_TYPE_ARTICLE_SUB_COMMENT_MENTION,
+  MESSAGE_TYPE_ARTICLE_SUB_COMMENT_REPLY,
+  MESSAGE_TYPE_LEFT_MESSAGE,
+  MESSAGE_TYPE_LEFT_MESSAGE_REPLY, MESSAGE_TYPE_LEFT_MESSAGE_SUB_REPLY,
+  MESSAGE_TYPE_SYSTEM
 } from "@/constants/MessageType";
 import Message from "@/domain/Message";
 import EmptyData from "@/components/EmptyData.vue";
 import MessageItem from "@/components/message/MessageItem.vue";
 import {library} from "@fortawesome/fontawesome-svg-core";
-import {faComment, faThumbsUp} from "@fortawesome/free-solid-svg-icons";
+import {faComment, faEraser, faMask, faThumbsUp} from "@fortawesome/free-solid-svg-icons";
 import {faComment as faRegularComment, faThumbsUp as faRegularThumbsUp } from "@fortawesome/free-regular-svg-icons"
 import CommentMessage from "@/domain/CommentMessage";
 import Throttle from "@/decorators/Throttle";
@@ -110,7 +151,7 @@ import UserInfo from "@/domain/UserInfo";
 import CommentService from "@/service/CommentService";
 import ValueVo from "@/domain/ValueVo";
 import CommentReplyInput from "@/components/comment/CommentReplyInput.vue";
-library.add(faThumbsUp, faComment, faRegularComment, faRegularThumbsUp)
+library.add(faThumbsUp, faComment, faRegularComment, faRegularThumbsUp, faMask, faEraser)
 
 declare interface MsgTypeData<T>{
   title: string
@@ -132,7 +173,8 @@ const DEFAULT_PAGE_SIZE = 20;
   created() :void{
     const user = this.app.getLoggedUserInfo();
     if(user && user.isBlogger){
-      this.messageTypeList.unshift(this.articleCommentMsgType)
+      this.articleCommentMsgType.visible = true;
+      this.leftMsgType.visible = true;
       this.onSelectMessageType(this.articleCommentMsgType)
     }else{
       this.onSelectMessageType(this.replyMeMsgType)
@@ -147,24 +189,28 @@ export default class MessageView extends Vue{
   app: AppProvider
   unreadMessageCount: {[key:string]: number}
   messageTypeList: MsgTypeData<CommentMessage | Message>[]
+
   articleCommentMsgType: MsgTypeData<CommentMessage>
+  leftMsgType: MsgTypeData<CommentMessage>
   replyMeMsgType: MsgTypeData<CommentMessage>
   mentionMeMsgType: MsgTypeData<CommentMessage>
   agreeMsgType: MsgTypeData<Message>
   systemMsgType: MsgTypeData<Message>
+
   currentMsgType: MsgTypeData<CommentMessage | Message>
   currentReplyMessage: Message|null//当前正在回复的消息
   currentReplyContent: string//正在回复的内容
 
   data(): any{
-    this.articleCommentMsgType = {title: '文章评论', visible: true, messages: [], pageIndex: 0}
+    this.articleCommentMsgType = {title: '文章评论', visible: false, messages: [], pageIndex: 0}
+    this.leftMsgType = {title: '留言', visible: false, messages: [], pageIndex: 0}
     this.replyMeMsgType = {title: '回复我的', visible: true, messages: [], pageIndex: 0}
     this.mentionMeMsgType = {title: '@我的', visible: true, messages: [], pageIndex: 0}
     this.agreeMsgType = {title: '收到的赞', visible: true, messages: [], pageIndex: 0}
     this.systemMsgType = {title: '系统通知', visible: true, messages: [], pageIndex: 0}
     return {
       unreadMessageCount: {},
-      messageTypeList: [this.replyMeMsgType, this.mentionMeMsgType, this.agreeMsgType, this.systemMsgType],
+      messageTypeList: [this.articleCommentMsgType, this.leftMsgType, this.replyMeMsgType, this.mentionMeMsgType, this.agreeMsgType, this.systemMsgType],
       currentMsgType: this.articleCommentMsgType,
       currentReplyMessage: null,
       currentReplyContent: ""
@@ -172,14 +218,7 @@ export default class MessageView extends Vue{
   }
 
   onUserInfoChange(userInfo: UserInfo): void{
-    if(userInfo && userInfo.isBlogger){
-      if(this.messageTypeList.some(t=>t === this.articleCommentMsgType)) return;
-      this.messageTypeList.unshift(this.articleCommentMsgType);
-    }else{
-      const index = this.messageTypeList.findIndex(t=>t === this.articleCommentMsgType)
-      if(index == -1) return;
-      this.messageTypeList.splice(index, 1)
-    }
+    this.leftMsgType.visible = this.articleCommentMsgType.visible = userInfo && userInfo.isBlogger;
   }
 
   /**
@@ -188,6 +227,7 @@ export default class MessageView extends Vue{
   async refreshUnreadMessageCount(): Promise<void>{
     this.unreadMessageCount = await MessageService.unreadCount()
     this.articleCommentMsgType.unreadMessageCount = this.unreadMessageCount[MESSAGE_TYPE_ARTICLE_COMMENT] || 0
+    this.leftMsgType.unreadMessageCount = this.unreadMessageCount[MESSAGE_TYPE_LEFT_MESSAGE] || 0
     this.replyMeMsgType.unreadMessageCount = (this.unreadMessageCount[MESSAGE_TYPE_ARTICLE_COMMENT_REPLY] || 0) + (this.unreadMessageCount[MESSAGE_TYPE_ARTICLE_SUB_COMMENT_REPLY] || 0)
     this.mentionMeMsgType.unreadMessageCount = (this.unreadMessageCount[MESSAGE_TYPE_ARTICLE_COMMENT_MENTION] || 0) + (this.unreadMessageCount[MESSAGE_TYPE_ARTICLE_SUB_COMMENT_MENTION] || 0)
     this.agreeMsgType.unreadMessageCount = (this.unreadMessageCount[MESSAGE_TYPE_ARTICLE_AGREE] || 0) + (this.unreadMessageCount[MESSAGE_TYPE_ARTICLE_COMMENT_AGREE] || 0) + (this.unreadMessageCount[MESSAGE_TYPE_ARTICLE_SUB_COMMENT_AGREE] || 0)
@@ -207,6 +247,9 @@ export default class MessageView extends Vue{
     switch (this.currentMsgType) {
       case this.articleCommentMsgType:
         await this.loadArticleCommentMessage()
+        break;
+      case this.leftMsgType:
+        await this.loadLeftMessage();
         break;
       case this.replyMeMsgType:
         await this.loadReplyMessage()
@@ -232,6 +275,16 @@ export default class MessageView extends Vue{
     this.articleCommentMsgType.messages.push(...result.content)
     this.articleCommentMsgType.pageIndex ++
     this.articleCommentMsgType.isLast = result.last
+  }
+
+  /**
+   * 加载留言消息
+   */
+  async loadLeftMessage(): Promise<void>{
+    const result = await MessageService.getLeftMessagePage({page: this.leftMsgType.pageIndex, size: DEFAULT_PAGE_SIZE})
+    this.leftMsgType.messages.push(...result.content)
+    this.leftMsgType.pageIndex ++
+    this.leftMsgType.isLast = result.last
   }
 
   /**
@@ -316,21 +369,33 @@ export default class MessageView extends Vue{
     let result: ValueVo<boolean>
     switch (msg.type){
       case MESSAGE_TYPE_ARTICLE_COMMENT:
-        result = await CommentService.toggleCommentAgree(msg.relevantId)
+      case MESSAGE_TYPE_LEFT_MESSAGE:
+        result = await CommentService.toggleCommentAgree(msg.targetId)
         break;
       case MESSAGE_TYPE_ARTICLE_COMMENT_REPLY:
       case MESSAGE_TYPE_ARTICLE_SUB_COMMENT_REPLY:
-        result = await CommentService.toggleSubCommentAgree(msg.relevantId)
+      case MESSAGE_TYPE_LEFT_MESSAGE_REPLY:
+      case MESSAGE_TYPE_LEFT_MESSAGE_SUB_REPLY:
+        result = await CommentService.toggleReplyAgree(msg.targetId)
         break;
     }
     msg.isAgreed = result.value
   }
 
   /**
-   * 提交回复
+   * 提交评论回复
    */
-  async submitReply(): Promise<void>{
-    await CommentService.submitSubComment(this.currentReplyMessage.relevantId, this.currentReplyContent)
+  async submitCommentReply(): Promise<void>{
+    await CommentService.replyComment(this.currentReplyMessage.targetId, this.currentReplyContent)
+    this.currentReplyMessage = null
+    this.currentReplyContent = ""
+  }
+
+  /**
+   * 提交子评论回复
+   */
+  async submitSubCommentReply(): Promise<void>{
+    await CommentService.replySubComment(this.currentReplyMessage.targetId, this.currentReplyContent)
     this.currentReplyMessage = null
     this.currentReplyContent = ""
   }

@@ -37,10 +37,10 @@
 </template>
 
 <script lang="ts">
-import CommonUtils from "@/utils/CommonUtils";
 import ElementPosition from "@/domain/ElementPosition";
 import {Component, Vue} from "vue-property-decorator";
 import Throttle from "@/decorators/Throttle";
+import ElementUtils from "@/utils/ElementUtils";
 
 interface Section{
   label: string
@@ -81,12 +81,10 @@ export default class ArticleCatalog extends Vue{
     }else{
       targetElement = this.element
     }
-    if(!(targetElement instanceof Element)){
-      console.error("目标节点超出预期", this.element)
-    }else{
+    if(targetElement instanceof Element){
       this.refresh()
-      document.addEventListener("scroll", this.$_targetScrollEventListener)
     }
+    document.addEventListener("scroll", this.$_targetScrollEventListener)
   }
 
   beforeDestroy() : void{
@@ -96,13 +94,14 @@ export default class ArticleCatalog extends Vue{
     //章节点击事件
   $_sectionClickEventListener(section: Section): void{
     const scrollingElement = document.scrollingElement
-    let sectionTop = CommonUtils.getElementPosition(section.element as HTMLElement).offsetTop + (this.$el as HTMLElement).offsetTop
+    let sectionTop = ElementUtils.getElementPosition(section.element as HTMLElement).offsetTop + (this.$el as HTMLElement).offsetTop
     scrollingElement.scroll(0, sectionTop + 1)
   }
 
   //文章滚动事件
   @Throttle()
   $_targetScrollEventListener(): void{
+    if(!targetElement || !targetElementOffset) return;
     //滚动框架元素，一般是html
     const scrollingElement = document.scrollingElement
     //当前进度(窗口中间), 相对当前元素
@@ -116,7 +115,7 @@ export default class ArticleCatalog extends Vue{
     let top = 0
     let currentElement: Element|null = null
     for (let header of headers) {
-      top = CommonUtils.getElementPosition(header).offsetTop
+      top = ElementUtils.getElementPosition(header).offsetTop
       if(top < scrollingElement.scrollTop){
         currentElement = header
       }else{
@@ -131,7 +130,7 @@ export default class ArticleCatalog extends Vue{
       const catalogScrollElement = (this.$el as HTMLElement).querySelector(".catalog-section-container") as HTMLElement
       const catalogOffsetElement = (this.$el as HTMLElement).offsetParent as HTMLElement
       const currentSectionElement = this.$el.querySelector("#section-" + this.currentSectionId) as HTMLElement
-      const currentSectionTop = CommonUtils.getElementPosition(currentSectionElement, catalogOffsetElement).offsetTop
+      const currentSectionTop = ElementUtils.getElementPosition(currentSectionElement, catalogOffsetElement).offsetTop
       const catalogScrollElementHalfHeight = catalogScrollElement.clientHeight / 2;
       if (
           currentSectionTop > catalogScrollElementHalfHeight && currentSectionTop < catalogScrollElement.scrollTop + catalogScrollElementHalfHeight
@@ -147,7 +146,15 @@ export default class ArticleCatalog extends Vue{
     }
   }
 
-  refresh() :void{
+  refresh() :boolean{
+    if(!targetElement){
+      if(typeof this.element === "string"){
+        targetElement = document.querySelector("#" + this.element)
+      }else{
+        targetElement = this.element
+      }
+      if(!targetElement) return false;
+    }
     //取出所有标题
     headers = Array.from(targetElement.querySelectorAll("h1,h2,h3,h4,h5,h6"))
 
@@ -216,7 +223,8 @@ export default class ArticleCatalog extends Vue{
     // 遍历结束
     this.sections = sectionStack.filter(i=>!i.parent)
     // 计算文章位置
-    targetElementOffset = CommonUtils.getElementPosition(targetElement as HTMLElement)
+    targetElementOffset = ElementUtils.getElementPosition(targetElement as HTMLElement)
+    return true;
   }
 }
 

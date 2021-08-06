@@ -83,3 +83,11 @@ a{
     margin-top: 10vh !important;
   }
 }
+
+//头像微调
+.el-avatar{
+  background-color: transparent;
+}
+.el-avatar>img{
+  display: inline;
+}

@@ -9,5 +9,7 @@ export default interface Message{
     additionInfo: string
     content: string
     type: string
-    relevantId: number
+    relatedTargetId: number
+    originalTargetId: number
+    targetId: number
 }

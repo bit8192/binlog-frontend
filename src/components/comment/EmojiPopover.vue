@@ -18,7 +18,7 @@
     <el-tab-pane label="全部" class="emoji-box flex-column">
       <el-input size="mini" suffix-icon="el-icon-search" placholder="搜索" v-model="allExpressionKeywords" ref="allExpressionSearchInput" />
       <!--suppress HtmlUnknownAttribute -->
-      <ul class="list-style-none flex-1 flex-row flex-wrap" v-infinite-scroll="loadAllExpressionNext" style="overflow-y: auto">
+      <ul class="list-style-none flex-1 flex-row flex-wrap" v-infinite-scroll="loadAllExpressionNext" :infinite-scroll-immediate="false" style="overflow-y: auto">
         <template v-if="allExpressions.length">
           <li class="expression-item text-center flex-column mx-2" v-for="expression of allExpressions" :key="expression.id" v-on:click="onSelectAllExpression(expression)">
             <div class="flex-1 d-flex justify-content-center align-items-center">
@@ -102,6 +102,7 @@ export default class EmojiPopover extends Vue{
   onTabClick(panel: ElTabPane): void{
     this.$nextTick(this.updatePopper)
     if(panel.label === "全部" && !this.allExpressions.length && !this.allExpressionIsLast){
+      console.log("reload expression");
       this.reloadAllExpression().then(this.updatePopper)
     }
   }

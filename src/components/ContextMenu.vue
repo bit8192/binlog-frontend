@@ -10,7 +10,7 @@
 
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
-import CommonUtils from "@/utils/CommonUtils";
+import ElementUtils from "@/utils/ElementUtils";
 
 declare interface Data{
   left: number
@@ -59,12 +59,12 @@ export default class ContextMenu extends Vue{
    * @param e
    */
   onContextMenu(e: MouseEvent | any): void{
-    if(CommonUtils.inElement(e.target, this.el)) return
+    if(ElementUtils.inElement(e.target, this.el)) return
     if(e.layerX !== undefined && e.layerY !== undefined){
       this.left = e.layerX
       this.top = e.layerY
     }else{
-      const parentPosition = CommonUtils.getElementPosition(this.offsetParent)
+      const parentPosition = ElementUtils.getElementPosition(this.offsetParent)
       this.left = e.clientX - parentPosition.clientLeft
       this.top = e.clientY - parentPosition.clientTop
     }

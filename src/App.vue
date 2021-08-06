@@ -15,9 +15,9 @@
     <el-footer id="footer">
       <span class="color-text-sub">{{systemProfile.copyRight}}</span>
       <span class="color-text-sub">powered by <a target="_blank" href="//bincker.cn">bincker</a></span>
-      <span><a href="https://beian.miit.gov.cn/" target="_blank" class="color-text-sub">{{systemProfile.ipc}}</a></span>
-      <span>
-        <a class="color-text-sub" target="_blank" :href="systemProfile.github" v-if="systemProfile.github">
+<!--      <span v-if="systemProfile.ipc"><a href="https://beian.miit.gov.cn/" target="_blank" class="color-text-sub">{{systemProfile.ipc}}</a></span>-->
+      <span v-if="systemProfile.github">
+        <a class="color-text-sub" target="_blank" :href="systemProfile.github">
           <font-awesome-icon :icon="['fab', 'github']" size="2x" />
         </a>
       </span>
@@ -163,8 +163,7 @@ export default class App extends Vue{
    * @param error
    */
   errorCaptured(error: Error): void{
-    console.log("captured error", error)
-    if(error instanceof NetworkError){
+    if(error instanceof NetworkError && error.response){
       switch (error.response.status) {
         case 401:
           this.userInfo = null

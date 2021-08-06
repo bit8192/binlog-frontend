@@ -13,7 +13,7 @@
               </el-button>
             </div>
             <ul class="list-style-none text-left text-ellipsis">
-              <li class="d-inline mr-2 color-text-link" v-for="tag of expression.tags" :key="tag.id" style="font-size: .8em; cursor: pointer">#{{tag.title}}</li>
+              <li class="d-inline mr-2 color-text-link" v-for="tag of expression.tags" :key="tag.id" style="font-size: .8em; cursor: pointer" v-on:click="e=>toggleSelectTag(e, tag)">#{{tag.title}}</li>
             </ul>
             <div class="flex-row align-items-center">
               <el-avatar :src="expression.createdUser.headImg" size="small" />
@@ -31,7 +31,7 @@
             <el-tag size="small" style="cursor: pointer" :effect="selectedTagIds.has(tag.id) ? 'dark' : 'plain'" v-on:click="e=>toggleSelectTag(e, tag)">{{ tag.title }}({{ tag.expressionNum }})</el-tag>
           </li>
         </ul>
-        <el-button type="primary" class="mt-2" style="width: 100%" v-on:click="showUploadPanel = true">上传</el-button>
+        <el-button type="primary" class="mt-2" style="width: 100%" v-on:click="onUpload">上传</el-button>
         <el-dialog :visible="showUploadPanel" v-on:close="showUploadPanel = false" append-to-body>
           <expression-upload-panel v-on:complete="onUploadComplete" />
         </el-dialog>
@@ -52,10 +52,12 @@ import {faThumbsUp} from "@fortawesome/free-solid-svg-icons";
 import {faThumbsUp as faRegularThumbsUp} from "@fortawesome/free-regular-svg-icons";
 import ExpressionUploadPanel from "@/components/expression/ExpressionUploadPanel.vue";
 import {ElInput} from "element-ui/types/input";
+import {AppProvider} from "@/App.vue";
 library.add(faThumbsUp, faRegularThumbsUp)
 
 @Component({
   components: {ExpressionUploadPanel},
+  inject: ['app'],
   created(): void{
     this.loadExpressionPage()
     this.loadData()
@@ -76,6 +78,7 @@ export default class Expression extends Vue{
   isLast: boolean
   expressionUrl: string
   showUploadPanel: boolean
+  app: AppProvider
 
   data(): any{
     return {
@@ -154,6 +157,14 @@ export default class Expression extends Vue{
       }
     }
     this.reloadExpressionPage()
+  }
+
+  onUpload(): void{
+    if(!this.app.isLogged()) {
+      this.app.openLoginDialog();
+      return;
+    }
+    this.showUploadPanel = true
   }
 
   /**

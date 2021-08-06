@@ -37,7 +37,7 @@
           v-on:dblclick="e=>onItemDblclick(e, file)"
       />
     </template>
-    <empty-data v-else />
+    <empty-data v-else class="flex-1" />
     <context-menu :items="menuItems" v-on:click-item="onContextMenuItemClick" />
     <el-dialog :visible="showUploadPanel" v-on:close="showUploadPanel = false" append-to-body>
       <net-disk-file-upload-panel :additional-permission="currentDirectory && currentDirectory.writable" :parent-id="currentDirectory ? currentDirectory.id : null" v-on:complete="onUploadComplete" />

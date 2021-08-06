@@ -1,11 +1,16 @@
 import Article from "@/domain/Article";
 import axios from "axios";
-import {URL_ARTICLE, URL_ARTICLE_SEARCH_CLASS, URL_ARTICLE_SEARCH_TAG} from "@/constants/UrlApiArticle";
+import {
+    URL_ARTICLE,
+    URL_ARTICLE_COMMENTS,
+    URL_ARTICLE_SEARCH_CLASS,
+    URL_ARTICLE_SEARCH_TAG
+} from "@/constants/UrlApiArticle";
 import Page from "@/domain/Page";
 import Pageable, {pageable2RequestParameters} from "@/domain/Pageable";
 import ValueVo from "@/domain/ValueVo";
 import {Comment} from "@/domain/Comment";
-import {URL_ARTICLE_COMMENT} from "@/constants/UrlApiComment";
+import {MyAxiosRequestConfig} from "@/config/config-axios";
 
 export default class ArticleService{
     public static add(article: Article): Promise<Article>{
@@ -20,9 +25,9 @@ export default class ArticleService{
         return axios.get(URL_ARTICLE + "/" + id);
     }
 
-    public static pageAll(pageable: Pageable): Promise<Page<Article>>{
+    public static pageAll(keywords: string, articleClassId: number, tagIds: number[], pageable: Pageable): Promise<Page<Article>>{
         return axios.get(URL_ARTICLE, {
-            params: pageable2RequestParameters(pageable)
+            params: Object.assign({keywords, articleClassId, tagIds},pageable2RequestParameters(pageable))
         })
     }
 
@@ -61,11 +66,30 @@ export default class ArticleService{
     }
 
     /**
+     * 评论分页
+     */
+    static getCommentPage(articleId: number|string, pageable: Pageable): Promise<Page<Comment>>{
+        return axios.get(
+            URL_ARTICLE_COMMENTS,
+            {
+                params: pageable2RequestParameters(pageable),
+                pathVariables: {articleId}
+            } as MyAxiosRequestConfig
+        )
+    }
+
+    /**
      * 提交评论
      * @param articleId
      * @param content
      */
-    static submitComment(articleId: number|string, content: string): Promise<Comment>{
-        return axios.post(URL_ARTICLE_COMMENT, {articleId, content});
+    static commenting(articleId: number|string, content: string): Promise<Comment>{
+        return axios.post(
+            URL_ARTICLE_COMMENTS,
+            {content},
+            {
+                pathVariables: {articleId}
+            } as MyAxiosRequestConfig
+        );
     }
 }

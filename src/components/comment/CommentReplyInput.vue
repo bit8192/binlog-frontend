@@ -4,7 +4,8 @@
       <el-input type="textarea" v-model="inputValue" :rows="2" :placeholder="placeholder" ref="input" autofocus />
       <el-button class="ml-2" v-on:click="()=>this.$emit('submit')">{{btnTitle}}</el-button>
     </div>
-    <emoji-popover v-on:select="emoji=>inputValue+=emoji" />
+    <emoji-popover v-on:select="emoji=>inputValue+=emoji" class="mr-3" />
+    <slot name="action" />
   </div>
 </template>
 

@@ -1,12 +1,11 @@
 <template>
   <div class="container-article">
-    <transition name="transition-from-bottom" mode="out-in">
-      <div v-if="articleList.length">
-        <article-list-item v-for="article in articleList" :key="article.id" :info="article" />
-        <p v-if="last" class="color-text-sub text-center py-3">说实话，我没了</p>
-      </div>
-      <empty-data v-else />
-    </transition>
+    <div v-if="articleList.length">
+      <article-list-item v-for="article in articleList" :key="article.id" :info="article" />
+      <p v-if="last" class="color-text-sub text-center py-3">说实话，我没了</p>
+    </div>
+    <empty-data v-else />
+    <el-backtop ref="backTop" />
   </div>
 </template>
 
@@ -18,13 +17,8 @@ import ArticleService from "@/service/ArticleService";
 import Pageable from "@/domain/Pageable";
 import {Component, Vue} from "vue-property-decorator";
 import Debounce from "@/decorators/Debounce";
-import CommonUtils from "@/utils/CommonUtils";
-import ElementPosition from "@/domain/ElementPosition";
+import ElementUtils from "@/utils/ElementUtils";
 
-interface Data{
-  articleList: Article[]
-  pageable: Pageable
-}
 @Component({
   components: {EmptyData, ArticleListItem},
 })
@@ -32,10 +26,15 @@ export default class ArticlePage extends Vue{
   articleList!: Article[]
   pageable!: Pageable
   last = false
-  elementPosition!: ElementPosition
+  keywords: string
+  articleClassId: number
+  tagIds: Array<number>
 
-  data() : Data{
+  data() : any{
     return {
+      keywords: "",
+      articleClassId: null,
+      tagIds: [],
       articleList: [],
       pageable: {
         page: 0,
@@ -47,7 +46,6 @@ export default class ArticlePage extends Vue{
   mounted(): void {
     this.loadNextPage()
     document.addEventListener("scroll", this.onStroll)
-    this.elementPosition = CommonUtils.getElementPosition(this.$el as HTMLElement)
   }
 
   beforeDestroy(): void{
@@ -57,15 +55,26 @@ export default class ArticlePage extends Vue{
   @Debounce()
   onStroll(): void{
     //如果不存在下一页，或没有滚动到距离底部200像素时，不进行加载
-    if(this.last || (this.elementPosition.offsetTop + this.$el.clientHeight - document.scrollingElement.scrollTop - document.scrollingElement.clientHeight > 200)) return
+    if(this.last || ElementUtils.getScrollSurplus() > 200) return
     this.pageable.page ++
     this.loadNextPage()
   }
 
   protected async loadNextPage(): Promise<void>{
-    const page = await ArticleService.pageAll(this.pageable)
+    const page = await ArticleService.pageAll(this.keywords, this.articleClassId, this.tagIds, this.pageable)
     this.last = page.last
     this.articleList.push(...page.content)
+  }
+
+  async refresh(keywords = "", articleClassId = 0, tagIds: Array<number> = []): Promise<void>{
+    this.keywords = keywords;
+    this.articleClassId = articleClassId;
+    this.tagIds = tagIds;
+    this.articleList = []
+    this.last = false
+    this.pageable.page = 0
+    await this.loadNextPage();
+    (this.$refs.backTop as any).scrollToTop();
   }
 }
 </script>

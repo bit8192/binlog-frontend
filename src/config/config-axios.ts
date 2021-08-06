@@ -7,13 +7,30 @@ interface AxiosConfig {
     baseURL?: string
 }
 export interface MyAxiosRequestConfig extends AxiosRequestConfig{
-    ignoreNotifyOnStatus?: number | number[]
+    /**
+     * 忽略状态提示
+     */
+    ignoreNotifyOnStatus?: number | number[],
+    /**
+     * 请求路径参数
+     */
+    pathVariables?: {[k:string]: string | number}
 }
 export default function configAxios(axiosConfig: AxiosConfig): void{
     axios.defaults.baseURL = axiosConfig.baseURL
     axios.defaults.headers.common.Accept = "application/hal+json, text/plain, */*"
 
     axios.defaults.paramsSerializer = params => qs.stringify(params, {arrayFormat: "repeat"})
+
+    axios.interceptors.request.use((request:MyAxiosRequestConfig)=>{
+        if(request.pathVariables){
+            for (const key in request.pathVariables) {
+                request.url = request.url.replace("{" + key + "}", request.pathVariables[key].toString())
+            }
+        }
+        return request
+    })
+
     axios.interceptors.response.use(
         function(response){
             if(!response) throw new Error()
@@ -25,8 +42,8 @@ export default function configAxios(axiosConfig: AxiosConfig): void{
         (error: AxiosError) => {
             const response = error.response
             const config = error.config as MyAxiosRequestConfig
-            let msg = response.data?.msg
-            if(!msg){
+            let msg = response ? response.data?.msg : "未知错误，这可能是由于前端的逻辑错误导致的"
+            if(!msg && response){
                 switch (response.status){
                     case 200:
                         break;
@@ -49,7 +66,7 @@ export default function configAxios(axiosConfig: AxiosConfig): void{
                         msg = "请求失败"
                 }
             }
-            if(needNotify(config.ignoreNotifyOnStatus, response.status)) {
+            if(needNotify(config ? config.ignoreNotifyOnStatus : undefined, response ? response.status : undefined)) {
                 Message.error({
                     message: msg,
                     showClose: true,
@@ -66,7 +83,7 @@ export default function configAxios(axiosConfig: AxiosConfig): void{
  * @param ignoreNotifyOnStatus
  * @param status
  */
-function needNotify(ignoreNotifyOnStatus: number | number[], status: number){
+function needNotify(ignoreNotifyOnStatus: number | undefined | number[], status: number | undefined){
     if(!ignoreNotifyOnStatus) return true
     if(typeof ignoreNotifyOnStatus === "number") return status !== ignoreNotifyOnStatus
     if(Array.isArray(ignoreNotifyOnStatus)) return !ignoreNotifyOnStatus.some(i=>i === status)

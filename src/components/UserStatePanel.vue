@@ -6,7 +6,7 @@
       </router-link>
       <el-avatar src="" :size="80" v-else/>
       <div>
-        <span v-if="userInfo">{{ userInfo.nickname || userInfo.username }}</span>
+        <span v-if="userInfo">{{ userInfo.username }}</span>
         <el-button v-else type="text" v-on:click="openLoginDialog">登录/注册</el-button>
       </div>
     </div>
@@ -17,9 +17,16 @@
       </div>
       <span class="user-state-panel-divider" />
       <div class="text-center">
-        <span class="d-block user-integral">{{ (userInfo && userInfo.articleNum) || "-"}}</span>
-        <span class="d-block color-text-sub">文章</span>
+        <span class="d-block user-integral">{{ (userInfo && userInfo.commentNum) || "-" }}</span>
+        <span class="d-block color-text-sub">评论</span>
       </div>
+      <template v-if="userInfo && userInfo.isBlogger">
+        <span class="user-state-panel-divider" />
+        <div class="text-center">
+          <span class="d-block user-integral">{{ (userInfo && userInfo.articleNum) || "-"}}</span>
+          <span class="d-block color-text-sub">文章</span>
+        </div>
+      </template>
     </div>
     <div class="user-state-panel-btns flex-row justify-content-center align-items-center color-text-sub" v-if="userInfo">
       <template v-if="userInfo.isBlogger || userInfo.isAdmin">

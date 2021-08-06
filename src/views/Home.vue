@@ -1,27 +1,51 @@
 <template>
   <el-row class="container" type="flex" :gutter="10">
     <el-col :md="18" :xs="24">
-      <article-page />
+      <article-page ref="articlePage" />
     </el-col>
     <el-col :md="6" :xs="24" class="home-panel-right">
-      <user-state-panel style="margin-bottom: .5em" />
-      <tag-list-hot class="tag-list" />
+      <user-state-panel class="mb-1" />
+      <bloggers-panel class="mb-1" />
+      <div class="follow-panel">
+        <article-search-panel :article-page="articlePage"/>
+        <el-card class="mt-1">
+          <h3 slot="header">阳光男孩 在线磕头</h3>
+          <a :href="payImage" target="_blank" title="请我喝一杯Java">
+            <el-image :src="begImage" />
+          </a>
+        </el-card>
+      </div>
     </el-col>
   </el-row>
 </template>
 
 <script lang="ts">
 import ArticlePage from "@/components/article/ArticlePage.vue";
-import TagListHot from "@/components/TagListHot.vue";
+import ArticleSearchPanel from "@/components/ArticleSearchPanel.vue";
 import CommonService from "@/service/CommonService";
 import UserStatePanel from "@/components/UserStatePanel.vue";
 import {Component, Vue} from "vue-property-decorator";
+import BloggersPanel from "@/components/BloggersPanel.vue";
 
 @Component({
-  components: {UserStatePanel, TagListHot, ArticlePage},
+  components: {BloggersPanel, UserStatePanel, ArticleSearchPanel, ArticlePage},
   inject: ['app']
 })
 export default class Home extends Vue{
+  articlePage: ArticlePage
+  begImage = require("@/assets/beg.jpg")
+  payImage = require("@/assets/pay.webp")
+
+  data(): any{
+    return {
+      articlePage: undefined
+    }
+  }
+
+  mounted(): void{
+    this.articlePage = this.$refs.articlePage as ArticlePage
+  }
+
   async created() : Promise<void>{
     const systemProfile = await CommonService.getSystemProfile()
     document.title = systemProfile.name
@@ -33,7 +57,7 @@ export default class Home extends Vue{
 .container{
   align-items: stretch;
 }
-.tag-list{
+.follow-panel{
   position: -webkit-sticky;
   position: sticky;
   top: 1em;
@@ -44,7 +68,7 @@ export default class Home extends Vue{
   .container{
     flex-flow: column-reverse wrap;
   }
-  .tag-list{
+  .follow-panel{
     position: unset;
     top: unset;
     margin-bottom: 1em;

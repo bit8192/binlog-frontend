@@ -1,7 +1,8 @@
 <template>
 <div class="chinese-verify-code">
   <div class="chinese-verify-code-image-box" v-on:click="onVerifyCodeClick">
-    <el-image :src="'/api/verify-code?t=' + verifyCodeTimestamp" />
+    <el-image :src="verifyCodeUrl + '?t=' + verifyCodeTimestamp" />
+    <!--suppress HtmlUnknownAttribute -->
     <div
         class="chinese-verify-code-point"
         v-for="(point, index) in points" :key="point.x + '-' + point.y" :style="'left: ' + point.x + 'px; top: ' + point.y + 'px'"
@@ -20,6 +21,8 @@
 import CommonUtils from "@/utils/CommonUtils";
 import NotificationError from "@/error/NotificationError";
 import {Component, Vue} from "vue-property-decorator";
+import ElementUtils from "@/utils/ElementUtils";
+import {URL_VERIFY_CODE} from "@/constants/UrlApiCommon";
 
 interface Point{
   x: number
@@ -39,7 +42,8 @@ interface Point{
   data(): any{
     return {
       verifyCodeTimestamp: new Date().getTime(),
-      points: []
+      points: [],
+      verifyCodeUrl: URL_VERIFY_CODE,
     }
   }
 })
@@ -72,7 +76,7 @@ export default class ChineseVerifyCode extends Vue{
         y: e.layerY
       })
     }else{
-      const position = CommonUtils.getElementPosition(target)
+      const position = ElementUtils.getElementPosition(target)
       this.points.push({
         x: e.clientX - position.clientLeft,
         y: e.clientY - position.clientTop

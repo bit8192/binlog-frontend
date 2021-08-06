@@ -1,39 +1,52 @@
 import axios from "axios";
-import {URL_ARTICLE} from "@/constants/UrlApiArticle";
 import Pageable, {pageable2RequestParameters} from "@/domain/Pageable";
 import Page from "@/domain/Page";
 import ValueVo from "@/domain/ValueVo";
 import {Comment} from "@/domain/Comment";
-import {URL_ARTICLE_COMMENT, URL_ARTICLE_SUB_COMMENT} from "@/constants/UrlApiComment";
+import {
+    URL_COMMENT_REMOVE,
+    URL_COMMENT_REPLIES,
+    URL_COMMENT_REPLY_REMOVE,
+    URL_COMMENT_REPLY_TOGGLE_AGREE, URL_COMMENT_REPLY_TOGGLE_TREAD,
+    URL_COMMENT_SUB_REPLY,
+    URL_COMMENT_TOGGLE_AGREE,
+    URL_COMMENT_TOGGLE_TREAD
+} from "@/constants/UrlApiComment";
+import {MyAxiosRequestConfig} from "@/config/config-axios";
 
 export default class CommentService{
     /**
-     * 获取评论分页数据
-     * @param articleId
-     * @param pageable
+     * 提交评论回复
      */
-    static async getArticleCommentPage(articleId: number|string, pageable: Pageable): Promise<Page<Comment>>{
-        return await axios.get<Page<Comment>, Page<Comment>>(URL_ARTICLE + "/" + articleId + "/comments", {
-            params: pageable2RequestParameters(pageable)
-        })
+    static replyComment(commentId: number, content: string): Promise<Comment>{
+        return axios.post(
+            URL_COMMENT_REPLIES,
+            {content},
+            {
+                pathVariables: {commentId}
+            } as MyAxiosRequestConfig
+        );
     }
 
     /**
-     * 提交评论
-     * @param commentId
-     * @param content
+     * 提交子评论回复
      */
-    static async submitComment(commentId: number|string, content: string): Promise<Comment>{
-        return await axios.post<Comment, Comment>(URL_ARTICLE_COMMENT, {commentId, content});
+    static replySubComment(replyId: number, content: string): Promise<Comment>{
+        return axios.post(
+            URL_COMMENT_SUB_REPLY,
+            {content},
+            {
+                pathVariables: {replyId}
+            } as MyAxiosRequestConfig
+        )
     }
 
     /**
      * 删除评论
-     * @param articleId
      * @param commentId
      */
-    static deleteComment(articleId: number|string, commentId: number|string): Promise<void>{
-        return axios.delete(URL_ARTICLE_COMMENT + "/" + commentId)
+    static removeComment(commentId: number|string): Promise<void>{
+        return axios.delete(URL_COMMENT_REMOVE, {pathVariables: {commentId}} as MyAxiosRequestConfig)
     }
 
     /**
@@ -41,7 +54,7 @@ export default class CommentService{
      * @param commentId
      */
     static toggleCommentAgree(commentId: number|string): Promise<ValueVo<boolean>>{
-        return axios.post(URL_ARTICLE_COMMENT + "/" + commentId + "/toggle-agree");
+        return axios.post(URL_COMMENT_TOGGLE_AGREE, null, {pathVariables: {commentId}} as MyAxiosRequestConfig);
     }
 
     /**
@@ -49,50 +62,45 @@ export default class CommentService{
      * @param commentId
      */
     static toggleCommentTread(commentId: number|string): Promise<ValueVo<boolean>>{
-        return axios.post(URL_ARTICLE_COMMENT + "/" + commentId + "/toggle-tread");
-    }
-
-    /**
-     * 获取子评论数据
-     * @param commentId
-     * @param pageable
-     */
-    static async getArticleSubCommentPage(commentId: number|string, pageable: Pageable): Promise<Page<Comment>>{
-        return await axios.get<Page<Comment>, Page<Comment>>(URL_ARTICLE_COMMENT + "/comments/" + commentId + "/sub-comments", {
-            params: pageable2RequestParameters(pageable)
-        });
-    }
-
-    /**
-     * 提交子评论
-     * @param commentId
-     * @param content
-     */
-    static async submitSubComment(commentId: number|string, content: string): Promise<Comment>{
-        return await axios.post<Comment, Comment>(URL_ARTICLE_SUB_COMMENT, {commentId, content});
+        return axios.post(URL_COMMENT_TOGGLE_TREAD, null, {pathVariables: {commentId}} as MyAxiosRequestConfig);
     }
 
     /**
      * 删除子评论
-     * @param commentId
+     * @param replyId
      */
-    static deleteSubComment(commentId: number|string): Promise<void>{
-        return axios.delete(URL_ARTICLE_SUB_COMMENT + "/" + commentId);
+    static removeReply(replyId: number|string): Promise<void>{
+        return axios.delete(URL_COMMENT_REPLY_REMOVE, {pathVariables: {replyId}} as MyAxiosRequestConfig);
     }
 
     /**
      * 切换子评论点赞
-     * @param commentId
+     * @param replyId
      */
-    static toggleSubCommentAgree(commentId: number|string): Promise<ValueVo<boolean>>{
-        return axios.post(URL_ARTICLE_SUB_COMMENT + "/sub-comments/" + commentId + "/toggle-agree");
+    static toggleReplyAgree(replyId: number|string): Promise<ValueVo<boolean>>{
+        return axios.post(URL_COMMENT_REPLY_TOGGLE_AGREE, null, {pathVariables: {replyId}} as MyAxiosRequestConfig);
     }
 
     /**
      * 切换子评论点踩
-     * @param commentId
+     * @param replyId
      */
-    static toggleSubCommentTread(commentId: number|string): Promise<ValueVo<boolean>>{
-        return axios.post(URL_ARTICLE_SUB_COMMENT + "/" + commentId + "/toggle-tread");
+    static toggleReplyTread(replyId: number|string): Promise<ValueVo<boolean>>{
+        return axios.post(URL_COMMENT_REPLY_TOGGLE_TREAD, null, {pathVariables: {replyId}} as MyAxiosRequestConfig);
+    }
+
+    /**
+     * 获取评论回复分页
+     * @param commentId
+     * @param pageable
+     */
+    static async getReplyPage(commentId: number, pageable: Pageable): Promise<Page<Comment>> {
+        return axios.get(
+            URL_COMMENT_REPLIES,
+            {
+                params: pageable2RequestParameters(pageable),
+                pathVariables: { commentId }
+            } as MyAxiosRequestConfig
+        );
     }
 }

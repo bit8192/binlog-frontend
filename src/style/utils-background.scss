@@ -1,3 +1,4 @@
+@import "var-color";
 .bg-gainsboro{
   background-color: gainsboro;
 }
@@ -12,4 +13,7 @@
 }
 .bg-transparent{
   background-color: transparent;
+}
+.bg-selected{
+  background-color: $color-selected;
 }

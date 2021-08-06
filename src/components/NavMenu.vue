@@ -64,8 +64,8 @@ declare interface Menu{
         NavMenu.netDiskFileMenu.visible = true
       }
       NavMenu.messageMenu.visible = true
+      this.refreshUnreadMessageCount()
     }
-    this.refreshUnreadMessageCount()
   },
   beforeDestroy(): void{
     this.app.removeUserInfoChangeListener(this.onUserInfoChange)

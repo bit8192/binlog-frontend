@@ -1,33 +1,31 @@
 <template>
   <div>
-    <transition name="el-fade-in" appear>
-      <div class="article-cover">
-        <el-image :src="imagePath + info.cover.id" fit="cover" v-if="info.cover" v-on:load="this.$refs.catalog.refresh">
-          <error-image slot="error" />
-        </el-image>
-        <div class="article-header">
-          <h1 class="article-title">{{info.title}}</h1>
-          <div class="article-info">
-            <span class="text-article-info">{{ info.createdUser ? info.createdUser.nickname || info.createdUser.username : "-" }}</span>
-            <span class="text-article-info">发表于{{ info.createdDate }}</span>
-            <span class="text-article-info" v-if="info.isOriginal">原创文章</span>
-            <span class="text-article-info" v-if="info.articleClass">
+    <div :class="'article-cover transition-from-top-enter-active' + ((loadingArticle || loadingCover) ? ' transition-from-top-enter' : ' transition-from-top-enter-to')">
+      <el-image :src="imagePath + info.cover.id" fit="contain" v-if="info.cover" v-on:load="()=>{this.$refs.catalog.refresh(); loadingCover = false}">
+        <error-image slot="error" />
+      </el-image>
+      <div class="article-header">
+        <h1 class="article-title">{{info.title}}</h1>
+        <div class="article-info">
+          <span class="text-article-info">{{ info.createdUser ? info.createdUser.username || info.createdUser.username : "-" }}</span>
+          <span class="text-article-info">发表于{{ info.createdDate }}</span>
+          <span class="text-article-info" v-if="info.isOriginal">原创文章</span>
+          <span class="text-article-info" v-if="info.articleClass">
             <font-awesome-icon :icon="['fas', 'bars']" />
             {{info.articleClass.title}}
           </span>
-            <div class="text-article-info article-tag-list">
-              <font-awesome-icon icon="tag"/>
-              <!--suppress JSUnusedLocalSymbols, JSUnresolvedVariable -->
-              <router-link v-for="tag of info.tags" :key="tag.id" :to="'/tag/' + tag.id" class="text-article-tag">
-                {{tag.title}}
-              </router-link>
-            </div>
+          <div class="text-article-info article-tag-list">
+            <font-awesome-icon icon="tag"/>
+            <!--suppress JSUnusedLocalSymbols, JSUnresolvedVariable -->
+            <router-link v-for="tag of info.tags" :key="tag.id" :to="'/tag/' + tag.id" class="text-article-tag">
+              {{tag.title}}
+            </router-link>
           </div>
         </div>
       </div>
-    </transition>
-    <div class="mt-1 flex-row flex-direction-column-md align-items-start">
-      <el-card id="article-catalog-container" class="flex-1 d-none-md mr-1">
+    </div>
+    <div :class="'mt-1 flex-row flex-direction-column-md align-items-start transition-from-bottom-enter-active' + (loadingArticle || loadingCover ? ' transition-from-bottom-enter' : ' transition-from-bottom-enter-to')">
+      <el-card id="article-catalog-container" class="flex-1 d-none-md mr-1" :body-style="{padding: '6px'}">
         <article-catalog ref="catalog" id="article-catalog" element="article" />
       </el-card>
       <el-card class="flex-5 flex-1-md">
@@ -35,13 +33,13 @@
       </el-card>
     </div>
 
-    <el-card class="mt-1">
+    <el-card :class="'mt-1 transition-fade-in-enter-active' + (loadingComments ? ' transition-fade-in-enter' : ' transition-fade-in-enter-to')" :body-style="{padding: '5px 1em'}">
       <div class="flex-row justify-content-between align-items-center">
-        <el-button type="text" ref="agreeButton" :class="'article-action' + (this.info.isAgreed ? '' : ' text-sub ')" title="不错哦" v-on:click="toggleAgree">
+        <el-button type="text" ref="agreeButton" :class="'article-action' + (this.info.isAgreed ? '' : ' color-text-sub ')" title="不错哦" v-on:click="toggleAgree">
           <font-awesome-icon icon="thumbs-up" size="2x" />&nbsp;{{info.agreedNum}}
         </el-button>
-        <el-button type="text" class="color-text-sub article-action" title="可怜可怜我吧">
-          <font-awesome-icon icon="donate" size="2x" />&nbsp;捐赠
+        <el-button type="text" class="color-text-sub article-action" title="请我喝一杯Java">
+          <font-awesome-icon icon="coffee" size="2x" />
         </el-button>
         <el-button type="text" class="color-text-sub article-action" title="分享">
           <font-awesome-icon icon="share" size="2x"/>&nbsp;{{info.forwardingNum}}
@@ -51,7 +49,7 @@
         </router-link>
       </div>
     </el-card>
-    <el-card class="mt-1">
+    <el-card :class="'mt-1 transition-fade-in-enter-active' + (loadingComments ? ' transition-fade-in-enter' : ' transition-fade-in-enter-to')">
       <h3 slot="header">{{info.commentNum}}评论</h3>
       <div class="flex-row position-relative">
         <el-avatar :src="userInfo ? userInfo.headImg : ''" :size="50" class="mr-4">
@@ -62,7 +60,7 @@
           <el-button v-on:click="this.app.openLoginDialog">登录后进行评论</el-button>
         </div>
       </div>
-      <comment-list ref="commentList" :article-id="info.id" class="mt-3"/>
+      <comment-list ref="commentList" :load-data="loadComments" class="mt-3"/>
     </el-card>
     <el-backtop />
   </div>
@@ -70,7 +68,7 @@
 
 <script lang="ts">
 import {library} from "@fortawesome/fontawesome-svg-core";
-import {faDonate, faEdit, faShare, faTag, faThumbsUp, faUser} from "@fortawesome/free-solid-svg-icons";
+import {faCoffee, faEdit, faShare, faTag, faThumbsUp, faUser} from "@fortawesome/free-solid-svg-icons";
 import MarkdownItVue from 'markdown-it-vue'
 import 'markdown-it-vue/dist/markdown-it-vue.css'
 import ArticleCatalog from "@/components/article/ArticleCatalog.vue";
@@ -87,7 +85,10 @@ import {ElButton} from "element-ui/types/button";
 import {AppProvider} from "@/App.vue";
 import CommentReplyInput from "@/components/comment/CommentReplyInput.vue";
 import {LOCAL_STORAGE_KEY_VIEWED_ARTICLE_IDS} from "@/constants/LocalStorageKeys";
-library.add(faTag, faThumbsUp, faShare, faDonate, faUser, faEdit)
+import Pageable from "@/domain/Pageable";
+import Page from "@/domain/Page";
+import {Comment} from "@/domain/Comment";
+library.add(faTag, faThumbsUp, faShare, faCoffee, faUser, faEdit)
 
 @Component({
   components: {CommentReplyInput, EmptyData, CommentList, ErrorImage, ArticleCatalog, MarkdownItVue: MarkdownItVue as VueComponent},
@@ -99,13 +100,19 @@ export default class ArticleView extends Vue{
   userInfo!: UserInfo
   app!: AppProvider
   commentContent!: string
+  loadingArticle: boolean
+  loadingCover: boolean
+  loadingComments: boolean
 
   data(): any{
     return {
       info: {id: parseInt(this.$route.params.id)},
       imagePath: URL_NET_DISK_FILE + "/get/",
       userInfo: this.app.getLoggedUserInfo(),
-      commentContent: ""
+      commentContent: "",
+      loadingArticle: true,
+      loadingCover: true,
+      loadingComments: true
     }
   }
 
@@ -120,6 +127,7 @@ export default class ArticleView extends Vue{
   async loadArticle(): Promise<void>{
     this.info = await ArticleService.getDetail(this.$route.params.id)
     document.title = this.info.title
+    this.loadingArticle = false
     this.$nextTick(()=>{
       (this.$refs.catalog as ArticleCatalog).refresh()
     })
@@ -179,14 +187,23 @@ export default class ArticleView extends Vue{
   }
 
   /**
+   * 加载评论
+   */
+  async loadComments(pageable: Pageable): Promise<Page<Comment>>{
+    const result = ArticleService.getCommentPage(this.info.id, pageable)
+    this.loadingComments = false;
+    return result;
+  }
+
+  /**
    * 提交评论
    */
   async submitComment(): Promise<void>{
-    if(!this.commentContent.length) {
+    if(!this.commentContent.trim()) {
       this.$message.warning("请输入评论内容");
       return;
     }
-    const comment = await ArticleService.submitComment(this.info.id, this.commentContent);
+    const comment = await ArticleService.commenting(this.info.id, this.commentContent);
     (this.$refs.commentList as CommentList).addComment(comment);
     this.commentContent = ""
   }

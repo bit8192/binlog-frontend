@@ -8,7 +8,8 @@
 import {Component, Vue} from "vue-property-decorator";
 import {CreateElement, FunctionalComponentOptions, VNode} from "vue";
 import UserInfo from "@/domain/UserInfo";
-import {REG_EXP_MEMBERS} from "@/constants/RegExp";
+import {REG_EXP_COMMENT_EXPRESSION, REG_EXP_MEMBERS} from "@/constants/RegExp";
+import {URL_EXPRESSION} from "@/constants/UrlApiExpression";
 
 @Component({
   props: {
@@ -17,6 +18,11 @@ import {REG_EXP_MEMBERS} from "@/constants/RegExp";
       required: true
     },
     members: Array
+  },
+  watch: {
+    content(): void{
+      this.renderContent = this.handleContent()
+    }
   }
 })
 export default class CommentContent extends Vue{
@@ -39,33 +45,36 @@ export default class CommentContent extends Vue{
     for (let replaceInfo of replaceInfoArr) {
       for (let i = 0; i < result.length; i++) {
         const targetStr = result[i]//正在替换的字符串
-        if(typeof targetStr !== "string") break;//只有字符串才进行替换
+        if(typeof targetStr !== "string") continue;//只有字符串才进行替换
         const replaceResult = []//替换结果
-        const searchResult = targetStr.matchAll(replaceInfo.regexp)
+        const regExpMatchArrays = [...targetStr.matchAll(replaceInfo.regexp)]
+        if(!regExpMatchArrays.length) continue;
         let index = 0;//记录上一次匹配的位置，用于依次取出字符串
-        for (const result of searchResult) {
-          if(!replaceInfo.isReplace(result)) continue;
-          let matchStart = result.index
-          let matchLength = result[replaceInfo.replaceGroup].length
+        for (const matchResult of regExpMatchArrays) {
+          if(!replaceInfo.isReplace(matchResult)) continue;
+          let matchStart = matchResult.index
+          let matchLength = matchResult[replaceInfo.replaceGroup].length
 
           if(replaceInfo.getReplaceIndex){
-            matchStart = result.index + replaceInfo.getReplaceIndex(result)
+            matchStart = matchResult.index + replaceInfo.getReplaceIndex(matchResult)
           }else if(replaceInfo.replaceGroup){
-            matchStart = result.index + result[0].indexOf(result[replaceInfo.replaceGroup])
+            matchStart = matchResult.index + matchResult[0].indexOf(matchResult[replaceInfo.replaceGroup])
           }
 
           if(matchStart > index){//如果没有匹配到开始位置，那么把前面不匹配的字符串放回去
             replaceResult.push(targetStr.substring(index, matchStart))
           }
-          replaceResult.push(replaceInfo.replaceResult(result))
+          replaceResult.push(replaceInfo.replaceResult(matchResult))
           index = matchStart + matchLength
         }
         if(index < targetStr.length){//没有匹配完的字符串放回去
-          replaceResult.push(targetStr.substr(index))
+          result.push(targetStr.substr(index))
         }
-        const surplusItems = result.splice(i, result.length - i - 1);//剩下没匹配的项目
+        const surplusItems = result.splice(i + 1, result.length - i - 1);//剩下没匹配的项目
         result = result.splice(0, i).concat(replaceResult, surplusItems);//已经完成匹配的拼接匹配结果和没匹配的
-        i+=replaceResult.length
+        if(replaceResult.length){
+          i += replaceResult.length - 1
+        }
       }
     }
     for (let i = 0; i < result.length; i++) {
@@ -97,12 +106,24 @@ export default class CommentContent extends Vue{
         }
       })
     })
+    //删除的评论
+    result.push({
+      regexp: /^$/g,
+      replaceGroup: 0,
+      isReplace: ()=>true,
+      replaceResult: ()=>({
+        functional: true,
+        render(createElement: CreateElement): VNode{
+          return createElement("span", {class: "color-text-sub"}, "评论已删除")
+        }
+      })
+    })
     //  @到的用户
     if(this.members && this.members.length){
       result.push(
           {
             regexp: REG_EXP_MEMBERS,
-            replaceGroup: 2,
+            replaceGroup: 0,
             isReplace: (matchResult: RegExpMatchArray): boolean =>{
               return this.members.some(m=>m.username === matchResult[2])
             },
@@ -117,6 +138,27 @@ export default class CommentContent extends Vue{
           }
       )
     }
+    // 表情
+    result.push({
+      regexp: REG_EXP_COMMENT_EXPRESSION,
+      replaceGroup: 0,
+      isReplace: ()=>true,
+      replaceResult(matchResult: RegExpMatchArray): FunctionalComponentOptions | string {
+        return {
+          functional: true,
+          render(createElement: CreateElement): VNode | VNode[] {
+            return createElement("ElImage", {
+              props: {
+                src: URL_EXPRESSION + '/' + decodeURIComponent(matchResult[1]),
+              }
+            }, [
+              createElement("span", {slot: "placeholder"}, matchResult[0]),
+              createElement("span", {slot: "error"}, matchResult[0])
+            ])
+          }
+        }
+      }
+    })
     return result;
   }
 }

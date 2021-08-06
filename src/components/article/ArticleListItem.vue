@@ -1,8 +1,11 @@
 <template>
-  <el-card class="article-item" :body-style="{padding: 0}" shadow="hover">
+  <el-card :class="'article-item transition-from-bottom-enter-active' + (loading ? ' transition-from-bottom-enter' : ' transition-from-bottom-enter-to')" :body-style="{padding: 0}" shadow="hover">
     <router-link :to="'/article/' + info.id">
       <div class="article-item-header">
-        <el-image class="article-item-cover" v-if="info.cover" :src="imagePath + info.cover.id" fit="cover" lazy>
+        <el-image class="article-item-cover" v-if="info.cover" :src="imagePath + info.cover.id" fit="cover" lazy v-on:load="loading = false">
+          <el-skeleton loading slot="placeholder">
+            <el-skeleton-item variant="image" style="height: 300px" />
+          </el-skeleton>
           <error-image slot="error" />
         </el-image>
         <h2 class="article-item-title color-text-title text-ellipsis">
@@ -50,7 +53,7 @@
           <font-awesome-icon :icon="['far', 'comment']" />
           <span style="padding-left: .5em">{{info.commentNum}}</span>
         </el-button>
-        <el-button type="text" :class="'article-item-button' + (info.isAgreed ? '' : ' text-sub')" v-on:click="toggleAgree">
+        <el-button type="text" :class="'article-item-button' + (info.isAgreed ? '' : ' color-text-sub')" v-on:click="toggleAgree">
           <font-awesome-icon :icon="['far', 'thumbs-up']" />
           <span style="padding-left: .5em">{{info.agreedNum}}</span>
         </el-button>
@@ -83,7 +86,8 @@ library.add(faShareSquare, faComment, faThumbsUp, faEye, faBars, faThumbtack, fa
   },
   data(): any{
     return {
-      imagePath: URL_NET_DISK_FILE + "/get/"
+      imagePath: URL_NET_DISK_FILE + "/get/",
+      loading: true,
     }
   }
 })

@@ -11,9 +11,9 @@
 </template>
 
 <script lang="ts">
-import CommonUtils from "@/utils/CommonUtils";
 import Debounce from "@/decorators/Debounce";
 import {Component, Vue} from "vue-property-decorator";
+import ElementUtils from "@/utils/ElementUtils";
 
 declare interface Data{
   show: boolean
@@ -85,7 +85,7 @@ export default class TransitionScrollView extends Vue{
 
   private $_inScreen(distanceRange: number): boolean{
     const el = this.$el as HTMLElement
-    const position = CommonUtils.getElementPosition(el)
+    const position = ElementUtils.getElementPosition(el)
     return position.clientTop + el.clientHeight > distanceRange && position.clientTop + distanceRange < document.scrollingElement.clientHeight
   }
 

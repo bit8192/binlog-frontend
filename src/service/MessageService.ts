@@ -1,7 +1,7 @@
 import axios from "axios";
 import {
     URL_MESSAGE_AGREE,
-    URL_MESSAGE_ARTICLE_COMMENT,
+    URL_MESSAGE_ARTICLE_COMMENT, URL_MESSAGE_LEFT_MESSAGE,
     URL_MESSAGE_MENTION,
     URL_MESSAGE_REPLY, URL_MESSAGE_SET_READ, URL_MESSAGE_SYSTEM,
     URL_MESSAGE_UNREAD_COUNT
@@ -11,13 +11,14 @@ import Message from "@/domain/Message";
 import Pageable, {pageable2RequestParameters} from "@/domain/Pageable";
 import CommentMessage from "@/domain/CommentMessage";
 import ValueVo from "@/domain/ValueVo";
+import {MyAxiosRequestConfig} from "@/config/config-axios";
 
 export default class MessageService{
     /**
      * 获取未读消息统计
      */
     static unreadCount(): Promise<{[key:string]: number}>{
-        return axios.get(URL_MESSAGE_UNREAD_COUNT);
+        return axios.get(URL_MESSAGE_UNREAD_COUNT, {ignoreNotifyOnStatus: 401} as MyAxiosRequestConfig);
     }
 
     /**
@@ -25,6 +26,13 @@ export default class MessageService{
      */
     static getArticleCommentMessagePage(pageable: Pageable): Promise<Page<CommentMessage>>{
         return axios.get(URL_MESSAGE_ARTICLE_COMMENT, {params: pageable2RequestParameters(pageable)})
+    }
+
+    /**
+     * 获取留言消息
+     */
+    static getLeftMessagePage(pageable: Pageable): Promise<Page<CommentMessage>>{
+        return axios.get(URL_MESSAGE_LEFT_MESSAGE, {params: pageable2RequestParameters(pageable)})
     }
 
     /**

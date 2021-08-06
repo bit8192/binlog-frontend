@@ -15,4 +15,6 @@ export interface Comment{
     isAgreed?: boolean
     isTrod?: boolean
     members: UserInfo[]
+    removed?: boolean
+    isAnonymous?: boolean
 }
