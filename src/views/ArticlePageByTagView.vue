@@ -1,12 +1,12 @@
 <template>
-  <article-page-by-tag :tag-id="tagId" />
+  <article-page :query-param="{tagIds: [tagId]}" />
 </template>
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
-import ArticlePageByTag from "@/components/article/ArticlePageByTag.vue";
+import ArticlePage from "@/components/article/ArticlePage.vue";
 
 @Component({
-  components: {ArticlePageByTag}
+  components: {ArticlePage}
 })
 export default class ArticlePageByTagView extends Vue{
   tagId!: number

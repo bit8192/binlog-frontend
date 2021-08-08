@@ -4,6 +4,7 @@ const path = require('path')
 
 module.exports = {
     devServer: {
+        disableHostCheck: true,
         proxy: {
             '/api': {
                 target: 'http://localhost:8081',
@@ -13,14 +14,4 @@ module.exports = {
         }
     },
     outputDir: path.resolve("../binlog/target/classes/static")
-    //自动倒入没有提示，IDE会出现警告，索性手敲
-    // css: {
-    //     loaderOptions: {
-    //         sass: {
-    //             additionalData: `
-    //             @import "src/style/mixin-common.scss";
-    //             `
-    //         }
-    //     }
-    // }
 }

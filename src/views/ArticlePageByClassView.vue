@@ -1,16 +1,16 @@
 <template>
-  <article-page-by-class :article-class-id="id" />
+  <article-page :query-param="{articleClassId: id}" />
 </template>
 
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
-import ArticlePageByClass from "@/components/article/ArticlePageByClass.vue";
+import ArticlePage from "@/components/article/ArticlePage.vue";
 
 declare interface Data{
   id: number
 }
 @Component({
-  components: {ArticlePageByClass},
+  components: {ArticlePage},
 })
 export default class ArticlePageByClassView extends Vue{
   type!: number

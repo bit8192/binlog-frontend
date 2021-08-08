@@ -21,6 +21,16 @@ import ElementUtils from "@/utils/ElementUtils";
 
 @Component({
   components: {EmptyData, ArticleListItem},
+  props: {
+    queryParam: Object
+  },
+  watch: {
+    queryParam(param): void{
+      this.articleClassId = param.articleClassId
+      this.tagIds = param.tagIds
+      this.keywords = param.keywords
+    }
+  }
 })
 export default class ArticlePage extends Vue{
   articleList!: Article[]
@@ -29,12 +39,13 @@ export default class ArticlePage extends Vue{
   keywords: string
   articleClassId: number
   tagIds: Array<number>
+  queryParam: {articleClassId: number, tagIds: Array<number>, keywords: string}
 
   data() : any{
     return {
-      keywords: "",
-      articleClassId: null,
-      tagIds: [],
+      keywords: this.queryParam ? this.queryParam.keywords : "",
+      articleClassId: this.queryParam ? this.queryParam.articleClassId : null,
+      tagIds: this.queryParam ? this.queryParam.tagIds : [],
       articleList: [],
       pageable: {
         page: 0,
