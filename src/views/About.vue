@@ -31,11 +31,13 @@
       <p><b>前台：</b>Vue2、TypeScript、axios、markdown-it-vue、element-ui</p>
       <p><a href="https://github.com/Bincker1973/binlog" target="_blank" class="color-text-link">后台项目</a></p>
       <p><a href="https://github.com/Bincker1973/binlog-frontend" target="_blank" class="color-text-link">前台项目</a></p>
-      <h2>留言板</h2>
-      <comment-reply-input v-model="commentContent" btn-title="留言" class="mt-2" placeholder="来都来了，不留下点什么吗？" v-on:submit="leavingMessage">
-        <el-checkbox slot="action" title="你将无法删除你的留言" v-model="isAnonymous">匿名</el-checkbox>
-      </comment-reply-input>
-      <comment-list :load-data="loadLeftMessagePage" ref="commentList" />
+      <template v-if="app.binlogIsHappy()">
+        <h2>留言板</h2>
+        <comment-reply-input v-model="commentContent" btn-title="留言" class="mt-2" placeholder="来都来了，不留下点什么吗？" v-on:submit="leavingMessage">
+          <el-checkbox slot="action" title="你将无法删除你的留言" v-model="isAnonymous">匿名</el-checkbox>
+        </comment-reply-input>
+        <comment-list :load-data="loadLeftMessagePage" ref="commentList" />
+      </template>
     </el-card>
   </div>
 </template>
@@ -48,15 +50,18 @@ import {Comment} from "@/domain/Comment";
 import LeftMessageService from "@/service/LeftMessageService";
 import Pageable from "@/domain/Pageable";
 import Page from "@/domain/Page";
+import {AppProvider} from "@/App.vue";
 
 @Component({
-  components: {CommentList, CommentReplyInput}
+  components: {CommentList, CommentReplyInput},
+  inject: ['app']
 })
 export default class About extends Vue {
   commentContent: string
   isAnonymous: boolean
   payImage = require("@/assets/pay.webp")
   begImage = require("@/assets/beg.jpg")
+  app: AppProvider
 
   data(): any{
     return {

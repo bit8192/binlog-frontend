@@ -22,7 +22,7 @@
     <el-menu mode="horizontal" router :default-active="$route.path" class="hidden-md-and-up" menu-trigger="click">
       <el-submenu index="">
         <template slot="title"><font-awesome-icon :icon="['fas', 'bars']" size="lg"/></template>
-        <template v-for="item in menuList">
+        <template v-for="item in menuList.filter(i=>i.visible)">
           <el-menu-item v-if="!item.children || !item.children.length" :key="item.title" :index="item.route">
             <el-badge v-if="item.title === '消息' && unreadMessageCount && $route.path !== '/message'" :value="unreadMessageCount">{{item.title}}</el-badge>
             <span v-else>{{item.title}}</span>
@@ -61,9 +61,12 @@ declare interface Menu{
     if(this.app.isLogged()){
       const userInfo = this.app.getLoggedUserInfo()
       if(userInfo.isBlogger || userInfo.isAdmin){
-        NavMenu.netDiskFileMenu.visible = true
+        this.netDiskFileMenu.visible = true
       }
-      NavMenu.messageMenu.visible = true
+      if(userInfo.isAdmin){
+        this.adminMenu.visible = true
+      }
+      this.messageMenu.visible = true
       this.refreshUnreadMessageCount()
     }
   },
@@ -76,19 +79,26 @@ export default class NavMenu extends Vue{
   app: AppProvider
   logo: any
   unreadMessageCount: number
-
-  static netDiskFileMenu = {
-    title: "网盘",
-    route: "/net-disk-file/",
-    visible: false
-  } as Menu;
-  static messageMenu = {
-    title: "消息",
-    route: "/message",
-    visible: false
-  } as Menu;
+  netDiskFileMenu: Menu
+  messageMenu: Menu
+  adminMenu: Menu;
 
   data(): any{
+    this.netDiskFileMenu = {
+      title: "网盘",
+      route: "/net-disk-file/",
+      visible: false
+    };
+    this.messageMenu = {
+      title: "消息",
+      route: "/message",
+      visible: false
+    };
+    this.adminMenu = {
+      title: "管理",
+      route: "/admin",
+      visible: false
+    };
     return {
       logo: require("@/assets/logo.png"),
       unreadMessageCount: 0,
@@ -98,8 +108,9 @@ export default class NavMenu extends Vue{
           route: "/",
           visible: true
         },
-        NavMenu.messageMenu,
-        NavMenu.netDiskFileMenu,
+        this.messageMenu,
+        this.adminMenu,
+        this.netDiskFileMenu,
         {
           title: "分类",
           route: "/article/article-class",
@@ -119,20 +130,19 @@ export default class NavMenu extends Vue{
           title: "关于",
           route: "/about",
           visible: true
-        },
+        }
       ]
     }
   }
 
   onUserInfoChange(userInfo: UserInfo): void{
     if(userInfo){
-      if(userInfo.isBlogger || userInfo.isAdmin){
-        NavMenu.netDiskFileMenu.visible = true
-      }
-      NavMenu.messageMenu.visible = true
+      this.netDiskFileMenu.visible = userInfo.isBlogger || userInfo.isAdmin
+      this.adminMenu.visible = userInfo.isAdmin
+      this.messageMenu.visible = true
     }else{
-      NavMenu.netDiskFileMenu.visible = false
-      NavMenu.messageMenu.visible = false
+      this.netDiskFileMenu.visible = false
+      this.messageMenu.visible = false
     }
   }
 
@@ -151,7 +161,7 @@ export default class NavMenu extends Vue{
    * @param index 下标
    */
   onSelectMenu(index: number): void{
-    if(this.menuList[index] !== NavMenu.messageMenu && this.app.isLogged()){
+    if(this.menuList[index] !== this.messageMenu && this.app.isLogged()){
       this.refreshUnreadMessageCount()
     }
   }

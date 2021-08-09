@@ -1,7 +1,11 @@
 <template>
 <div class="chinese-verify-code">
   <div class="chinese-verify-code-image-box" v-on:click="onVerifyCodeClick">
-    <el-image :src="verifyCodeUrl + '?t=' + verifyCodeTimestamp" />
+    <el-image :src="verifyCodeUrl + '?t=' + verifyCodeTimestamp" >
+      <el-skeleton loading animated slot="placeholder">
+        <el-skeleton-item variant="image" style="width: 300px; height: 300px" />
+      </el-skeleton>
+    </el-image>
     <!--suppress HtmlUnknownAttribute -->
     <div
         class="chinese-verify-code-point"

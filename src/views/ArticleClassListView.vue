@@ -2,7 +2,7 @@
   <el-card>
     <el-tree :props="treeProps" node-key="id" :load="loadNode" :expand-on-click-node="false" lazy>
       <div slot-scope="{node, data}">
-        <el-link :underline="false" :href="'/article/article-class/' + data.id">{{data.title}}</el-link>
+        <router-link :to="'/article/article-class/' + data.id">{{data.title}}</router-link>
       </div>
     </el-tree>
   </el-card>

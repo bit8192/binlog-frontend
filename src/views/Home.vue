@@ -4,7 +4,7 @@
       <article-page ref="articlePage" />
     </el-col>
     <el-col :md="6" :xs="24" class="home-panel-right">
-      <user-state-panel class="mb-1" />
+      <user-state-panel class="mb-1" v-if="app.binlogIsHappy()" />
       <bloggers-panel class="mb-1" />
       <div class="follow-panel">
         <article-search-panel :article-page="articlePage"/>
@@ -26,6 +26,7 @@ import CommonService from "@/service/CommonService";
 import UserStatePanel from "@/components/UserStatePanel.vue";
 import {Component, Vue} from "vue-property-decorator";
 import BloggersPanel from "@/components/BloggersPanel.vue";
+import {AppProvider} from "@/App.vue";
 
 @Component({
   components: {BloggersPanel, UserStatePanel, ArticleSearchPanel, ArticlePage},
@@ -35,10 +36,11 @@ export default class Home extends Vue{
   articlePage: ArticlePage
   begImage = require("@/assets/beg.jpg")
   payImage = require("@/assets/pay.webp")
+  app: AppProvider
 
   data(): any{
     return {
-      articlePage: undefined
+      articlePage: undefined,
     }
   }
 

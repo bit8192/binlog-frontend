@@ -56,6 +56,7 @@ export interface AppProvider{
   addUserInfoChangeListener: (fun: (UserDetail)=>void)=>void
   removeUserInfoChangeListener: (fun: (UserDetail)=>void)=>void
   logout: ()=>Promise<void>
+  binlogIsHappy: ()=>boolean
 }
 
 @Component({
@@ -91,6 +92,9 @@ export interface AppProvider{
         //通知注销
         logout: async ()=>{
           this.logout()
+        },
+        binlogIsHappy: ()=>{
+          return !!this.userInfo || (this.systemProfile && this.systemProfile.expression === "happy");
         }
       }
     }
@@ -129,7 +133,7 @@ export default class App extends Vue{
 
   checkRedirect(): void{
     if(this.$route.query.redirectPath){
-      location.replace(this.$route.query.redirectPath as string)
+      this.$router.replace(this.$route.query.redirectPath as string)
     }
   }
 

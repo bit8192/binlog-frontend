@@ -31,7 +31,7 @@
             <el-tag size="small" style="cursor: pointer" :effect="selectedTagIds.has(tag.id) ? 'dark' : 'plain'" v-on:click="e=>toggleSelectTag(e, tag)">{{ tag.title }}({{ tag.expressionNum }})</el-tag>
           </li>
         </ul>
-        <el-button type="primary" class="mt-2" style="width: 100%" v-on:click="onUpload">上传</el-button>
+        <el-button type="primary" class="mt-2" style="width: 100%" v-on:click="onUpload" v-if="app.binlogIsHappy()">上传</el-button>
         <el-dialog :visible="showUploadPanel" v-on:close="showUploadPanel = false" append-to-body>
           <expression-upload-panel v-on:complete="onUploadComplete" />
         </el-dialog>

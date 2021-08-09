@@ -2,7 +2,7 @@
   <el-card>
     <ul class="tag-list-view-list">
       <li v-for="tag in tags" :key="tag.id">
-        <el-link :href="'/article/tags/' + tag.id" :underline="false">{{tag.title}}({{tag.articleNum}})</el-link>
+        <router-link :to="'/article/tags/' + tag.id" >{{tag.title}}({{tag.articleNum}})</router-link>
       </li>
     </ul>
   </el-card>

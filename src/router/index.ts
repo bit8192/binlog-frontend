@@ -109,6 +109,15 @@ const routes: Array<RouteConfig> = [
     component: () => import('../views/Expression.vue')
   },
   {
+    path: "/admin",
+    name: "Admin",
+    meta: {title: "管理"},
+    component: () => import('../views/admin/AdminIndex.vue'),
+    children: [
+
+    ]
+  },
+  {
     path: "*",
     name: "404",
     meta: {title: "404"},

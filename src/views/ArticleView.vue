@@ -33,7 +33,7 @@
       </el-card>
     </div>
 
-    <el-card :class="'mt-1 transition-fade-in-enter-active' + (loadingComments ? ' transition-fade-in-enter' : ' transition-fade-in-enter-to')" :body-style="{padding: '5px 1em'}">
+    <el-card :class="'mt-1 transition-fade-in-enter-active' + (((app.binlogIsHappy() && loadingComments) || (!app.binlogIsHappy() && (loadingArticle || loadingCover))) ? ' transition-fade-in-enter' : ' transition-fade-in-enter-to')" :body-style="{padding: '5px 1em'}">
       <div class="flex-row justify-content-between align-items-center">
         <el-button type="text" ref="agreeButton" :class="'article-action' + (this.info.isAgreed ? '' : ' color-text-sub ')" title="不错哦" v-on:click="toggleAgree">
           <font-awesome-icon icon="thumbs-up" size="2x" />&nbsp;{{info.agreedNum}}
@@ -49,7 +49,7 @@
         </router-link>
       </div>
     </el-card>
-    <el-card :class="'mt-1 transition-fade-in-enter-active' + (loadingComments ? ' transition-fade-in-enter' : ' transition-fade-in-enter-to')">
+    <el-card :class="'mt-1 transition-fade-in-enter-active' + (loadingComments ? ' transition-fade-in-enter' : ' transition-fade-in-enter-to')" v-if="app.binlogIsHappy()">
       <h3 slot="header">{{info.commentNum}}评论</h3>
       <div class="flex-row position-relative">
         <el-avatar :src="userInfo ? userInfo.headImg : ''" :size="50" class="mr-4">
