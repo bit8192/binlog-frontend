@@ -30,8 +30,8 @@ import UserService from "@/service/UserService";
       selectedUserIds: []
     }
   },
-  created(): void{
-    this.loadUserList()
+  async mounted(): Promise<void>{
+    await this.loadUserList()
   },
   watch: {
     value(value: number[]){

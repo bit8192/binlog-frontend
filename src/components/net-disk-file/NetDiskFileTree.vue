@@ -25,16 +25,19 @@ declare interface NodeInfo extends NetDiskFile{
 @Component({
   props: {
     isDirectory: Boolean,
-    showRoot: Boolean
+    showRoot: Boolean,
+    filterFun: Function
   }
 })
 export default class NetDiskFileTree extends Vue{
   isDirectory: boolean
   showRoot: boolean
+  filterFun: (file: NetDiskFile)=>boolean
 
   async loadChildren(node: TreeNode<number, NodeInfo>, resolve: (_:NodeInfo[])=>void): Promise<void>{
-    const files = (await NetDiskFileService.listChildren(node.data ? node.data.id : null, this.isDirectory))
+    let files = (await NetDiskFileService.listChildren(node.data ? node.data.id : null, this.isDirectory))
         .map(f=>({isLeaf: !f.isDirectory || !f.childrenNum, ...f} as NodeInfo))
+    if(this.filterFun) files = files.filter(this.filterFun)
     if(node.level === 0 && this.showRoot){
       resolve([{id: null, name: "/", children: files, isLeaf: false, isDirectory: true}]);
       await (node.childNodes[0] as any).expand()

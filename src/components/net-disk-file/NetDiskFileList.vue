@@ -11,7 +11,7 @@
     </el-button-group>
     <el-breadcrumb separator-class="el-icon-arrow-right" style="flex: 1">
       <el-breadcrumb-item v-for="(item, index) of parents" :key="item.id">
-        <el-button type="text" v-on:click="()=>goto(item.id)" :disabled="index === parents.length - 1">
+        <el-button type="text" v-on:click="goto(item.id)" :disabled="index === parents.length - 1">
           {{item.name}}
         </el-button>
       </el-breadcrumb-item>
@@ -43,7 +43,7 @@
       <net-disk-file-upload-panel :additional-permission="currentDirectory && currentDirectory.writable" :parent-id="currentDirectory ? currentDirectory.id : null" v-on:complete="onUploadComplete" />
     </el-dialog>
     <el-dialog :visible="showMoveToDirSelectDialog" v-on:close="showMoveToDirSelectDialog = false" append-to-body>
-      <net-disk-file-tree ref="moveToDirSelect" :is-directory="true" v-on:clickItem="moveSelectedTo" show-root />
+      <net-disk-file-tree ref="moveToDirSelect" :is-directory="true" v-on:clickItem="moveSelectedTo" :filter-fun="(file)=>file.id !== selectedFileIds.values().next().value" show-root />
     </el-dialog>
     <el-dialog :visible="showPropertiesDialog" v-on:close="showPropertiesDialog = false" append-to-body>
       <net-disk-file-properties :id="showPropertiesTargetId" v-if="showPropertiesTargetId" />
@@ -158,8 +158,8 @@ export default class NetDiskFileList extends Vue{
     }
   }
 
-  created(): void{
-    this.goto(this.initPathId)
+  async created(): Promise<void>{
+    await this.goto(this.initPathId)
   }
 
   /**
@@ -211,20 +211,20 @@ export default class NetDiskFileList extends Vue{
   /**
    * 刷新
    */
-  private refresh(): void{
-    this.goto(this.history[this.currentHistoryIndex], false)
+  private async refresh(): Promise<void>{
+    await this.goto(this.history[this.currentHistoryIndex], false)
   }
 
   /**
    * 菜单点击
    */
-  onContextMenuItemClick(key: string): void{
+  async onContextMenuItemClick(key: string): Promise<void>{
     switch (key){
       case "refresh":
-        this.refresh()
+        await this.refresh()
         break;
       case "download":
-        this.downloadSelectedFile()
+        await this.downloadSelectedFile()
         break;
       case "createDirectory":
         this.fileList.push({
@@ -241,7 +241,7 @@ export default class NetDiskFileList extends Vue{
         this.renameFileId = this.selectedFileIds.values().next().value
         break;
       case "delete":
-        this.deleteSelected()
+        await this.deleteSelected()
         break;
       case "move":
         this.showMoveToDirSelectDialog = true
@@ -320,7 +320,7 @@ export default class NetDiskFileList extends Vue{
     this.renameFileId = null
     if(file.id == -1){
       const fileIndex = this.fileList.findIndex(f=>f === file);
-      if(fileIndex){
+      if(fileIndex != -1){
         this.fileList.splice(fileIndex, 1)
       }
     }
@@ -353,10 +353,10 @@ export default class NetDiskFileList extends Vue{
    * 双击事件
    * 进入目录或者下载文件
    */
-  private onItemDblclick(e: TouchEvent, file: NetDiskFile): void{
+  private async onItemDblclick(e: TouchEvent, file: NetDiskFile): Promise<void>{
     if(e.ctrlKey) return
     if(file.isDirectory) {
-      this.goto(file.id)
+      await this.goto(file.id)
     }else{
       this.$emit("open", file)
     }
@@ -386,8 +386,9 @@ export default class NetDiskFileList extends Vue{
   /**
    * 上传文件完成后刷新
    */
-  private onUploadComplete(): void{
-    this.refresh()
+  private async onUploadComplete(): Promise<void>{
+    await this.refresh()
+    this.showUploadPanel = false
   }
 
   /**
@@ -416,11 +417,11 @@ export default class NetDiskFileList extends Vue{
           writableUserList: detail.writableUserList.map(u => u.id),
           readableUserList: detail.writableUserList.map(u => u.id)
         })
+        this.fileList.splice(this.fileList.findIndex(f=>f.id === file.id), 1)
+        this.selectedFileIds.delete(file.id)
       }catch (e){
         if((await this.$alert("文件[" + file.name + "]移动失败，是否继续?")) !== "confirm") return;
       }
-      this.fileList.splice(this.fileList.findIndex(f=>f.id === file.id), 1)
-      this.selectedFileIds.delete(file.id)
     }
   }
 }

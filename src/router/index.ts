@@ -114,7 +114,26 @@ const routes: Array<RouteConfig> = [
     meta: {title: "管理"},
     component: () => import('../views/admin/AdminIndex.vue'),
     children: [
-
+      {
+        path: "overview",
+        meta: {title: "概览"},
+        component: () => import('../views/admin/Overview.vue')
+      },
+      {
+        path: "request-log",
+        meta: {title: "请求日志"},
+        component: () => import('../views/admin/RequestLogView.vue')
+      },
+      {
+        path: "user-management",
+        meta: {title: "用户管理"},
+        component: () => import('../views/admin/UserManagement.vue')
+      },
+      {
+        path: "system-setting",
+        meta: {title: "系统设置"},
+        component: () => import('../views/admin/SystemSetting.vue')
+      }
     ]
   },
   {

@@ -96,7 +96,7 @@ export default class NavMenu extends Vue{
     };
     this.adminMenu = {
       title: "管理",
-      route: "/admin",
+      route: "/admin/overview",
       visible: false
     };
     return {

@@ -36,7 +36,6 @@ import {URL_EXPRESSION, URL_EXPRESSION_TAG} from "@/constants/UrlApiExpression";
 import ExpressionService from "@/service/ExpressionService";
 import NetworkError from "@/error/NetworkError";
 import {REG_EXP_EXPRESSION_TITLE} from "@/constants/RegExp";
-import CommonUtils from "@/utils/CommonUtils";
 
 //最大上传文件大小
 const MAX_FILE_SIZE = 200 * 1024;
@@ -83,7 +82,7 @@ export default class ExpressionUploadPanel extends Vue{
       if(this.expressionList.some(e=>e.file.name === file.name)){
         this.$message.warning("文件[" + file.name + "]重复")
       }else if(file.size > MAX_FILE_SIZE){
-        this.$message.warning("表情[" + file.name + "]太大了(" + CommonUtils.formatDecimal(file.size / 1024, 2) + "kb), 不得超过" + MAX_FILE_SIZE / 1024 + "kb")
+        this.$message.warning("表情[" + file.name + "]太大了(" + (file.size / 1024).toFixed(2) + "kb), 不得超过" + MAX_FILE_SIZE / 1024 + "kb")
       }else{
         files.push(file);
       }
