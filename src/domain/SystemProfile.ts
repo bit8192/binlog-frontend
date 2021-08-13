@@ -1,7 +1,7 @@
 export default interface SystemProfile{
     name: string
     copyRight: string
-    ipc: string
+    icp: string
     github: string
     useQQAuthorize: boolean
     expression: string

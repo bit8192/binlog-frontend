@@ -4,6 +4,7 @@ export default interface NetDiskFile {
     id?: number
     name: string
     isDirectory: boolean
+    mediaType?: string
     size?: number
     createdDate?: string | Date
     lastModifiedDate?: string | Date

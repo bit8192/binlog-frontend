@@ -260,7 +260,6 @@ import {library} from "@fortawesome/fontawesome-svg-core";
 import {faLongArrowAltDown, faLongArrowAltUp} from "@fortawesome/free-solid-svg-icons";
 import DateUtils from "@/utils/DateUtils";
 import {TabPane} from "element-ui";
-import {ElTabs} from "element-ui/types/tabs";
 echarts.use([GridComponent, LineChart, CanvasRenderer, TitleComponent, TooltipComponent, BarChart]);
 library.add(faLongArrowAltUp, faLongArrowAltDown)
 
@@ -272,6 +271,7 @@ export default class Overview extends Vue{
   areaBarChart: echarts.EChartsType
   platformBarChart: echarts.EChartsType
   browserBarChart: echarts.EChartsType
+  currentTabName = "visit"
   chartIsNeedUpdate = {
     visit: true,
     area: true,
@@ -430,38 +430,42 @@ export default class Overview extends Vue{
         this.dateRange = [DateUtils.lastYear(), DateUtils.thisYear()];
         break;
     }
-    const result = await OverviewService.getVisitStatistics(this.dateRange[0], this.dateRange[1]);
-    console.log(result);
+    this.chartIsNeedUpdate.visit = true;
+    this.chartIsNeedUpdate.area = true;
+    this.chartIsNeedUpdate.platform = true;
+    this.chartIsNeedUpdate.browser = true;
+    await this.updateChart(this.currentTabName);
   }
 
   /**
    * 时间范围被改变刷新数据
    */
-  onDatePickerChange(): void{
+  async onDatePickerChange(): Promise<void>{
     this.chartIsNeedUpdate.visit = true;
     this.chartIsNeedUpdate.area = true;
     this.chartIsNeedUpdate.platform = true;
     this.chartIsNeedUpdate.browser = true;
-    console.log((this.$refs.statisticsTabs as ElTabs).value)
+    await this.updateChart(this.currentTabName);
   }
 
   onTabClick(tabPanel: TabPane): void{
-    this.updateChart(tabPanel.name);
+    this.currentTabName = tabPanel.name;
+    this.$nextTick(()=>this.updateChart(tabPanel.name));
   }
 
-  updateChart(name: string): void{
+  async updateChart(name: string): Promise<void>{
     switch (name){
       case "visit":
-        if(this.chartIsNeedUpdate.visit) this.$nextTick(this.updateVisitLineChart)
+        if(this.chartIsNeedUpdate.visit) await this.updateVisitLineChart()
         break;
       case "area":
-        if(this.chartIsNeedUpdate.area) this.$nextTick(this.updateAreaBarChart);
+        if(this.chartIsNeedUpdate.area) await this.updateAreaBarChart();
         break;
       case "platform":
-        if(this.chartIsNeedUpdate.platform) this.$nextTick(this.updatePlatformBarChart);
+        if(this.chartIsNeedUpdate.platform) await this.updatePlatformBarChart();
         break;
       case "browser":
-        if(this.chartIsNeedUpdate.browser) this.$nextTick(this.updateBrowserBarChart);
+        if(this.chartIsNeedUpdate.browser) await this.updateBrowserBarChart();
         break;
     }
   }

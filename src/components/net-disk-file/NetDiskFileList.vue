@@ -21,7 +21,7 @@
     </el-input>
   </div>
   <!--suppress HtmlDeprecatedAttribute -->
-  <div ref="files" class="net-disk-file-view-files flex-1 flex-row align-items-start" v-on:click="onBoxClick" v-on:contextmenu="onBoxContextmenu">
+  <div ref="files" class="net-disk-file-view-files flex-1 flex-row align-items-start" v-on:click="onBoxClick" v-on:contextmenu="onBoxContextmenu" v-on:paste="onPaste">
     <template v-if="fileList.length">
       <!--suppress HtmlDeprecatedAttribute -->
       <net-disk-file-item
@@ -40,7 +40,7 @@
     <empty-data v-else class="flex-1" />
     <context-menu :items="menuItems" v-on:click-item="onContextMenuItemClick" />
     <el-dialog :visible="showUploadPanel" v-on:close="showUploadPanel = false" append-to-body>
-      <net-disk-file-upload-panel :additional-permission="currentDirectory && currentDirectory.writable" :parent-id="currentDirectory ? currentDirectory.id : null" v-on:complete="onUploadComplete" />
+      <net-disk-file-upload-panel ref="uploadPanel" :additional-permission="currentDirectory && currentDirectory.writable" :parent-id="currentDirectory ? currentDirectory.id : null" v-on:complete="onUploadComplete" />
     </el-dialog>
     <el-dialog :visible="showMoveToDirSelectDialog" v-on:close="showMoveToDirSelectDialog = false" append-to-body>
       <net-disk-file-tree ref="moveToDirSelect" :is-directory="true" v-on:clickItem="moveSelectedTo" :filter-fun="(file)=>file.id !== selectedFileIds.values().next().value" show-root />
@@ -84,6 +84,7 @@ library.add(faAngleLeft, faAngleRight)
         this.menuItems.createDirectory.disabled = true
         this.menuItems.upload.disabled = true
       }
+      this.menuItems.properties.disabled = !value.id
       this.$emit("change", value)
     },
     selectedFileIds(value: Set<number>): void{
@@ -92,7 +93,7 @@ library.add(faAngleLeft, faAngleRight)
       this.menuItems.delete.disabled = !hasSelected
       this.menuItems.download.disabled = !(value.size === 1 && !this.fileList.find(f=>value.has(f.id)).isDirectory);
       this.menuItems.move.disabled = !hasSelected
-      this.menuItems.properties.disabled = !hasSelected
+      this.menuItems.properties.disabled = !hasSelected && (!this.currentDirectory || !this.currentDirectory.id)
     }
   }
 })
@@ -247,7 +248,7 @@ export default class NetDiskFileList extends Vue{
         this.showMoveToDirSelectDialog = true
         break;
       case "properties":
-        this.showPropertiesTargetId = this.selectedFileIds.values().next().value
+        this.showPropertiesTargetId = this.selectedFileIds.size ? this.selectedFileIds.values().next().value : this.currentDirectory.id
         this.showPropertiesDialog = true
         break;
     }
@@ -422,6 +423,19 @@ export default class NetDiskFileList extends Vue{
       }catch (e){
         if((await this.$alert("文件[" + file.name + "]移动失败，是否继续?")) !== "confirm") return;
       }
+    }
+  }
+
+  /**
+   * 粘贴事件
+   */
+  onPaste(e: ClipboardEvent): void{
+    if(e.clipboardData.files.length){
+      const files = [...e.clipboardData.files];
+      this.showUploadPanel = true;
+      this.$nextTick(()=>{
+        (this.$refs.uploadPanel as NetDiskFileUploadPanel).addFiles(files)
+      })
     }
   }
 }

@@ -1,5 +1,5 @@
 <template>
-  <el-select v-model="result" filterable v-on:change="r=>$emit('change', r)" placeholder="选择用户" :size="size">
+  <el-select v-model="result" filterable v-on:change="r=>$emit('change', r)" placeholder="选择用户" :size="size" :disabled="disabled">
     <el-option v-for="user of userList" :key="user.id" :value="user.id" :label="user.username" class="flex-row align-items-center justify-content-between" style="height: 45px">
       <el-avatar :src="user.headImg" :size="40" />
       <span style="font-size: 1em">{{user.username}}</span>
@@ -20,7 +20,8 @@ import UserService from "@/service/UserService";
   },
   props: {
     value: Number,
-    size: String
+    size: String,
+    disabled: Boolean
   },
   watch: {
     value(v: number){
@@ -32,6 +33,7 @@ export default class UserSelect extends Vue{
   userList: Array<UserInfo>
   result: number
   value: number
+  disabled: boolean
 
   data(): any{
     return {

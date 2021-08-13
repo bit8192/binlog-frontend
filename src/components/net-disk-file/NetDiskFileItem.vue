@@ -7,7 +7,22 @@
       v-on:dblclick="e=>$emit('dblclick', e)"
       v-on:contextmenu="e=>$emit('contextmenu', e)"
   >
-    <div :class="'d-inline-block' + (file.isDirectory ? ' icon-folder' : ' icon-file')"><font-awesome-icon :icon="file.isDirectory ? 'folder' : 'file'" size="4x" /></div>
+    <div>
+      <el-image
+          v-if="!file.isDirectory && file.mediaType && file.mediaType.includes('image')"
+          :src="thumbnailUrl.replace('{id}', file.id).replace('{size}', size.toFixed(0))"
+          :style="'display: inline-block; width: ' + size + 'px; height: ' + size + 'px'"
+          fit="contain"
+      >
+        <span :style="'display: contents; font-size: ' + size + 'px'" slot="error" >
+          <font-awesome-icon icon="file" class="icon-file"/>
+        </span>
+        <el-skeleton loading animated>
+          <el-skeleton-item variant="image" :style="'height: ' + size + 'px'" />
+        </el-skeleton>
+      </el-image>
+      <span v-else :style="'display: contents; font-size: ' + size + 'px'"><font-awesome-icon :icon="file.isDirectory ? 'folder' : 'file'" :class="file.isDirectory ? ' icon-folder' : ' icon-file'" /></span>
+  </div>
     <div class="px-1">
       <input
           ref="renameInput"
@@ -29,12 +44,9 @@ import NetDiskFile from "@/domain/NetDiskFile";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {faFile, faFolder} from "@fortawesome/free-solid-svg-icons";
 import CommonUtils from "@/utils/CommonUtils";
+import {URL_NET_DISK_FILE_THUMBNAIL} from "@/constants/UrlApiNetDiskFile";
 library.add(faFolder, faFile)
 
-declare interface Data{
-  renameValue: string
-  title: string
-}
 @Component({
   props: {
     file: {
@@ -48,6 +60,10 @@ declare interface Data{
     selected: {
       type: Boolean,
       default: false
+    },
+    size: {
+      type: Number,
+      default: 80
     }
   }
 })
@@ -55,8 +71,9 @@ export default class NetDiskFileItem extends Vue{
   file!: NetDiskFile
   rename!: boolean
   renameValue!: string
+  thumbnailUrl = URL_NET_DISK_FILE_THUMBNAIL
 
-  data(): Data{
+  data(): any{
     return {
       renameValue: this.file.name,
       title: this.getTitle()
@@ -86,10 +103,8 @@ export default class NetDiskFileItem extends Vue{
 @import "src/style/var-color";
 
 .net-disk-file-item{
-  display: inline-block;
   width: 100px;
   text-align: center;
-  line-height: initial;
 }
 .net-disk-file-item-title{
   @include text-ellipsis(1)
@@ -104,7 +119,6 @@ export default class NetDiskFileItem extends Vue{
   @include text-ellipsis(2)
 }
 .icon-folder{
-  //color: gold;
   color: orange;
 }
 .icon-file{

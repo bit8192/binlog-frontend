@@ -46,6 +46,15 @@ export default class Home extends Vue{
 
   mounted(): void{
     this.articlePage = this.$refs.articlePage as ArticlePage
+    this.app.addUserInfoChangeListener(this.onUserInfoChange)
+  }
+
+  beforeDestroy(): void{
+    this.app.removeUserInfoChangeListener(this.onUserInfoChange)
+  }
+
+  onUserInfoChange(): void{
+    this.$forceUpdate()
   }
 
   async created() : Promise<void>{

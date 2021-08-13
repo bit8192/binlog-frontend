@@ -17,13 +17,14 @@ export default class RequestLogService{
         sessionId: string,
         clientId: string,
         userId: number,
+        excludeMe: boolean,
         start: Date,
         end: Date,
         pageable: Pageable
     ): Promise<Page<RequestLog>>{
         return axios.get(URL_REQUEST_LOG, {
             params: Object.assign({
-                ip, address, host, referer, userAgent, method, requestUri, sessionId, clientId, userId,
+                ip, address, host, referer, userAgent, method, requestUri, sessionId, clientId, userId, excludeMe,
                 start: start && end ? DateUtils.format(start, "yyyy/MM/dd") : undefined,
                 end: start && end ? DateUtils.format(end, "yyyy/MM/dd") : undefined
             },pageable2RequestParameters(pageable))

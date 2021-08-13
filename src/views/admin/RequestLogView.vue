@@ -38,7 +38,10 @@
       <el-input label="clientId" v-model="queryParam.clientId" size="small" />
     </el-form-item>
     <el-form-item label="userId">
-      <user-select size="small" v-model="queryParam.userId" />
+      <user-select size="small" v-model="queryParam.userId" :disabled="excludeMe" />
+    </el-form-item>
+    <el-form-item>
+      <el-checkbox v-model="excludeMe">除我之外</el-checkbox>
     </el-form-item>
     <el-form-item label="时间">
       <el-date-picker v-model="dateRange" type="daterange" ranger-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" size="small" />
@@ -63,7 +66,7 @@
     <el-table-column prop="userId" label="userId" width="80" />
   </el-table>
   <div class="text-right">
-    <el-pagination :current-page="pageIndex" :page-size="pageSize" :page-count="pageCount" :total="totalElements" layout="total, prev, pager, next" v-on:current-change="p=>{pageIndex = p - 1; loadPage()}" />
+    <el-pagination :current-page="pageIndex + 1" :page-size="pageSize" :page-count="pageCount" :total="totalElements" layout="total, prev, pager, next" v-on:current-change="p=>{pageIndex = p - 1; loadPage()}" />
   </div>
 </div>
 </template>
@@ -86,6 +89,7 @@ export default class RequestLogView extends Vue{
   totalElements = 0
   queryParam: RequestLog
   dateRange: [Date, Date]
+  excludeMe: boolean
 
   data(): any{
     return {
@@ -103,6 +107,7 @@ export default class RequestLogView extends Vue{
         userId: null
       },
       dateRange: null,
+      excludeMe: true
     }
   }
 
@@ -121,7 +126,8 @@ export default class RequestLogView extends Vue{
         this.queryParam.requestUri,
         this.queryParam.sessionId,
         this.queryParam.clientId,
-        this.queryParam.userId,
+        this.excludeMe ? null : this.queryParam.userId,
+        this.excludeMe,
         this.dateRange && this.dateRange[0],
         this.dateRange && this.dateRange[1],
         {page: this.pageIndex, size: this.pageSize}

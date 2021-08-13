@@ -1,9 +1,22 @@
 <template>
 <div class="net-disk-file-upload-panel">
   <div>
-    <el-upload ref="upload" :auto-upload="false" multiple :action="uploadUrl" :http-request="doUpload" :on-success="onUploadSuccess">
-      <el-button slot="trigger" size="small" type="primary" style="margin-right: 1em">添加文件</el-button>
-    </el-upload>
+    <el-button type="primary" size="small" v-on:click="$refs.uploadInput.click()">
+      添加文件
+      <input type="file" style="display: none" ref="uploadInput" v-on:change="onUploadInputChange" />
+    </el-button>
+    <ul class="list-style-none my-2">
+      <li v-for="(file, index) of fileList" :key="file.url" class="flex-row justify-content-between align-items-center">
+        <el-image :src="file.url" style="height: 100px" fit="contain">
+          <div slot="error" class="text-center" style="line-height: 100px">
+            <font-awesome-icon icon="file" class="color-text-sub" size="4x" style="vertical-align: middle" />
+          </div>
+        </el-image>
+        <h4>{{file.rawFile.name}}</h4>
+        <span class="color-text-sub">{{file.size}}</span>
+        <el-button type="text" icon="el-icon-delete" class="color-warning color-warning-hover" v-on:click="onRemoveFile(index)" />
+      </li>
+    </ul>
   </div>
   <div v-if="additionalPermission">
     <el-form>
@@ -42,7 +55,8 @@
     </el-form>
   </div>
   <div class="text-right">
-    <el-button size="small" type="success" :disabled="!$refs.upload || !$refs.upload.uploadFiles.length" v-on:click="()=>$refs.upload.submit()">上传</el-button>
+    <el-button size="small" type="success" :disabled="uploadBtnDisabled" v-on:click="doUpload">上传</el-button>
+    <p class="p-0"><span class="color-text-sub" v-if="uploading">{{progressTip}}</span></p>
   </div>
 </div>
 </template>
@@ -51,11 +65,18 @@
 import {Component, Vue} from "vue-property-decorator";
 import NetDiskFileDto from "../../domain/NetDiskFileDto";
 import axios from "axios";
-import {URL_NET_DISK_FILE} from "@/constants/UrlApiNetDiskFile";
-import {ElUpload, ElUploadInternalFileDetail, HttpRequestOptions} from "element-ui/types/upload";
+import {URL_NET_DISK_FILE_UPLOAD} from "@/constants/UrlApiNetDiskFile";
 import UserInfo from "@/domain/UserInfo";
 import UserTransfer from "@/components/user/UserTransfer.vue";
+import CommonUtils from "@/utils/CommonUtils";
+import NetDiskFile from "@/domain/NetDiskFile";
 
+declare interface CustomFile{
+  rawFile: File
+  url: string
+  size: string
+  id: number
+}
 @Component({
   components: {UserTransfer},
   props: {
@@ -72,12 +93,18 @@ import UserTransfer from "@/components/user/UserTransfer.vue";
 export default class NetDiskFileUploadPanel extends Vue{
   parentId!: number
   fileInfo!: NetDiskFileDto
-  uploadUrl!: string
   readableUserList: Array<UserInfo>
   writableUserList: Array<UserInfo>
-  selectedUserIds: Array<number>
+  selectedUserIds: Array<number> = []
   showUserTransferDialog: boolean
-  selectUserListCompleteCallback: ()=>void
+  selectUserListCompleteCallback = ():void=>{return;};
+  uploadBtnDisabled: boolean
+  fileList: Array<CustomFile>
+  progressTip: string
+  speed: number//当前速度
+  secondSpeedProgress = 0//当前秒正在统计的位置
+  secondSpeedTotalTime: number//上一次统计的时间
+  uploading: boolean
 
   data(): any{
     return {
@@ -88,34 +115,74 @@ export default class NetDiskFileUploadPanel extends Vue{
         readableUserList: [],
         writableUserList: []
       },
-      uploadUrl: URL_NET_DISK_FILE + "/files",
       readableUserList: [],
       writableUserList: [],
       selectedUserList: [],
-      showUserTransferDialog: false
+      showUserTransferDialog: false,
+      uploadBtnDisabled: true,
+      fileList: [],
+      progressTip: "",
+      uploading: false
     }
   }
 
   /**
-   * 上传文件，逐个上传
+   * 添加文件
    */
-  private async doUpload(options: HttpRequestOptions): Promise<void>{
+  private onUploadInputChange(e: Event): void{
+    this.addFiles((e.target as HTMLInputElement).files);
+  }
+
+  addFiles(files: Iterable<File>): void{
+    this.fileList.push(...[...files].map((file, index)=>({
+      rawFile: file,
+      url: URL.createObjectURL(file),
+      size: CommonUtils.humanReadableSize(file.size),
+      id: new Date().getTime() + index
+    })))
+    this.uploadBtnDisabled = !this.fileList.length;
+  }
+
+  private onRemoveFile(index: number): void{
+    this.fileList.splice(index, 1);
+    this.uploadBtnDisabled = !this.fileList.length;
+  }
+
+  /**
+   * 上传文件
+   */
+  private async doUpload(): Promise<void>{
+    this.uploadBtnDisabled = true;
+    this.uploading = true;
     const formData = new FormData()
     this.fileInfo.readableUserList = this.readableUserList.map(i=>i.id)
     this.fileInfo.writableUserList = this.writableUserList.map(i=>i.id)
-    formData.append(options.filename, options.file)
+    for (let file of this.fileList) {
+      formData.append(file.rawFile.name, file.rawFile)
+    }
     formData.append("fileInfo", new Blob([JSON.stringify(this.fileInfo)], {type: "application/json"}));
-    await axios.post(this.uploadUrl, formData)
+    try {
+      const result: Array<NetDiskFile> = await axios.post(URL_NET_DISK_FILE_UPLOAD, formData, {onUploadProgress: this.onUploadProgress})
+      this.$emit("complete", result)
+      this.fileList = []
+    }finally {
+      this.uploadBtnDisabled = false;
+      this.uploading = false;
+    }
   }
 
   /**
-   * 每个文件上传成功后的事件
+   * 上传进度
    */
-  private async onUploadSuccess(response, _file, fileList: ElUploadInternalFileDetail[]): Promise<void>{
-    if(fileList.every(i=>i.status === "success")){
-      this.$emit("complete", response);
-      (this.$refs.upload as ElUpload).clearFiles()
+  onUploadProgress(e: ProgressEvent): void{
+    const progress = e.loaded / e.total;
+    const currentSecond = e.timeStamp / 1000
+    if(currentSecond !== this.secondSpeedTotalTime){
+      this.speed = e.loaded - this.secondSpeedProgress
+      this.secondSpeedTotalTime = currentSecond
+      this.secondSpeedProgress = e.loaded
     }
+    this.progressTip = e.loaded + "/" + e.total + ", " + (progress * 100).toFixed(2) + "%, " + CommonUtils.humanReadableSize(this.speed) + "/s"
   }
 
   /**

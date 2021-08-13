@@ -27,7 +27,7 @@ export default class ContextMenu extends Vue{
   left!: number
   top!: number
   el: HTMLElement
-  offsetParent: HTMLElement
+  parentElement: HTMLElement
   show!: boolean
 
   data(): Data{
@@ -44,14 +44,14 @@ export default class ContextMenu extends Vue{
 
   mounted(): void{
     this.el = this.$el as HTMLElement
-    this.offsetParent = (this.el.parentElement || document) as HTMLElement
+    this.parentElement = (this.el.parentElement || document) as HTMLElement
     this.el.focus()
-    this.offsetParent.oncontextmenu = ()=>false
-    this.offsetParent.addEventListener("contextmenu", this.onContextMenu)
+    this.parentElement.oncontextmenu = ()=>false
+    this.parentElement.addEventListener("contextmenu", this.onContextMenu)
   }
 
   beforeDestroy(): void{
-    this.offsetParent.removeEventListener("contextmenu", this.onContextMenu)
+    this.parentElement.removeEventListener("contextmenu", this.onContextMenu)
   }
 
   /**
@@ -60,14 +60,9 @@ export default class ContextMenu extends Vue{
    */
   onContextMenu(e: MouseEvent | any): void{
     if(ElementUtils.inElement(e.target, this.el)) return
-    if(e.layerX !== undefined && e.layerY !== undefined){
-      this.left = e.layerX
-      this.top = e.layerY
-    }else{
-      const parentPosition = ElementUtils.getElementPosition(this.offsetParent)
-      this.left = e.clientX - parentPosition.clientLeft
-      this.top = e.clientY - parentPosition.clientTop
-    }
+    const parentPosition = ElementUtils.getElementPosition(this.parentElement)
+    this.left = e.clientX - parentPosition.clientLeft
+    this.top = e.clientY - parentPosition.clientTop
     this.show = true
     this.$nextTick(()=>this.el.focus())
   }

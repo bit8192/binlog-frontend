@@ -13,5 +13,12 @@ module.exports = {
             }
         }
     },
+    chainWebpack: config =>{
+        config.plugin('html')
+            .tap(args=>{
+                args.title = "Bincker的个人博客";
+                return args;
+            })
+    },
     outputDir: path.resolve("../binlog/target/classes/static")
 }

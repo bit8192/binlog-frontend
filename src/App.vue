@@ -14,8 +14,8 @@
     </el-main>
     <el-footer id="footer">
       <span class="color-text-sub">{{systemProfile.copyRight}}</span>
-      <span class="color-text-sub">powered by <a target="_blank" href="//bincker.cn">bincker</a></span>
-<!--      <span v-if="systemProfile.ipc"><a href="https://beian.miit.gov.cn/" target="_blank" class="color-text-sub">{{systemProfile.ipc}}</a></span>-->
+      <span class="color-text-sub">powered by <a target="_blank" href="https://github.com/Bincker1973/binlog">binlog</a></span>
+      <span v-if="systemProfile.icp && !binlogIsHappy()"><a href="https://beian.miit.gov.cn/" target="_blank" class="color-text-sub">{{ systemProfile.icp }}</a></span>
       <span v-if="systemProfile.github">
         <a class="color-text-sub" target="_blank" :href="systemProfile.github">
           <font-awesome-icon :icon="['fab', 'github']" size="2x" />
@@ -93,9 +93,7 @@ export interface AppProvider{
         logout: async ()=>{
           this.logout()
         },
-        binlogIsHappy: ()=>{
-          return !!this.userInfo || (this.systemProfile && this.systemProfile.expression === "happy");
-        }
+        binlogIsHappy: ()=>this.binlogIsHappy(),
       }
     }
   },
@@ -160,6 +158,10 @@ export default class App extends Vue{
         console.error(e)
       }
     })
+  }
+
+  binlogIsHappy(): boolean{
+    return !!this.userInfo || (this.systemProfile && this.systemProfile.expression === "happy");
   }
 
   /**
