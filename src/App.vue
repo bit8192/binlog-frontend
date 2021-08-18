@@ -15,7 +15,7 @@
     <el-footer id="footer">
       <span class="color-text-sub">{{systemProfile.copyRight}}</span>
       <span class="color-text-sub">powered by <a target="_blank" href="https://github.com/Bincker1973/binlog">binlog</a></span>
-      <span v-if="systemProfile.icp && !binlogIsHappy()"><a href="https://beian.miit.gov.cn/" target="_blank" class="color-text-sub">{{ systemProfile.icp }}</a></span>
+      <span v-if="systemProfile.icp"><a href="https://beian.miit.gov.cn/" target="_blank" class="color-text-sub">{{ systemProfile.icp }}</a></span>
       <span v-if="systemProfile.github">
         <a class="color-text-sub" target="_blank" :href="systemProfile.github">
           <font-awesome-icon :icon="['fab', 'github']" size="2x" />
@@ -41,10 +41,11 @@ import NavMenu from "@/components/NavMenu.vue";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {faGithub} from "@fortawesome/free-brands-svg-icons";
 import {Component, Vue} from "vue-property-decorator";
-import LoginPanel from "@/components/LoginPanel.vue";
+import LoginPanel from "@/components/authorize/LoginPanel.vue";
 import NetworkError from "@/error/NetworkError";
 import AuthenticationService from "@/service/AuthenticationService";
 import UserDetail from "@/domain/UserDetail";
+import ChineseVerifyCode from "@/components/ChineseVerifyCode.vue";
 
 library.add(faGithub)
 
@@ -98,10 +99,8 @@ export interface AppProvider{
     }
   },
   watch: {
-    showLoginDialog(value: boolean): void{
-      if(value && this.$refs.loginPanel){
-        (this.$refs.loginPanel as LoginPanel).refreshVerifyCode()
-      }
+    showLoginDialog(value: boolean){
+      if(value) ChineseVerifyCode.refreshVerifyCodeIfExpire()
     }
   }
 })
@@ -149,6 +148,8 @@ export default class App extends Vue{
 
   async logout(): Promise<void>{
     await AuthenticationService.logout()
+    //注销之后Session被清空，验证码需要重新拉取
+    ChineseVerifyCode.refreshVerifyCode()
     this.userInfo = null
     this.showLoginDialog = true
     this.userInfoChangeListeners.forEach(fun=>{

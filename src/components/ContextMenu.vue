@@ -61,8 +61,8 @@ export default class ContextMenu extends Vue{
   onContextMenu(e: MouseEvent | any): void{
     if(ElementUtils.inElement(e.target, this.el)) return
     const parentPosition = ElementUtils.getElementPosition(this.parentElement)
-    this.left = e.clientX - parentPosition.clientLeft
-    this.top = e.clientY - parentPosition.clientTop
+    this.left = e.clientX - parentPosition.offsetLeft
+    this.top = e.clientY - parentPosition.offsetTop
     this.show = true
     this.$nextTick(()=>this.el.focus())
   }
@@ -90,6 +90,7 @@ export interface ContextMenuItem{
   display: inline-block;
   background-color: white;
   box-shadow: black 0 0 6px -2px;
+  min-width: 100px;
   ul{
     list-style: none;
     padding: 0;

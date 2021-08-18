@@ -9,10 +9,12 @@ export default class ElementUtils{
     static getElementPosition(target: HTMLElement, relativeTarget: Element = document.body): ElementPosition{
         const result:ElementPosition = {offsetLeft:0, offsetTop:0, clientLeft: 0, clientTop: 0}
         while (target && target !== relativeTarget && target !== target.parentElement){
-            result.offsetLeft += target.offsetLeft
-            result.offsetTop += target.offsetTop
-            result.clientLeft += target.offsetLeft - target.scrollLeft
-            result.clientTop += target.offsetTop - target.scrollTop
+            if(target.offsetLeft !== undefined && target.offsetTop !== undefined){
+                result.offsetLeft += target.offsetLeft
+                result.offsetTop += target.offsetTop
+                result.clientLeft += target.offsetLeft - target.scrollLeft
+                result.clientTop += target.offsetTop - target.scrollTop
+            }
             target = target.offsetParent as HTMLElement
         }
         result.clientLeft -= document.scrollingElement.scrollLeft

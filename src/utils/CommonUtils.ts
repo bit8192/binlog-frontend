@@ -56,4 +56,11 @@ export default class CommonUtils{
             return size + "B"
         }
     }
+
+    /**
+     * 假等待
+     */
+    static sleep(timeout: number): Promise<void>{
+        return new Promise(resolve => setTimeout(resolve, timeout));
+    }
 }

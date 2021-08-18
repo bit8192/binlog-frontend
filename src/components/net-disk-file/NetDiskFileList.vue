@@ -21,7 +21,7 @@
     </el-input>
   </div>
   <!--suppress HtmlDeprecatedAttribute -->
-  <div ref="files" class="net-disk-file-view-files flex-1 flex-row align-items-start" v-on:click="onBoxClick" v-on:contextmenu="onBoxContextmenu" v-on:paste="onPaste">
+  <div ref="files" class="net-disk-file-view-files flex-1 flex-row flex-wrap align-items-start" v-on:click="onBoxClick" v-on:contextmenu="onBoxContextmenu" v-on:paste="onPaste">
     <template v-if="fileList.length">
       <!--suppress HtmlDeprecatedAttribute -->
       <net-disk-file-item
@@ -35,6 +35,7 @@
           v-on:click="e=>onItemClick(e, file)"
           v-on:contextmenu="e=>onItemContextMenu(e, file)"
           v-on:dblclick="e=>onItemDblclick(e, file)"
+          class="mx-2 mb-2"
       />
     </template>
     <empty-data v-else class="flex-1" />

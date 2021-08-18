@@ -28,7 +28,7 @@
       <el-card id="article-catalog-container" class="flex-1 d-none-md mr-1" :body-style="{padding: '6px'}">
         <article-catalog ref="catalog" id="article-catalog" element="article" />
       </el-card>
-      <el-card class="flex-5 flex-1-md">
+      <el-card class="flex-5 flex-1-md width-100 article-container">
         <markdown-it-vue id="article" :content="info.content || ''" />
       </el-card>
     </div>
@@ -49,7 +49,7 @@
         </router-link>
       </div>
     </el-card>
-    <el-card :class="'mt-1 transition-fade-in-enter-active' + (loadingComments ? ' transition-fade-in-enter' : ' transition-fade-in-enter-to')" v-if="app.binlogIsHappy()">
+    <el-card :class="'mt-1 article-comment-container transition-fade-in-enter-active' + (loadingComments ? ' transition-fade-in-enter' : ' transition-fade-in-enter-to')" v-if="app.binlogIsHappy()">
       <h3 slot="header">{{info.commentNum}}评论</h3>
       <div class="flex-row position-relative">
         <el-avatar :src="userInfo ? userInfo.headImg : ''" :size="50" class="mr-4">
@@ -210,7 +210,7 @@ export default class ArticleView extends Vue{
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 @import "src/style/var-device-width";
 .article-cover{
   position: relative;
@@ -259,12 +259,22 @@ export default class ArticleView extends Vue{
   background-color: white;
   overflow-x: auto;
 }
-@media (max-width: $device-width-xs) {
+@media (max-width: $device-width-md) {
   .article-title{
     font-size: 2em;
   }
+  .article-container{
+    border: none;
+    &>.el-card__body{
+      padding: 0;
+    }
+  }
+  .article-comment-container>.el-card__body{
+    padding: 10px;
+  }
   #article{
     margin-left: 0;
+    padding: 1em;
   }
 }
 .article-action>span>svg{

@@ -45,21 +45,46 @@ interface Point{
   },
   data(): any{
     return {
-      verifyCodeTimestamp: new Date().getTime(),
+      verifyCodeTimestamp: ChineseVerifyCode.verifyCodeTimestamp,
       points: [],
       verifyCodeUrl: URL_VERIFY_CODE,
     }
+  },
+  created() {
+    ChineseVerifyCode.instanceList.push(this)
+  },
+  beforeDestroy() {
+    ChineseVerifyCode.instanceList.splice(ChineseVerifyCode.instanceList.indexOf(this), 1)
   }
 })
 export default class ChineseVerifyCode extends Vue{
+  static instanceList: Array<ChineseVerifyCode> = []
+  static verifyCodeTimestamp = new Date().getTime()
+  static refreshVerifyCode(): void{
+    this.verifyCodeTimestamp = new Date().getTime();
+    this.instanceList.forEach(i=>{
+      i.verifyCodeTimestamp = this.verifyCodeTimestamp;
+      i.points = []
+    })
+  }
+  static refreshVerifyCodeIfExpire(): void{
+    if(new Date().getTime() - this.verifyCodeTimestamp > 600000){
+      this.refreshVerifyCode()
+    }
+  }
+
   minPointLen: number
   maxPointLen: number
   verifyCodeTimestamp: number
   points: Point[]
 
+  clear(): void{
+    this.points = []
+  }
+
   refresh(): void{
     this.points = []
-    this.verifyCodeTimestamp = new Date().getTime()
+    ChineseVerifyCode.refreshVerifyCode()
   }
 
   onVerifyCodeClick(e: MouseEvent | any): void{

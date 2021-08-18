@@ -4,5 +4,7 @@ export default interface SystemProfile{
     icp: string
     github: string
     useQQAuthorize: boolean
+    useGithubAuthorize: boolean
     expression: string
+    allowRegister: boolean
 }
