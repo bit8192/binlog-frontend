@@ -107,14 +107,14 @@ export default class CommentList extends Vue{
 
   mounted(): void{
     //注册滚动事件
-    document.addEventListener("scroll", this.onScroll)
+    if(document) document.addEventListener("scroll", this.onScroll)
     this.userInfo = this.app.getLoggedUserInfo()
     this.app.addUserInfoChangeListener(this.onUserInfoChange)
     this.loadCommentPage()
   }
 
   beforeDestroy(): void{
-    document.removeEventListener("scroll", this.onScroll)
+    if(document) document.removeEventListener("scroll", this.onScroll)
     this.app.removeUserInfoChangeListener(this.onUserInfoChange)
   }
 

@@ -154,7 +154,7 @@ const router = new VueRouter({
  * 修改标题
  */
 router.beforeEach(async (to, from, next) => {
-  if(to.meta.title){
+  if(to.meta.title && document){
     document.title = to.meta.title
     try {
       const systemProfile = await CommonService.getSystemProfile()

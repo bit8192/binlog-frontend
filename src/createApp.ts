@@ -9,6 +9,9 @@ import 'element-ui/lib/theme-chalk/display.css'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import 'nprogress/nprogress.css'
 import configNProgress from "@/config/config-nprogress";
+import VueRouter from "vue-router";
+import Vuex, {Store} from "vuex";
+import createStore from './createStore'
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
@@ -20,11 +23,17 @@ configNProgress()
 //配置ElementUI
 Vue.use(ElementUI)
 
+//配置Vuex
+const store = createStore()
+
 //系统配置
 configAxios({})
 
-new Vue({
-  router,
-  render: h => h(App)
-}).$mount('#app')
-
+export default function createApp(): {app: Vue, router: VueRouter, store: Store<any>}{
+    const app = new Vue({
+        router,
+        render: h => h(App),
+        store
+    });
+    return {app, router, store}
+}

@@ -126,7 +126,7 @@ export default class ArticleView extends Vue{
 
   async loadArticle(): Promise<void>{
     this.info = await ArticleService.getDetail(this.$route.params.id)
-    document.title = this.info.title
+    if(document) document.title = this.info.title
     this.loadingArticle = false
     this.$nextTick(()=>{
       (this.$refs.catalog as ArticleCatalog).refresh()
@@ -172,7 +172,7 @@ export default class ArticleView extends Vue{
   }
 
   beforeRouteUpdate(): void{
-    if(this.info && this.info.title) document.title = this.info.title
+    if(this.info && this.info.title && document) document.title = this.info.title
   }
 
   /**

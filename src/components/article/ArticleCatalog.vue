@@ -77,22 +77,23 @@ export default class ArticleCatalog extends Vue{
 
   mounted() :void{
     if(typeof this.element === "string"){
-      targetElement = document.querySelector("#" + this.element)
+      if(document) targetElement = document.querySelector("#" + this.element)
     }else{
       targetElement = this.element
     }
     if(targetElement instanceof Element){
       this.refresh()
     }
-    document.addEventListener("scroll", this.$_targetScrollEventListener)
+    if(document) document.addEventListener("scroll", this.$_targetScrollEventListener)
   }
 
   beforeDestroy() : void{
-    document.removeEventListener("scroll", this.$_targetScrollEventListener)
+    if(document) document.removeEventListener("scroll", this.$_targetScrollEventListener)
   }
 
     //章节点击事件
   $_sectionClickEventListener(section: Section): void{
+    if(!document) return;
     const scrollingElement = document.scrollingElement
     let sectionTop = ElementUtils.getElementPosition(section.element as HTMLElement).offsetTop + (this.$el as HTMLElement).offsetTop
     scrollingElement.scroll(0, sectionTop + 1)
@@ -103,7 +104,7 @@ export default class ArticleCatalog extends Vue{
   $_targetScrollEventListener(): void{
     if(!targetElement || !targetElementOffset) return;
     //滚动框架元素，一般是html
-    const scrollingElement = document.scrollingElement
+    const scrollingElement = document ? document.scrollingElement : null
     //当前进度(窗口中间), 相对当前元素
     let progress = scrollingElement.scrollTop - targetElementOffset.offsetTop + window.innerHeight/2
     if(progress < 0) progress = 0
@@ -147,6 +148,7 @@ export default class ArticleCatalog extends Vue{
   }
 
   refresh() :boolean{
+    if(!document) return;
     if(!targetElement){
       if(typeof this.element === "string"){
         targetElement = document.querySelector("#" + this.element)

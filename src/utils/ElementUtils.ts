@@ -6,7 +6,7 @@ export default class ElementUtils{
      * @param target 目标元素
      * @param relativeTarget 相对目标元素
      */
-    static getElementPosition(target: HTMLElement, relativeTarget: Element = document.body): ElementPosition{
+    static getElementPosition(target: HTMLElement, relativeTarget: Element = document ? document.body : null): ElementPosition{
         const result:ElementPosition = {offsetLeft:0, offsetTop:0, clientLeft: 0, clientTop: 0}
         while (target && target !== relativeTarget && target !== target.parentElement){
             if(target.offsetLeft !== undefined && target.offsetTop !== undefined){
@@ -17,8 +17,10 @@ export default class ElementUtils{
             }
             target = target.offsetParent as HTMLElement
         }
-        result.clientLeft -= document.scrollingElement.scrollLeft
-        result.clientTop -= document.scrollingElement.scrollTop
+        if(document){
+            result.clientLeft -= document.scrollingElement.scrollLeft
+            result.clientTop -= document.scrollingElement.scrollTop
+        }
         return result
     }
 
@@ -39,7 +41,8 @@ export default class ElementUtils{
      * 获取剩余滚动距离
      * @param target 目标
      */
-    static getScrollSurplus(target: HTMLElement = document.scrollingElement as HTMLElement): number{
+    static getScrollSurplus(target: HTMLElement = document ? document.scrollingElement as HTMLElement : null): number{
+        if(!target) return 0;
         return target.scrollHeight - target.scrollTop - target.clientHeight
     }
 }

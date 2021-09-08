@@ -1,5 +1,5 @@
 <template>
-  <oauth2-authorize-button :authorize-url="authorizeUrl" :check-notice="checkNotice" v-on:authorized="u=>$emit('authorized', u)" ref="btn">
+  <oauth2-authorize-button :authorize-url="authorizeUrl" :check-notice="checkNotice" v-on:authorized="u=>$emit('authorized', u)" v-on:success="$emit('success')" ref="btn">
     <div style="line-height: 30px">
       <font-awesome-icon :icon="['fab', 'github']" size="2x" style="vertical-align: middle" />
       Github帐号登录

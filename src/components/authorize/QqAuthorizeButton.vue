@@ -1,5 +1,5 @@
 <template>
-  <oauth2-authorize-button :authorize-url="authorizeUrl" :check-notice="checkNotice" v-on:authorized="u=>$emit('authorized', u)" ref="btn">
+  <oauth2-authorize-button :authorize-url="authorizeUrl" :check-notice="checkNotice" v-on:authorized="u=>$emit('authorized', u)" v-on:success="$emit('success')" ref="btn">
     <div style="line-height: 30px">
       <img alt="qq-logo" :src="qqImage" style="width: 25px; height: 30px; float: left" class="pr-2" /> QQ帐号登录
     </div>

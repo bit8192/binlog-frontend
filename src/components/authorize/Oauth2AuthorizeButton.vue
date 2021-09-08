@@ -45,6 +45,7 @@ export default class Oauth2AuthorizeButton extends Vue{
           if(successMsg.msg) {
             this.$message.info(successMsg.msg);
           }
+          authorizeWindow.close();
           return;
         }else if(successMsg.msg){
           this.$message.warning(successMsg.msg);

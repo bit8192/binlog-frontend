@@ -1,5 +1,9 @@
 <template>
   <el-form :model="user" :rules="formRules" ref="form">
+    <el-image :src="goodFriendBannerImage"></el-image>
+    <p class="text-center">
+      ~(￣▽￣)~注册了我们就是好朋友哦~(￣▽￣)~
+    </p>
     <el-form-item label="头像">
       <div class="text-center">
         <el-upload :action="headImageUploadAction" :show-file-list="false" :on-success="onUploadHeadImg" :multiple="false">
@@ -84,6 +88,7 @@ library.add(faUser, faQq, faWeixin, faGithub)
 })
 export default class RegisterForm extends Vue{
   headImageUploadAction = URL_FILES
+  goodFriendBannerImage = require("@/assets/good_friend_banner.webp")
   user: UserDto
   repassword: string
   formRules = {

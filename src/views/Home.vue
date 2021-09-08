@@ -27,6 +27,8 @@ import UserStatePanel from "@/components/UserStatePanel.vue";
 import {Component, Vue} from "vue-property-decorator";
 import BloggersPanel from "@/components/BloggersPanel.vue";
 import {AppProvider} from "@/App.vue";
+import {Store} from "vuex";
+import VueRouter from "vue-router";
 
 @Component({
   components: {BloggersPanel, UserStatePanel, ArticleSearchPanel, ArticlePage},
@@ -37,6 +39,10 @@ export default class Home extends Vue{
   begImage = require("@/assets/beg.jpg")
   payImage = require("@/assets/pay.webp")
   app: AppProvider
+
+  async asyncData(store: Store<any>, router: VueRouter): Promise<void>{
+    store.commit("setMsg")
+  }
 
   data(): any{
     return {
@@ -59,7 +65,7 @@ export default class Home extends Vue{
 
   async created() : Promise<void>{
     const systemProfile = await CommonService.getSystemProfile()
-    document.title = systemProfile.name
+    if(document) document.title = systemProfile.name
   }
 }
 </script>

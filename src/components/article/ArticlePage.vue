@@ -56,11 +56,11 @@ export default class ArticlePage extends Vue{
 
   mounted(): void {
     this.loadNextPage()
-    document.addEventListener("scroll", this.onStroll)
+    if(document) document.addEventListener("scroll", this.onStroll)
   }
 
   beforeDestroy(): void{
-    document.removeEventListener("scroll", this.onStroll)
+    if(document) document.removeEventListener("scroll", this.onStroll)
   }
 
   @Debounce()

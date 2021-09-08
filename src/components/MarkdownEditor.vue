@@ -60,6 +60,7 @@
           ref="viewer"
           :content="content"
           :style="((previewWidth && isPreview) ? 'width: ' + previewWidth + 'px;' : 'flex: 1;')"
+          :options="{markdownIt: {html: true}}"
       />
     </div>
   </div>
@@ -392,7 +393,7 @@ export default class MarkdownEditor extends Vue{
       this.$el.requestFullscreen({
         navigationUI: "auto"
       })
-    }else {
+    }else if(document){
       document.exitFullscreen()
     }
     this.getCodeMirror().focus()

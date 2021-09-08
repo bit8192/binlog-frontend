@@ -84,6 +84,7 @@ export default class TransitionScrollView extends Vue{
   }
 
   private $_inScreen(distanceRange: number): boolean{
+    if(!document) return true;
     const el = this.$el as HTMLElement
     const position = ElementUtils.getElementPosition(el)
     return position.clientTop + el.clientHeight > distanceRange && position.clientTop + distanceRange < document.scrollingElement.clientHeight
@@ -112,14 +113,14 @@ export default class TransitionScrollView extends Vue{
 
   private static scrollEventListenerSet = new Set<()=>void>()
   private static addScrollListener(method: ()=>void) {
-    if(!TransitionScrollView.scrollEventListenerSet.size){
+    if(!TransitionScrollView.scrollEventListenerSet.size && document){
       document.addEventListener("scroll", TransitionScrollView.scrollEventListener)
     }
     TransitionScrollView.scrollEventListenerSet.add(method)
   }
   private static deleteScrollListener(method: ()=>void){
     TransitionScrollView.scrollEventListenerSet.delete(method)
-    if(!TransitionScrollView.scrollEventListenerSet.size){
+    if(!TransitionScrollView.scrollEventListenerSet.size && document){
       document.removeEventListener("scroll", TransitionScrollView.scrollEventListener)
     }
   }
