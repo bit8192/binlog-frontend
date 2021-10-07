@@ -12,7 +12,7 @@ export default function configNProgress(): void{
     //增加请求数量
     function addRequestNum(){
         requestNum ++
-        if(!NProgress.isStarted()) NProgress.start()
+        if(!NProgress.isStarted() && document) NProgress.start()
     }
     //减少请求数量
     function subtractRequestNum(){
@@ -23,22 +23,22 @@ export default function configNProgress(): void{
     }
     //请求拦截
     axios.interceptors.request.use(request=>{
-        addRequestNum()
+        // addRequestNum()
         return request
     });
     axios.interceptors.response.use(response=>{
-        subtractRequestNum()
+        // subtractRequestNum()
         return response
     },e => {
-        subtractRequestNum()
+        // subtractRequestNum()
         return Promise.reject(e)
     });
     //路由拦截
     router.beforeEach((to, from,next)=>{
-        if(to.name !== from.name) addRequestNum()
+        // if(to.name !== from.name) addRequestNum()
         next()
     })
     router.afterEach(()=>{
-        subtractRequestNum()
+        // subtractRequestNum()
     })
 }

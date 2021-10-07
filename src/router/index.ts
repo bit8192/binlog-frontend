@@ -153,7 +153,7 @@ const router = new VueRouter({
 /**
  * 修改标题
  */
-router.beforeEach(async (to, from, next) => {
+router.afterEach(async to => {
   if(to.meta.title && document){
     document.title = to.meta.title
     try {
@@ -163,7 +163,6 @@ router.beforeEach(async (to, from, next) => {
       //ignore
     }
   }
-  next()
 })
 
 export default router

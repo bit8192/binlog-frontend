@@ -6,7 +6,7 @@ const webpack = require("webpack");
 const isDevelopment = process.env.NODE_ENV === "development"
 module.exports = merge(require('./webpack.base.config'), {
     target: "node",
-    devtool: isDevelopment ? "source-map" : false,
+    devtool: "source-map",
     output: {
         libraryTarget: 'commonjs2'
     },
@@ -15,8 +15,8 @@ module.exports = merge(require('./webpack.base.config'), {
     }),
     plugins: [
         new VueSSRServerPlugin(),
-        new webpack.DefinePlugin({
-            document: null
-        })
+        // new webpack.DefinePlugin({
+        //     document: undefined
+        // })
     ]
 })

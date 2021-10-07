@@ -19,7 +19,6 @@ const renderer = vsr.createBundleRenderer(serverBundle, {
 const server = express()
 
 server.use(express.static(path.join("dist")))
-
 server.get("*", (req, res)=>{
     const context = {url: req.url, state: {msg: "hello world"}};
     renderer.renderToString(context)
@@ -27,7 +26,7 @@ server.get("*", (req, res)=>{
             res.send(html)
         })
         .catch(err => {
-            console.error(err)
+            console.error(req.url, err)
             res.status(500).send("Internal Server Error")
         })
 })
