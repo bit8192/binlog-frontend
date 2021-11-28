@@ -22,10 +22,11 @@
           </div>
         </div>
       </div>
+      <el-pagination layout="prev,pager,next" :current-page="pageIndex + 1" :page-size="pageSize" :page-count="pageCount" v-on:current-change="page=>gotoPage(page - 1)" />
     </el-card>
     <div class="flex-1">
       <el-card class="expression-filter mb-1-md position-sticky" style="top: 1em">
-        <el-input v-model="keywords" placeholder="关键字" size="small" suffix-icon="el-icon-search" ref="searchInput" clearable v-on:clear="reloadExpressionPage" />
+        <el-input v-model="keywords" placeholder="关键字" size="small" suffix-icon="el-icon-search" ref="searchInput" clearable v-on:clear="gotoPage" />
         <ul class="list-style-none mt-2">
           <li class="d-inline px-1" v-for="tag of tags" :key="tag.id">
             <el-tag size="small" style="cursor: pointer" :effect="selectedTagIds.has(tag.id) ? 'dark' : 'plain'" v-on:click="e=>toggleSelectTag(e, tag)">{{ tag.title }}({{ tag.expressionNum }})</el-tag>
@@ -59,7 +60,7 @@ library.add(faThumbsUp, faRegularThumbsUp)
   components: {ExpressionUploadPanel},
   inject: ['app'],
   created(): void{
-    this.loadExpressionPage()
+    this.gotoPage()
     this.loadData()
   },
   mounted(): void{
@@ -75,7 +76,8 @@ export default class Expression extends Vue{
   tags: ExpressionTag[]
   selectedTagIds: Set<number>
   pageIndex: number
-  isLast: boolean
+  pageCount: number
+  pageSize: number
   expressionUrl: string
   showUploadPanel: boolean
   app: AppProvider
@@ -87,32 +89,22 @@ export default class Expression extends Vue{
       tags: [],
       selectedTagIds: new Set(),
       pageIndex: 0,
-      isLast: false,
+      pageCount: 0,
+      pageSize: 20,
       expressionUrl: URL_EXPRESSION,
       showUploadPanel: false
     }
   }
 
-
-  /**
-   * 重新加载表情数据
-   */
-  async reloadExpressionPage(): Promise<void>{
-    this.pageIndex = 0
-    this.list = []
-    this.isLast = false
-    await this.loadExpressionPage()
-  }
-
   /**
    * 加载表情分页数据
    */
-  async loadExpressionPage(): Promise<void>{
-    if(this.isLast) return
-    const result = await ExpressionService.getExpressionPage(this.keywords, [...this.selectedTagIds], {page: this.pageIndex, size: 20})
-    this.isLast = result.last
-    this.pageIndex++
-    this.list.push(...result.content)
+  async gotoPage(pageNumber = 0): Promise<void>{
+    this.pageIndex = pageNumber
+    const result = await ExpressionService.getExpressionPage(this.keywords, [...this.selectedTagIds], {page: this.pageIndex, size: this.pageSize})
+    this.pageCount = result.totalPages
+    this.list = result.content
+    scrollTo(0, 0)
   }
 
   async loadData(): Promise<void>{
@@ -156,7 +148,7 @@ export default class Expression extends Vue{
         this.selectedTagIds.add(tag.id)
       }
     }
-    this.reloadExpressionPage()
+    this.gotoPage()
   }
 
   onUpload(): void{
@@ -172,7 +164,7 @@ export default class Expression extends Vue{
    */
   onSearchInputKeyDown(e: KeyboardEvent): void{
     if(e.key !== "Enter")return;
-    this.reloadExpressionPage()
+    this.gotoPage()
   }
 }
 </script>

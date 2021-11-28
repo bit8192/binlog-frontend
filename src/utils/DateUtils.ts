@@ -34,6 +34,15 @@ export default class DateUtils{
     }
 
     /**
+     * 格式化年月
+     * @param date
+     */
+    static formatMonth(date: string | Date | number): string {
+        date = new Date(date);
+        return `${date.getFullYear()}-${CommonUtils.formatInteger(date.getMonth() + 1, 2)}`;
+    }
+
+    /**
      * 格式化日期
      * @param date
      */

@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "NODE_ENV=development && vue-cli-service serve",
-    "build": "NODE_ENV=production && vue-cli-service build",
+    "serve": "NODE_ENV=development && export WEBPACK_TARGET=base && vue-cli-service serve",
+    "build": "NODE_ENV=production && export WEBPACK_TARGET=base && vue-cli-service build",
     "server:renderer": "node server-renderer.js",
     "dev:server:renderer": "NODE_ENV=development && node server-renderer.js",
     "build:renderer-client": "NODE_ENV=production && export WEBPACK_TARGET=client && vue-cli-service build",

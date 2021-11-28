@@ -108,19 +108,14 @@ export default class NavMenu extends Vue{
           route: "/",
           visible: true
         },
+        {
+          title: "归档",
+          route: "/archives",
+          visible: true
+        },
         this.messageMenu,
         this.adminMenu,
         this.netDiskFileMenu,
-        {
-          title: "分类",
-          route: "/article/article-class",
-          visible: true
-        },
-        {
-          title: "标签",
-          route: "/article/tags",
-          visible: true
-        },
         {
           title: "表情",
           route: "/expression",

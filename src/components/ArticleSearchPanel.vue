@@ -39,6 +39,14 @@ import {ElInput} from "element-ui/types/input";
 @Component({
   props: {
     articlePage: [ArticlePage, undefined]
+  },
+  watch: {
+    $route: {
+      handler(){
+        this.readQueryParams();
+      },
+      deep: true
+    }
   }
 })
 export default class ArticleSearchPanel extends Vue{
@@ -48,18 +56,52 @@ export default class ArticleSearchPanel extends Vue{
   articleTreeProps = {label: 'title', isLeaf: (data: ArticleClassVo): boolean=>data.childrenNum < 1}
   selectedArticleClassId: number
   selectedTagIdSet: Set<number>
+  loadArticleClassTreePromise?: Promise<ArticleClass[]> //加载文章分类时设置当前节点会失效，记录Promise当Promise完成时再设置当前节点
 
   data(): any{
     return {
       tags: [],
-      keywords: "",
+      keywords: '',
       selectedArticleClassId: null,
       selectedTagIdSet: new Set()
     }
   }
 
+  readQueryParams(): void{
+    const tree = this.$refs.articleClassTree as ElTree<number, ArticleClass>;
+    if(this.$route.query.articleClassId){
+      this.selectedArticleClassId = parseInt(Array.isArray(this.$route.query.articleClassId) ? this.$route.query.articleClassId[0] : this.$route.query.articleClassId);
+    }else if(tree){
+      tree.setCurrentKey(null)
+    }
+    if(this.$route.query.keywords){
+      this.keywords = Array.isArray(this.$route.query.keywords) ? this.$route.query.keywords[0] : this.$route.query.keywords;
+    }else{
+      this.keywords = ""
+    }
+    this.selectedTagIdSet = new Set();
+    if(this.$route.query.tagIds){
+      this.selectedTagIdSet.add(parseInt(Array.isArray(this.$route.query.tagIds) ? this.$route.query.tagIds[0] : this.$route.query.tagIds));
+    }
+    if(this.$route.query.articleClassId || this.$route.query.keywords || this.$route.query.tagIds){
+      this.$nextTick(()=>{
+        this.refreshArticlePage();
+        if(this.selectedArticleClassId){
+          if(this.loadArticleClassTreePromise){
+            this.loadArticleClassTreePromise.then(()=>{
+              tree.setCurrentKey(this.selectedArticleClassId);
+            });
+          }else{
+            tree.setCurrentKey(this.selectedArticleClassId);
+          }
+        }
+      })
+    }
+  }
+
   mounted(): void{
     this.loadData();
+    this.readQueryParams();
     (this.$refs.searchInput as ElInput).$el.addEventListener("keydown", this.onSearchInputKeydown)
   }
 
@@ -69,10 +111,14 @@ export default class ArticleSearchPanel extends Vue{
 
   // noinspection JSMethodCanBeStatic
   /**
-   * 加载数据
+   * 加载文章分类数据
    */
   private async loadArticleClassTree(node: TreeNode<number, ArticleClassVo>, resolve: (articleClasses:Array<ArticleClass>)=>void): Promise<void>{
-    resolve((await ArticleClassService.searchByParent(node.data?.id)))
+    this.loadArticleClassTreePromise = ArticleClassService.searchByParent(node.data?.id)
+    this.loadArticleClassTreePromise.then(result=>resolve(result));
+    this.loadArticleClassTreePromise.finally(()=>{
+      this.loadArticleClassTreePromise = null
+    });
   }
 
   /**

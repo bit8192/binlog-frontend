@@ -1,8 +1,10 @@
 <template>
   <div class="container-article">
     <div v-if="articleList.length">
-      <article-list-item v-for="article in articleList" :key="article.id" :info="article" />
-      <p v-if="last" class="color-text-sub text-center py-3">说实话，我没了</p>
+      <template v-for="article in articleList">
+        <article-list-item :key="article.id" :info="article" />
+      </template>
+      <el-pagination layout="prev,pager,next" :current-page="pageable.page + 1" :page-count="pageCount" :page-size="pageable.size" v-on:current-change="gotoPage" />
     </div>
     <empty-data v-else />
     <el-backtop ref="backTop" />
@@ -16,8 +18,6 @@ import EmptyData from "@/components/EmptyData.vue";
 import ArticleService from "@/service/ArticleService";
 import Pageable from "@/domain/Pageable";
 import {Component, Vue} from "vue-property-decorator";
-import Debounce from "@/decorators/Debounce";
-import ElementUtils from "@/utils/ElementUtils";
 
 @Component({
   components: {EmptyData, ArticleListItem},
@@ -40,6 +40,7 @@ export default class ArticlePage extends Vue{
   articleClassId: number
   tagIds: Array<number>
   queryParam: {articleClassId: number, tagIds: Array<number>, keywords: string}
+  pageCount: number
 
   data() : any{
     return {
@@ -50,31 +51,23 @@ export default class ArticlePage extends Vue{
       pageable: {
         page: 0,
         size: 20
-      }
+      },
+      pageCount: 0
     }
   }
 
   mounted(): void {
-    this.loadNextPage()
-    if(document) document.addEventListener("scroll", this.onStroll)
+    this.gotoPage()
   }
 
-  beforeDestroy(): void{
-    if(document) document.removeEventListener("scroll", this.onStroll)
-  }
-
-  @Debounce()
-  onStroll(): void{
-    //如果不存在下一页，或没有滚动到距离底部200像素时，不进行加载
-    if(this.last || ElementUtils.getScrollSurplus() > 200) return
-    this.pageable.page ++
-    this.loadNextPage()
-  }
-
-  protected async loadNextPage(): Promise<void>{
+  private async gotoPage(pageNumber = 1): Promise<void>{
+    this.pageable.page = pageNumber - 1
     const page = await ArticleService.pageAll(this.keywords, this.articleClassId, this.tagIds, this.pageable)
     this.last = page.last
-    this.articleList.push(...page.content)
+    this.articleList = page.content
+    this.articleList.filter((a, i)=>i % 2 == 0).forEach(a=>a.cover = undefined)
+    this.pageCount = page.totalPages
+    scrollTo(0, 0)
   }
 
   async refresh(keywords = "", articleClassId = 0, tagIds: Array<number> = []): Promise<void>{
@@ -84,7 +77,7 @@ export default class ArticlePage extends Vue{
     this.articleList = []
     this.last = false
     this.pageable.page = 0
-    await this.loadNextPage();
+    await this.gotoPage();
     (this.$refs.backTop as any).scrollToTop();
   }
 }

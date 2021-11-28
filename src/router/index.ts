@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Home from '../views/Home.vue'
 import CommonService from "@/service/CommonService";
+import ArchiveView from "@/views/ArchiveView.vue";
 
 Vue.use(VueRouter)
 
@@ -19,34 +20,16 @@ const routes: Array<RouteConfig> = [
     component: Home
   },
   {
+    path: '/archives',
+    name: 'Archives',
+    meta: {title: "归档"},
+    component: ArchiveView
+  },
+  {
     path: '/about',
     name: 'About',
       meta: {title: "关于"},
     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
-  },
-  {
-    path: "/article/article-class",
-    name: "ArticleClass",
-    meta: {title: "分类列表"},
-    component: () => import('../views/ArticleClassListView.vue')
-  },
-  {
-    path: "/article/article-class/:id",
-    name: "ArticleListByClass",
-    meta: {title: "分类"},
-    component: () => import('../views/ArticlePageByClassView.vue')
-  },
-  {
-    path: "/article/tags",
-    name: "TagList",
-    meta: {title: "标签列表"},
-    component: () => import('../views/TagListView.vue')
-  },
-  {
-    path: "/article/tags/:id",
-    name: "ArticleListByTag",
-    meta: {title: "标签"},
-    component: () => import('../views/ArticlePageByTagView.vue')
   },
   {
     path: "/article/:id",
