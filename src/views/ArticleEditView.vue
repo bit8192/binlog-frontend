@@ -111,7 +111,6 @@ export default class ArticleEditView extends Vue{
       { min: 2, max: 255, message: "输入2-255个字符" },
     ],
     articleClass: { required: true, message: "必填项" },
-    cover: { required: true, message: "必填项" },
     orderNum: { min: 0, max: 999, message: "范围[0, 999]" },
     describe: { required: true, message: "必填项" },
     content: { required: true, message: "必填项" }
@@ -137,6 +136,9 @@ export default class ArticleEditView extends Vue{
       }
     }else if(articleCache){
       this.article = JSON.parse(articleCache)
+    }
+    if(this.article && this.article.id && this.article.id !== +this.$route.params.id){
+      await this.$router.replace({path: '/article/edit/' + this.article.id})
     }
     this.autoSaveInterval = setInterval(this.autoSave, 600000)//十分钟自动保存一次
   }

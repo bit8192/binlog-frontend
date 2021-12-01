@@ -1,11 +1,20 @@
 import NetDiskFile from "@/domain/NetDiskFile";
 import axios from "axios";
-import {URL_NET_DISK_FILE, URL_NET_DISK_FILE_DOWNLOAD_URL} from "@/constants/UrlApiNetDiskFile";
+import {
+    URL_NET_DISK_FILE,
+    URL_NET_DISK_FILE_AVAILABLE_FILE_SYSTEM_TYPE,
+    URL_NET_DISK_FILE_DOWNLOAD_URL
+} from "@/constants/UrlApiNetDiskFile";
 import NetDiskFileDto from "@/domain/NetDiskFileDto";
 import SortOrder from "@/domain/SortOrder";
 import ValueVo from "@/domain/ValueVo";
+import {FileSystemTypeEnum} from "@/domain/FileSystemTypeEnum";
 
 export default class NetDiskFileService{
+    public static async getAvailableFileSystemTypeList(): Promise<Array<FileSystemTypeEnum>>{
+        return await axios.get(URL_NET_DISK_FILE_AVAILABLE_FILE_SYSTEM_TYPE);
+    }
+
     public static async listChildren(id: number, isDirectory: boolean = null, mediaType: string = null, suffix: string = null, sort: SortOrder[] = []): Promise<Array<NetDiskFile>>{
         return await axios.get(
             URL_NET_DISK_FILE,

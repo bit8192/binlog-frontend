@@ -49,6 +49,16 @@
     <el-dialog :visible="showPropertiesDialog" v-on:close="showPropertiesDialog = false" append-to-body>
       <net-disk-file-properties :id="showPropertiesTargetId" v-if="showPropertiesTargetId" />
     </el-dialog>
+    <el-dialog :visible="showFileSystemTypeSelectorDialog" v-on:close="showFileSystemTypeSelectorDialog = false" append-to-body>
+      <h4 slot="title">你想创建在哪里？</h4>
+      <div class="text-center">
+        <file-system-type-selector :file-system-type-list="currentDirectory.fileSystemTypeSet" v-model="selectedFileSystemType" slot="default" />
+      </div>
+      <div slot="footer">
+        <el-button v-on:click="()=>fileSystemTypeSelectCallback(false)">取消</el-button>
+        <el-button type="primary" v-on:click="()=>fileSystemTypeSelectCallback(true)">确定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </div>
 </template>
@@ -65,10 +75,14 @@ import NetDiskFileItem from "@/components/net-disk-file/NetDiskFileItem.vue";
 import NetDiskFileUploadPanel from "@/components/net-disk-file/NetDiskFileUploadPanel.vue";
 import NetDiskFileTree from "@/components/net-disk-file/NetDiskFileTree.vue";
 import NetDiskFileProperties from "@/components/net-disk-file/NetDiskFileProperties.vue";
+import {FileSystemTypeEnum} from "@/domain/FileSystemTypeEnum";
+import FileSystemTypeSelector from "@/components/net-disk-file/FileSystemTypeSelector.vue";
 library.add(faAngleLeft, faAngleRight)
 
 @Component({
-  components: {NetDiskFileProperties, NetDiskFileTree, NetDiskFileUploadPanel, NetDiskFileItem, ContextMenu, EmptyData},
+  components: {
+    FileSystemTypeSelector,
+    NetDiskFileProperties, NetDiskFileTree, NetDiskFileUploadPanel, NetDiskFileItem, ContextMenu, EmptyData},
   props: {
     initPathId: Number
   },
@@ -112,6 +126,10 @@ export default class NetDiskFileList extends Vue{
   showMoveToDirSelectDialog: boolean
   showPropertiesDialog: boolean
   showPropertiesTargetId: number
+  showFileSystemTypeSelectorDialog: boolean
+  availableFileSystemTypeList: Array<FileSystemTypeEnum>
+  selectedFileSystemType: FileSystemTypeEnum
+  fileSystemTypeSelectCallback: (confirm: boolean)=>void
 
   data(): any{
     return {
@@ -119,6 +137,7 @@ export default class NetDiskFileList extends Vue{
       history: [],
       fileList: [],
       parents: [],
+      availableFileSystemTypeList: [],
       renameFileId: null,
       selectedFileIds: new Set<number>(),
       currentDirectory: null,
@@ -126,6 +145,8 @@ export default class NetDiskFileList extends Vue{
       showMoveToDirSelectDialog: false,
       showPropertiesDialog: false,
       showPropertiesTargetId: null,
+      showFileSystemTypeSelectorDialog: false,
+      selectedFileSystemType: 'LOCAL',
       menuItems: {
         refresh: {
           title: '刷新'
@@ -161,6 +182,9 @@ export default class NetDiskFileList extends Vue{
   }
 
   async created(): Promise<void>{
+    //加载可用文件存储类型列表
+    this.availableFileSystemTypeList = await NetDiskFileService.getAvailableFileSystemTypeList();
+    //跳转
     await this.goto(this.initPathId)
   }
 
@@ -181,7 +205,7 @@ export default class NetDiskFileList extends Vue{
       this.currentHistoryIndex --
     }
     if(!id){
-      this.parents = [{name: "/", isDirectory: true, readable: true, writable: true}]
+      this.parents = [{name: "/", isDirectory: true, readable: true, writable: true, fileSystemTypeSet: this.availableFileSystemTypeList.concat()}]
       this.currentDirectory = this.parents[0]
     }else{
       this.currentDirectory = await NetDiskFileService.getDetail(id)
@@ -229,12 +253,7 @@ export default class NetDiskFileList extends Vue{
         await this.downloadSelectedFile()
         break;
       case "createDirectory":
-        this.fileList.push({
-          id: -1,
-          name: "新建文件夹",
-          isDirectory: true
-        })
-        this.renameFileId = -1
+        await this.createDirectory();
         break;
       case "upload":
         this.showUploadPanel = true
@@ -252,6 +271,31 @@ export default class NetDiskFileList extends Vue{
         this.showPropertiesTargetId = this.selectedFileIds.size ? this.selectedFileIds.values().next().value : this.currentDirectory.id
         this.showPropertiesDialog = true
         break;
+    }
+  }
+
+  async createDirectory(): Promise<void>{
+    if(this.currentDirectory.fileSystemTypeSet.length > 1) {
+      this.showFileSystemTypeSelectorDialog = true;
+      this.fileSystemTypeSelectCallback = (confirm) => {
+        this.showFileSystemTypeSelectorDialog = false;
+        if (!confirm) return;
+        this.fileList.push({
+          id: -1,
+          name: "新建文件夹",
+          isDirectory: true,
+          fileSystemTypeSet: [this.selectedFileSystemType]
+        });
+        this.renameFileId = -1;
+      }
+    }else{
+      this.fileList.push({
+        id: -1,
+        name: "新建文件夹",
+        isDirectory: true,
+        fileSystemTypeSet: this.currentDirectory.fileSystemTypeSet.concat()
+      });
+      this.renameFileId = -1;
     }
   }
 
@@ -291,6 +335,7 @@ export default class NetDiskFileList extends Vue{
         try {
           const result = await NetDiskFileService.createDirectory({
             name,
+            fileSystemType: file.fileSystemTypeSet[0],
             parentId: this.currentDirectory.id
           })
           Object.assign(file, result)

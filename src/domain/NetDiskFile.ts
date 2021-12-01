@@ -1,11 +1,13 @@
 import UserInfo from "@/domain/UserInfo";
-
+import {FileSystemTypeEnum} from "@/domain/FileSystemTypeEnum";
+export type f = 'LOCAL'|'ALI_OSS'
 export default interface NetDiskFile {
     id?: number
     name: string
     isDirectory: boolean
     mediaType?: string
     size?: number
+    fileSystemTypeSet?: Array<FileSystemTypeEnum>
     createdDate?: string | Date
     lastModifiedDate?: string | Date
     possessor?: UserInfo

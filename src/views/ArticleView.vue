@@ -38,9 +38,9 @@
         <el-button type="text" ref="agreeButton" :class="'article-action' + (this.info.isAgreed ? '' : ' color-text-sub ')" title="不错哦" v-on:click="toggleAgree">
           <font-awesome-icon icon="thumbs-up" size="2x" />&nbsp;{{info.agreedNum}}
         </el-button>
-        <el-button type="text" class="color-text-sub article-action" title="请我喝一杯Java">
+        <a :href="payImage" class="color-text-sub article-action" target="_blank" title="请我喝一杯Java">
           <font-awesome-icon icon="coffee" size="2x" />
-        </el-button>
+        </a>
         <el-button type="text" class="color-text-sub article-action" title="分享">
           <font-awesome-icon icon="share" size="2x"/>&nbsp;{{info.forwardingNum}}
         </el-button>
@@ -88,6 +88,7 @@ import {LOCAL_STORAGE_KEY_VIEWED_ARTICLE_IDS} from "@/constants/LocalStorageKeys
 import Pageable from "@/domain/Pageable";
 import Page from "@/domain/Page";
 import {Comment} from "@/domain/Comment";
+
 library.add(faTag, faThumbsUp, faShare, faCoffee, faUser, faEdit)
 
 @Component({
@@ -103,6 +104,7 @@ export default class ArticleView extends Vue{
   loadingArticle: boolean
   loadingCover: boolean
   loadingComments: boolean
+  payImage = require("@/assets/pay.webp")
 
   data(): any{
     return {
