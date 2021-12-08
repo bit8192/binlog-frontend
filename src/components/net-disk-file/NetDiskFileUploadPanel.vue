@@ -67,14 +67,13 @@
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
 import NetDiskFileDto from "../../domain/NetDiskFileDto";
-import axios from "axios";
-import {URL_NET_DISK_FILE_UPLOAD} from "@/constants/UrlApiNetDiskFile";
 import UserInfo from "@/domain/UserInfo";
 import UserTransfer from "@/components/user/UserTransfer.vue";
 import CommonUtils from "@/utils/CommonUtils";
 import NetDiskFile from "@/domain/NetDiskFile";
 import {FileSystemTypeEnum} from "@/domain/FileSystemTypeEnum";
 import FileSystemTypeSelector from "@/components/net-disk-file/FileSystemTypeSelector.vue";
+import NetDiskFileService from "@/service/NetDiskFileService";
 
 declare interface CustomFile{
   rawFile: File
@@ -173,15 +172,10 @@ export default class NetDiskFileUploadPanel extends Vue{
   private async doUpload(): Promise<void>{
     this.uploadBtnDisabled = true;
     this.uploading = true;
-    const formData = new FormData()
     this.fileInfo.readableUserList = this.readableUserList.map(i=>i.id)
     this.fileInfo.writableUserList = this.writableUserList.map(i=>i.id)
-    for (let file of this.fileList) {
-      formData.append(file.rawFile.name, file.rawFile)
-    }
-    formData.append("fileInfo", new Blob([JSON.stringify(this.fileInfo)], {type: "application/json"}));
     try {
-      const result: Array<NetDiskFile> = await axios.post(URL_NET_DISK_FILE_UPLOAD, formData, {onUploadProgress: this.onUploadProgress})
+      const result: Array<NetDiskFile> = await NetDiskFileService.upload(this.fileList.map(f=>f.rawFile), this.fileInfo, this.onUploadProgress);
       this.$emit("complete", result)
       this.reset();
     }finally {

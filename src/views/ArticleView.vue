@@ -1,7 +1,7 @@
 <template>
   <div>
     <div :class="'article-cover transition-from-top-enter-active' + ((loadingArticle || loadingCover) ? ' transition-from-top-enter' : ' transition-from-top-enter-to')">
-      <el-image :src="imagePath + info.cover.id" fit="contain" v-if="info.cover" v-on:load="()=>{this.$refs.catalog.refresh(); loadingCover = false}">
+      <el-image :src="imagePath + info.cover.id" fit="contain" v-if="info.cover" v-on:load="()=>{this.$refs.catalog.refresh(); loadingCover = false}" v-on:error="()=>{this.$refs.catalog.refresh(); loadingCover = false}">
         <error-image slot="error" />
       </el-image>
       <div class="article-header">

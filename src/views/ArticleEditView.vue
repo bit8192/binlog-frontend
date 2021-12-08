@@ -73,6 +73,9 @@ import ArticleService from "@/service/ArticleService";
 import TagSelect from "@/components/TagSelect.vue";
 import {URL_TAG, URL_TAG_LIST_ALL} from "@/constants/UrlApiTag";
 import {LOCAL_STORAGE_KEY_ARTICLE} from "@/constants/LocalStorageKeys";
+import NetDiskFileService from "@/service/NetDiskFileService";
+import DateUtils from "@/utils/DateUtils";
+import CodeMirror from "codemirror";
 
 @Component({
   components: {TagSelect, NetDiskFileList, ArticleClassSelectDialog, MarkdownEditor},
@@ -194,9 +197,14 @@ export default class ArticleEditView extends Vue{
   /**
    * 上传图片
    */
-  private async onPause(e: ClipboardEvent): Promise<void>{
+  private async onPause(e: ClipboardEvent, editor: CodeMirror.Editor): Promise<void>{
     if(e.clipboardData.files.length){
-      //TODO e.clipboardData.files[0]
+      const netDiskFile = await NetDiskFileService.uploadMaterial(this.article.title || DateUtils.formatDate(), e.clipboardData.files[0],)
+      if(netDiskFile.mediaType.includes("image")){
+        editor.replaceSelections(editor.getSelections().map(()=>"![image](" + URL_NET_DISK_FILE + "/get/" + netDiskFile.id + ")"), "around")
+      }else{
+        editor.replaceSelections(editor.getSelections().map(()=>"[file](" + URL_NET_DISK_FILE + "/get/" + netDiskFile.id + ")"), "around")
+      }
     }
   }
 }

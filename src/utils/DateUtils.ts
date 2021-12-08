@@ -46,7 +46,7 @@ export default class DateUtils{
      * 格式化日期
      * @param date
      */
-    static formatDate(date: string | Date | number): string{
+    static formatDate(date?: string | Date | number): string{
         date = new Date(date);
         return `${date.getFullYear()}-${CommonUtils.formatInteger(date.getMonth() + 1, 2)}-${CommonUtils.formatInteger(date.getDate(), 2)}`;
     }

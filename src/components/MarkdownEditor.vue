@@ -208,7 +208,7 @@ export default class MarkdownEditor extends Vue{
 
   mounted(): void{
     this.getCodeMirror().on("paste", (editor, e)=>{
-      this.$emit("pause", e);
+      this.$emit("pause", e, editor);
     })
   }
 
@@ -412,7 +412,7 @@ export default class MarkdownEditor extends Vue{
     this.showUploadPanel = false
     const cm = this.getCodeMirror()
     cm.focus()
-    if(file.name.match(REG_EXP_IMAGE_FILE)){
+    if(file.mediaType.includes("image")){
       cm.replaceSelections(cm.getSelections().map(()=>`![image](${URL_NET_DISK_FILE}/get/${file.id})\n`), 'around')
     }else{
       cm.replaceSelections(cm.getSelections().map(()=>`[file](${URL_NET_DISK_FILE}/get/${file.id})\n`), 'around')
