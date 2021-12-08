@@ -46,6 +46,9 @@
           </li>
         </ul>
       </el-form-item>
+      <el-form-item label="存储位置">
+        <file-system-type-selector :file-system-type-list="availableFileSystemTypeList" v-model="fileInfo.fileSystemType" />
+      </el-form-item>
       <el-dialog :visible="showUserTransferDialog" v-on:close="showUserTransferDialog = false" append-to-body>
         <user-transfer v-model="selectedUserIds" ref="userTransfer" />
         <div class="text-right">
@@ -70,6 +73,8 @@ import UserInfo from "@/domain/UserInfo";
 import UserTransfer from "@/components/user/UserTransfer.vue";
 import CommonUtils from "@/utils/CommonUtils";
 import NetDiskFile from "@/domain/NetDiskFile";
+import {FileSystemTypeEnum} from "@/domain/FileSystemTypeEnum";
+import FileSystemTypeSelector from "@/components/net-disk-file/FileSystemTypeSelector.vue";
 
 declare interface CustomFile{
   rawFile: File
@@ -78,7 +83,7 @@ declare interface CustomFile{
   id: number
 }
 @Component({
-  components: {UserTransfer},
+  components: {FileSystemTypeSelector, UserTransfer},
   props: {
     parentId: {
       type: Number,
@@ -87,6 +92,18 @@ declare interface CustomFile{
     additionalPermission: {
       type: Boolean,
       default: false
+    },
+    availableFileSystemTypeList: {
+      type: Array,
+      default: []
+    }
+  },
+  watch: {
+    parentId(value): void{
+      this.fileInfo.parentId = value;
+      if(!this.availableFileSystemTypeList || this.availableFileSystemTypeList.every(i=>i !== this.fileInfo.fileSystemType)){
+        this.fileInfo.fileSystemType = "LOCAL";
+      }
     }
   }
 })
@@ -105,6 +122,7 @@ export default class NetDiskFileUploadPanel extends Vue{
   secondSpeedProgress = 0//当前秒正在统计的位置
   secondSpeedTotalTime: number//上一次统计的时间
   uploading: boolean
+  availableFileSystemTypeList: Array<FileSystemTypeEnum>
 
   data(): any{
     return {
@@ -113,7 +131,8 @@ export default class NetDiskFileUploadPanel extends Vue{
         everyoneReadable: true,
         everyoneWritable: false,
         readableUserList: [],
-        writableUserList: []
+        writableUserList: [],
+        fileSystemType: this.availableFileSystemTypeList.length ? this.availableFileSystemTypeList[0] : "LOCAL"
       },
       readableUserList: [],
       writableUserList: [],
@@ -164,7 +183,7 @@ export default class NetDiskFileUploadPanel extends Vue{
     try {
       const result: Array<NetDiskFile> = await axios.post(URL_NET_DISK_FILE_UPLOAD, formData, {onUploadProgress: this.onUploadProgress})
       this.$emit("complete", result)
-      this.fileList = []
+      this.reset();
     }finally {
       this.uploadBtnDisabled = false;
       this.uploading = false;
@@ -207,6 +226,13 @@ export default class NetDiskFileUploadPanel extends Vue{
     }
     this.selectedUserIds = this.writableUserList.map(i=>i.id);
     this.showUserTransferDialog = true;
+  }
+
+  /**
+   * 重置表单
+   */
+  reset(): void{
+    this.fileList = []
   }
 }
 </script>

@@ -10,7 +10,7 @@
 
 <script lang="ts">
 import NetDiskFileService from "@/service/NetDiskFileService";
-import {FileSystemTypeEnum} from "@/domain/FileSystemTypeEnum";
+import {FileSystemTypeEnum, FileSystemTypeTitle} from "@/domain/FileSystemTypeEnum";
 import { Component, Vue } from "vue-property-decorator";
 
 @Component({
@@ -25,16 +25,26 @@ import { Component, Vue } from "vue-property-decorator";
     prop: "value",
     event: "change"
   },
+  watch: {
+    async fileSystemTypeList(list){
+      if(!list || !list.length) {
+        if (!this.allAvailableFileSystemTypeList) {
+          this.allAvailableFileSystemTypeList = await NetDiskFileService.getAvailableFileSystemTypeList();
+        }
+        this.list = this.allAvailableFileSystemTypeList.concat();
+      }else{
+        this.list = list;
+      }
+    }
+  }
 })
 export default class FileSystemTypeSelector extends Vue{
   fileSystemTypeList: Array<FileSystemTypeEnum>
   list: Array<FileSystemTypeEnum>
   value: FileSystemTypeEnum
   inputValue: FileSystemTypeEnum
-  titleMap = {
-    LOCAL: '本地',
-    ALI_OSS: '阿里云OSS'
-  }
+  allAvailableFileSystemTypeList: Array<FileSystemTypeEnum>
+  titleMap = FileSystemTypeTitle;
 
   data(): any{
     return {
@@ -45,7 +55,10 @@ export default class FileSystemTypeSelector extends Vue{
 
   async created(): Promise<void>{
     if(!this.list.length){
-      this.list = await NetDiskFileService.getAvailableFileSystemTypeList();
+      if(!this.allAvailableFileSystemTypeList){
+        this.allAvailableFileSystemTypeList = await NetDiskFileService.getAvailableFileSystemTypeList();
+      }
+      this.list = this.allAvailableFileSystemTypeList.concat();
     }
   }
 

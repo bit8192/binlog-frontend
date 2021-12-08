@@ -41,7 +41,13 @@
     <empty-data v-else class="flex-1" />
     <context-menu :items="menuItems" v-on:click-item="onContextMenuItemClick" />
     <el-dialog :visible="showUploadPanel" v-on:close="showUploadPanel = false" append-to-body>
-      <net-disk-file-upload-panel ref="uploadPanel" :additional-permission="currentDirectory && currentDirectory.writable" :parent-id="currentDirectory ? currentDirectory.id : null" v-on:complete="onUploadComplete" />
+      <net-disk-file-upload-panel
+          ref="uploadPanel"
+          :additional-permission="currentDirectory && currentDirectory.writable"
+          :parent-id="currentDirectory ? currentDirectory.id : null"
+          :available-file-system-type-list="(currentDirectory && currentDirectory.fileSystemTypeSet) || []"
+          v-on:complete="onUploadComplete"
+      />
     </el-dialog>
     <el-dialog :visible="showMoveToDirSelectDialog" v-on:close="showMoveToDirSelectDialog = false" append-to-body>
       <net-disk-file-tree ref="moveToDirSelect" :is-directory="true" v-on:clickItem="moveSelectedTo" :filter-fun="(file)=>file.id !== selectedFileIds.values().next().value" show-root />
@@ -52,7 +58,7 @@
     <el-dialog :visible="showFileSystemTypeSelectorDialog" v-on:close="showFileSystemTypeSelectorDialog = false" append-to-body>
       <h4 slot="title">你想创建在哪里？</h4>
       <div class="text-center">
-        <file-system-type-selector :file-system-type-list="currentDirectory.fileSystemTypeSet" v-model="selectedFileSystemType" slot="default" />
+        <file-system-type-selector :file-system-type-list="(currentDirectory && currentDirectory.fileSystemTypeSet) || []" v-model="selectedFileSystemType" slot="default" />
       </div>
       <div slot="footer">
         <el-button v-on:click="()=>fileSystemTypeSelectCallback(false)">取消</el-button>

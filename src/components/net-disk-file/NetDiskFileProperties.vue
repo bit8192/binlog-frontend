@@ -6,6 +6,11 @@
     <el-form-item label="类型">
       <el-input :value="detail.isDirectory ? '文件夹' : '文件'" />
     </el-form-item>
+    <el-form-item label="存储位置">
+      <el-select :value="detail.fileSystemTypeSet" multiple>
+        <el-option v-for="(type, title) of fileSystemTypeMap" :key="type" :value="type" :title="title" />
+      </el-select>
+    </el-form-item>
     <el-form-item label="文件大小">
       <el-input :value="humanSize" />
     </el-form-item>
@@ -80,6 +85,7 @@ import NetDiskFileService from "@/service/NetDiskFileService";
 import CommonUtils from "@/utils/CommonUtils";
 import {AppProvider} from "@/App.vue";
 import UserTransfer from "@/components/user/UserTransfer.vue";
+import {FileSystemTypeTitle} from "@/domain/FileSystemTypeEnum";
 
 @Component({
   components: {UserTransfer},
@@ -118,6 +124,7 @@ export default class NetDiskFileProperties extends Vue{
   showUserTransferDialog: boolean
   userTransferValue: number[]
   userTransferCompleteCallback: ()=>void
+  fileSystemTypeMap = FileSystemTypeTitle
 
   async loadDetail(): Promise<void>{
     this.detail = await NetDiskFileService.getDetail(this.id)

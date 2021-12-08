@@ -41,7 +41,7 @@
           <el-input type="textarea" v-model="article.describe" />
         </el-form-item>
         <el-form-item label="正文" prop="content">
-          <markdown-editor :value="article.content" v-on:change="c=>article.content = c" style="width: 100%; line-height: initial" v-on:blur="()=>this.$refs.form.validateField('content')" />
+          <markdown-editor :value="article.content" v-on:change="c=>article.content = c" style="width: 100%; line-height: initial" v-on:blur="()=>this.$refs.form.validateField('content')" v-on:pause="onPause" />
         </el-form-item>
         <article-class-select-dialog
             ref="articleClassSelectDialog"
@@ -189,6 +189,15 @@ export default class ArticleEditView extends Vue{
     }
     localStorage.removeItem(LOCAL_STORAGE_KEY_ARTICLE)
     this.$router.back()
+  }
+
+  /**
+   * 上传图片
+   */
+  private async onPause(e: ClipboardEvent): Promise<void>{
+    if(e.clipboardData.files.length){
+      //TODO e.clipboardData.files[0]
+    }
   }
 }
 </script>

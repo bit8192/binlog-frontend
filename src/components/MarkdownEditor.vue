@@ -206,6 +206,12 @@ export default class MarkdownEditor extends Vue{
     return (this.$refs.editor as any).codemirror as CodeMirror.Editor
   }
 
+  mounted(): void{
+    this.getCodeMirror().on("paste", (editor, e)=>{
+      this.$emit("pause", e);
+    })
+  }
+
   /**
    * 替换选中内容的两侧文字
    */
