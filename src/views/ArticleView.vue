@@ -28,9 +28,9 @@
       <el-card id="article-catalog-container" class="flex-1 d-none-md mr-1" :body-style="{padding: '6px'}">
         <article-catalog ref="catalog" id="article-catalog" element="article" />
       </el-card>
-      <el-card class="flex-5 flex-1-md width-100 article-container">
+      <div class="flex-5 flex-1-md width-100 article-container">
         <markdown-it-vue id="article" :content="info.content || ''" />
-      </el-card>
+      </div>
     </div>
 
     <el-card :class="'mt-1 transition-fade-in-enter-active' + (((app.binlogIsHappy() && loadingComments) || (!app.binlogIsHappy() && (loadingArticle || loadingCover))) ? ' transition-fade-in-enter' : ' transition-fade-in-enter-to')" :body-style="{padding: '5px 1em'}">

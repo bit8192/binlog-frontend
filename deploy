@@ -1,0 +1,63 @@
+#!/bin/bash
+if ! [[ $1 =~ ^[a-zA-Z0-9_]+@.+$ ]];then
+  echo "usage: $0 username@domain"
+  exit 1
+fi
+dist_dir=dist
+script_dir=$(dirname "$0")
+target_file=dist.tar.gz
+server=$1
+remote_dir="~/binlog-frontend/"
+
+read -r -p "password: " -s password
+
+cd "$script_dir/$dist_dir" || exit 1
+tar zcv --owner=root --group=root -f $target_file ./*
+expect <<EOF
+  set timeout 10
+  set shell_indicator "\\\\$|# "
+  spawn scp $target_file $server:$remote_dir
+  expect {
+    "password: " {
+      send "${password//\$/\\\$}\r"
+      exp_continue
+    }
+    "Permission denied" {
+      puts "\n密码错误"
+      exit 1
+    }
+    "(yes/no)?" {
+      send "yes\r"
+      exp_continue
+    }
+    -re \$shell_indicator {
+      puts "\n上传成功"
+    }
+  }
+  spawn ssh $server
+  expect {
+    "password: " {
+      send "${password//\$/\\\$}\r"
+      exp_continue
+    }
+    "Permission denied" {
+      puts "\n密码错误"
+      exit 1
+    }
+    "(yes/no)?" {
+      send "yes\r"
+      exp_continue
+    }
+    -re \$shell_indicator {
+      puts "\n登录成功"
+    }
+  }
+  send "cd $remote_dir\r"
+  expect -re \$shell_indicator
+  send "tar zxf $target_file\r"
+  expect -re \$shell_indicator
+  send "rm $target_file\r"
+  expect -re \$shell_indicator
+  send "exit\r"
+  expect eof
+EOF

@@ -65,7 +65,6 @@ export default class ArticlePage extends Vue{
     const page = await ArticleService.pageAll(this.keywords, this.articleClassId, this.tagIds, this.pageable)
     this.last = page.last
     this.articleList = page.content
-    this.articleList.filter((a, i)=>i % 2 == 0).forEach(a=>a.cover = undefined)
     this.pageCount = page.totalPages
     scrollTo(0, 0)
   }

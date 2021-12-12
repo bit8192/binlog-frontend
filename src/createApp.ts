@@ -30,7 +30,7 @@ Vue.prototype.DateUtils = DateUtils;
 const store = createStore()
 
 //系统配置
-configAxios({baseURL: "http://localhost:8080"})
+configAxios({})
 
 export default function createApp(): {app: Vue, router: VueRouter, store: Store<any>}{
     const app = new Vue({

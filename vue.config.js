@@ -21,6 +21,5 @@ module.exports = {
                 return args;
             })
     },
-    outputDir: isDevelopment || process.env.WEBPACK_TARGET !== undefined ? "dist" : path.resolve("../binlog/target/classes/static"),
     configureWebpack: process.env.WEBPACK_TARGET !== undefined ? require(`./webpack.${process.env.WEBPACK_TARGET}.config`) : undefined
 }

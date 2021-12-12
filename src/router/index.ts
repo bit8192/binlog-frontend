@@ -20,6 +20,12 @@ const routes: Array<RouteConfig> = [
     component: Home
   },
   {
+    path: '/index.html',
+    name: 'Home',
+    meta: {title: "首页"},
+    component: Home
+  },
+  {
     path: '/archives',
     name: 'Archives',
     meta: {title: "归档"},

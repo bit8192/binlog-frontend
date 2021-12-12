@@ -2,7 +2,7 @@
   <div>
     <el-card>
       <h2>关于我</h2>
-      <p>一个搬了三四年砖的全栈攻城狮<del class="color-text-sub">(社畜)</del>，最近辞职在家写博客<del class="color-text-sub">(混日子)</del></p>
+      <p>一个搬了三四年砖的全栈攻城狮<del class="color-text-sub">(社畜)</del>，<del class="color-text-sub">最近辞职在家写博客(混日子)</del>，目前在贵州一家不知名企业板砖</p>
       <p><b>语言：</b>主打Java，会一点C/C艹，拍黄片<del class="color-text-sub">(PHP)</del>、C#、SQL、JavaScript/TypeScript、Python、CSS/SASS/HTML都半瓶水的样子</p>
       <p><b>框架：</b>必须嘚Spring了,什么Jpa、mybatis啥的通吃<span class="color-text-sub">(比较喜欢Jpa)</span>、前端React和Vue都会(JQuery就不说了吧)、写过微信小程序、写过Android</p>
       <p><b>硬件：</b>自学过51<span class="color-text-sub">(其实就写了几个程序让几个二极管来回闪，后面资料都丢了网上也不好找就落下了)</span>、自学过STM32、玩过Arduino，硬件比较菜，因为没多少时间折腾，但是兴趣浓厚，一直想自制无人机、潜水艇啥的</p>

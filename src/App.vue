@@ -130,7 +130,7 @@ export default class App extends Vue{
 
   checkRedirect(): void{
     if(this.$route.query.redirectPath){
-      this.$router.replace(this.$route.query.redirectPath as string)
+      this.$router.replace(this.$route.query.redirectPath as string);
     }
   }
 
