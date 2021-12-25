@@ -4,7 +4,7 @@
       <el-image :src="imagePath + info.cover.id" fit="contain" v-if="info.cover" v-on:load="()=>{this.$refs.catalog.refresh(); loadingCover = false}" v-on:error="()=>{this.$refs.catalog.refresh(); loadingCover = false}">
         <error-image slot="error" />
       </el-image>
-      <div class="article-header">
+      <div :class="['article-header', {'no-cover': !info.cover}]">
         <h1 class="article-title">{{info.title}}</h1>
         <div class="article-info">
           <span class="text-article-info">{{ info.createdUser ? info.createdUser.username || info.createdUser.username : "-" }}</span>
@@ -135,10 +135,15 @@ export default class ArticleView extends Vue{
     })
   }
 
-  created() : void{
-    this.loadArticle()
+  async created() : Promise<void>{
+    await this.loadArticle();
     this.app.addUserInfoChangeListener(this.onUserInfoChange)
-    this.viewArticle()
+    await this.viewArticle();
+    //没有封面则直接显示不用等待图片加载完成
+    if(!this.info.cover){
+      (this.$refs.catalog as ArticleCatalog).refresh();
+      this.loadingCover = false;
+    }
   }
 
   /**
@@ -214,6 +219,8 @@ export default class ArticleView extends Vue{
 
 <style lang="scss">
 @import "src/style/var-device-width";
+@import "src/style/var-color";
+
 .article-cover{
   position: relative;
   .el-image{
@@ -230,6 +237,11 @@ export default class ArticleView extends Vue{
   background-image: linear-gradient(to bottom, transparent, #333);
   color: white;
 }
+.article-header.no-cover{
+  position: static;
+  color: black;
+  background-image: unset;
+}
 .article-title{
   font-size: 3em;
 }
@@ -238,6 +250,9 @@ export default class ArticleView extends Vue{
   color: #e4e6e8;
   margin-right: 2em;
   white-space: nowrap;
+}
+.article-header.no-cover>.article-info>.text-article-info{
+  color: $color-text-normal;
 }
 .article-tag-list{
   display: inline-block;
