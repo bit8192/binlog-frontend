@@ -126,19 +126,27 @@ export default class ArticleEditView extends Vue{
 
   async loadData(): Promise<void>{
     const articleCache = localStorage.getItem(LOCAL_STORAGE_KEY_ARTICLE)
-    if(this.$route.params.id !== 'new'){
+    if(this.$route.params.id === 'new'){
+      if(articleCache){
+        try {
+          await this.$confirm("检测到本地保存有数据，是否进行编辑（否则将覆盖）")
+          this.article = JSON.parse(articleCache);
+        }catch (e) {
+          localStorage.removeItem(LOCAL_STORAGE_KEY_ARTICLE)
+        }
+      }
+    } else {
       if(articleCache){
         try {
           await this.$confirm("检测到本地保存有数据，是否进行编辑（否则将覆盖）")
           this.article = JSON.parse(articleCache)
         }catch (e) {
           this.article = await ArticleService.getDetail(this.$route.params.id)
+          localStorage.removeItem(LOCAL_STORAGE_KEY_ARTICLE)
         }
       }else{
         this.article = await ArticleService.getDetail(this.$route.params.id)
       }
-    }else if(articleCache){
-      this.article = JSON.parse(articleCache)
     }
     if(this.article && this.article.id && this.article.id !== +this.$route.params.id){
       await this.$router.replace({path: '/article/edit/' + this.article.id})

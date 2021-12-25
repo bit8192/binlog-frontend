@@ -63,4 +63,17 @@ export default class CommonUtils{
     static sleep(timeout: number): Promise<void>{
         return new Promise(resolve => setTimeout(resolve, timeout));
     }
+
+    /**
+     * 复制文本
+     */
+    static copyString(content: string): void{
+        const input = document.createElement("input");
+        input.value = content;
+        document.body.append(input);
+        input.focus();
+        input.select();
+        document.execCommand("Copy");
+        input.remove();
+    }
 }

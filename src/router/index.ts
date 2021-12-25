@@ -126,6 +126,12 @@ const routes: Array<RouteConfig> = [
     ]
   },
   {
+    path: "/password",
+    name: "Password",
+    meta: {title: "密码"},
+    component: () => import('../views/password/PasswordView.vue')
+  },
+  {
     path: "*",
     name: "404",
     meta: {title: "404"},

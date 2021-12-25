@@ -2,21 +2,27 @@
 @import "var-color";
 //title
 .h1{
+  margin: 0;
   font-size: 36px;
 }
 .h2{
+  margin: 0;
   font-size: 30px;
 }
 .h3{
+  margin: 0;
   font-size: 24px;
 }
 .h4{
+  margin: 0;
   font-size: 20px;
 }
 .h5{
+  margin: 0;
   font-size: 14px;
 }
 .h6{
+  margin: 0;
   font-size: 12px;
 }
 
@@ -77,4 +83,11 @@
 .block-link{
   display: block;
   height: 100%;
+}
+
+//字体大小
+@for $i from 1 through 6{
+  .fs-#{$i}{
+    font-size: #{0.8 + (6 - $i) * 0.1}em;
+  }
 }

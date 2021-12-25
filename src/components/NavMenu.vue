@@ -81,7 +81,8 @@ export default class NavMenu extends Vue{
   unreadMessageCount: number
   netDiskFileMenu: Menu
   messageMenu: Menu
-  adminMenu: Menu;
+  adminMenu: Menu
+  passwordMenu: Menu
 
   data(): any{
     this.netDiskFileMenu = {
@@ -97,6 +98,11 @@ export default class NavMenu extends Vue{
     this.adminMenu = {
       title: "管理",
       route: "/admin/overview",
+      visible: false
+    };
+    this.passwordMenu = {
+      title: "密码",
+      route: "/password",
       visible: false
     };
     return {
@@ -116,6 +122,7 @@ export default class NavMenu extends Vue{
         this.messageMenu,
         this.adminMenu,
         this.netDiskFileMenu,
+        this.passwordMenu,
         {
           title: "表情",
           route: "/expression",
@@ -135,9 +142,12 @@ export default class NavMenu extends Vue{
       this.netDiskFileMenu.visible = userInfo.isBlogger || userInfo.isAdmin
       this.adminMenu.visible = userInfo.isAdmin
       this.messageMenu.visible = true
+      this.passwordMenu.visible = true
     }else{
       this.netDiskFileMenu.visible = false
+      this.adminMenu.visible = false
       this.messageMenu.visible = false
+      this.passwordMenu.visible = false
     }
   }
 

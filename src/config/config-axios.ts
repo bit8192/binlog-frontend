@@ -18,7 +18,7 @@ export interface MyAxiosRequestConfig extends AxiosRequestConfig{
 }
 export default function configAxios(axiosConfig: AxiosConfig): void{
     axios.defaults.baseURL = axiosConfig.baseURL
-    axios.defaults.headers.common.Accept = "application/hal+json, text/plain, */*"
+    axios.defaults.headers.common.Accept = "application/json, text/plain, */*"
 
     axios.defaults.paramsSerializer = params => qs.stringify(params, {arrayFormat: "repeat"})
 
