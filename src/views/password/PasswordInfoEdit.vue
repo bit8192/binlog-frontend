@@ -14,6 +14,7 @@
   <el-form-item label="密码" prop="encodedPassword">
     <el-input v-model="passwordInfo.encodedPassword" :type="passwordInputType" >
       <el-button slot="append" icon="el-icon-view" v-on:click="passwordInputType = passwordInputType === 'password' ? 'text' : 'password'" />
+      <el-button slot="append" v-on:click="generatePassword" title="随机生成" >gen</el-button>
     </el-input>
   </el-form-item>
   <el-form-item label="网址" prop="url">
@@ -90,6 +91,15 @@ export default class PasswordInfoEdit extends Vue{
   async encryption(raw: string): Promise<string>{
     const mainPassword = await this.getMainPassword();
     return aes256.encrypt(mainPassword, raw)
+  }
+
+  generatePassword(): void{
+    const chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+-=[]."
+    let result = "";
+    for (let i = 0; i < 16; i++) {
+      result += chars[Math.floor(Math.random() * chars.length)]
+    }
+    this.passwordInfo.encodedPassword = result;
   }
 
   async save(): Promise<PasswordInfo>{

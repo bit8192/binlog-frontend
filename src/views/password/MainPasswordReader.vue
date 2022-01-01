@@ -1,6 +1,6 @@
 <template>
 <el-dialog title="主密码" append-to-body :visible="visible" :show-close="false" :close-on-click-modal="false" v-on:close="onClose">
-  <el-form>
+  <el-form v-on:submit.native.prevent>
     <el-form-item :rules="[{required: true, message: '请输入密码'}, {min: 6, message: '至少需要6位密码'}]">
       <el-input type="password" v-model="password" clearable autofocus ref="input" v-on:change="onPasswordChange" />
     </el-form-item>
