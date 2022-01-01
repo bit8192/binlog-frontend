@@ -47,6 +47,9 @@
         <router-link :to="'edit/' + info.id" class="color-text-sub" v-if="info.createdUser && userInfo && info.createdUser.id === userInfo.id">
           <font-awesome-icon icon="edit" size="2x" />
         </router-link>
+        <el-button type="text" class="article-action color-text-sub" v-if="info.createdUser && userInfo && info.createdUser.id === userInfo.id" v-on:click="deleteArticle">
+          <font-awesome-icon icon="trash-alt" size="2x" />
+        </el-button>
       </div>
     </el-card>
     <el-card :class="'mt-1 article-comment-container transition-fade-in-enter-active' + (loadingComments ? ' transition-fade-in-enter' : ' transition-fade-in-enter-to')" v-if="app.binlogIsHappy()">
@@ -68,7 +71,7 @@
 
 <script lang="ts">
 import {library} from "@fortawesome/fontawesome-svg-core";
-import {faCoffee, faEdit, faShare, faTag, faThumbsUp, faUser} from "@fortawesome/free-solid-svg-icons";
+import {faCoffee, faEdit, faShare, faTag, faThumbsUp, faTrashAlt, faUser} from "@fortawesome/free-solid-svg-icons";
 import MarkdownItVue from 'markdown-it-vue'
 import 'markdown-it-vue/dist/markdown-it-vue.css'
 import ArticleCatalog from "@/components/article/ArticleCatalog.vue";
@@ -89,7 +92,7 @@ import Pageable from "@/domain/Pageable";
 import Page from "@/domain/Page";
 import {Comment} from "@/domain/Comment";
 
-library.add(faTag, faThumbsUp, faShare, faCoffee, faUser, faEdit)
+library.add(faTag, faThumbsUp, faShare, faCoffee, faUser, faEdit, faTrashAlt)
 
 @Component({
   components: {CommentReplyInput, EmptyData, CommentList, ErrorImage, ArticleCatalog, MarkdownItVue: MarkdownItVue as VueComponent},
@@ -213,6 +216,16 @@ export default class ArticleView extends Vue{
     const comment = await ArticleService.commenting(this.info.id, this.commentContent);
     (this.$refs.commentList as CommentList).addComment(comment);
     this.commentContent = ""
+  }
+
+  /**
+   * 删除文章
+   */
+  async deleteArticle(): Promise<void>{
+    if((await this.$confirm("是否确定删除？", "警告")) !== "confirm") return;
+    await ArticleService.delete(this.info.id)
+    this.$message.success("删除成功")
+    this.$router.back()
   }
 }
 </script>

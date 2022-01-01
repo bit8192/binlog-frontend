@@ -13,26 +13,26 @@ import {Comment} from "@/domain/Comment";
 import {MyAxiosRequestConfig} from "@/config/config-axios";
 
 export default class ArticleService{
-    public static add(article: Article): Promise<Article>{
-        return axios.post(URL_ARTICLE, article);
+    public static async add(article: Article): Promise<Article>{
+        return await axios.post(URL_ARTICLE, article);
     }
 
-    public static update(article: Article): Promise<Article>{
-        return axios.put(URL_ARTICLE, article);
+    public static async update(article: Article): Promise<Article>{
+        return await axios.put(URL_ARTICLE, article);
     }
 
-    public static getDetail(id: number | string): Promise<Article>{
-        return axios.get(URL_ARTICLE + "/" + id);
+    public static async getDetail(id: number | string): Promise<Article>{
+        return await axios.get(URL_ARTICLE + "/" + id);
     }
 
-    public static pageAll(keywords: string, articleClassId: number, tagIds: number[], pageable: Pageable): Promise<Page<Article>>{
-        return axios.get(URL_ARTICLE, {
+    public static async pageAll(keywords: string, articleClassId: number, tagIds: number[], pageable: Pageable): Promise<Page<Article>>{
+        return await axios.get(URL_ARTICLE, {
             params: Object.assign({keywords, articleClassId, tagIds},pageable2RequestParameters(pageable))
         })
     }
 
-    public static view(articleId: number | string): Promise<void>{
-        return axios.post(URL_ARTICLE + "/" + articleId + "/view")
+    public static async view(articleId: number | string): Promise<void>{
+        return await axios.post(URL_ARTICLE + "/" + articleId + "/view")
     }
 
     /**
@@ -40,8 +40,8 @@ export default class ArticleService{
      * @param id
      * @param pageable
      */
-    public static pageByArticleClass(id: number | string, pageable: Pageable): Promise<Page<Article>> {
-        return axios.get(URL_ARTICLE_SEARCH_CLASS + "/" + id, {
+    public static async pageByArticleClass(id: number | string, pageable: Pageable): Promise<Page<Article>> {
+        return await axios.get(URL_ARTICLE_SEARCH_CLASS + "/" + id, {
             params: pageable2RequestParameters(pageable)
         })
     }
@@ -51,8 +51,8 @@ export default class ArticleService{
      * @param tagId
      * @param pageable
      */
-    static pageByTag(tagId: number | string, pageable: Pageable): Promise<Page<Article>> {
-        return axios.get(URL_ARTICLE_SEARCH_TAG + "/" + tagId, {
+    static async pageByTag(tagId: number | string, pageable: Pageable): Promise<Page<Article>> {
+        return await axios.get(URL_ARTICLE_SEARCH_TAG + "/" + tagId, {
             params: pageable2RequestParameters(pageable)
         })
     }
@@ -68,8 +68,8 @@ export default class ArticleService{
     /**
      * 评论分页
      */
-    static getCommentPage(articleId: number|string, pageable: Pageable): Promise<Page<Comment>>{
-        return axios.get(
+    static async getCommentPage(articleId: number|string, pageable: Pageable): Promise<Page<Comment>>{
+        return await axios.get(
             URL_ARTICLE_COMMENTS,
             {
                 params: pageable2RequestParameters(pageable),
@@ -83,13 +83,20 @@ export default class ArticleService{
      * @param articleId
      * @param content
      */
-    static commenting(articleId: number|string, content: string): Promise<Comment>{
-        return axios.post(
+    static async commenting(articleId: number|string, content: string): Promise<Comment>{
+        return await axios.post(
             URL_ARTICLE_COMMENTS,
             {content},
             {
                 pathVariables: {articleId}
             } as MyAxiosRequestConfig
         );
+    }
+
+    /**
+     * 删除文章
+     */
+    static async delete(articleId: number): Promise<void>{
+        await axios.delete(URL_ARTICLE + "/" + articleId)
     }
 }

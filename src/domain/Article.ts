@@ -6,6 +6,7 @@ import UserInfo from "@/domain/UserInfo";
 export default interface Article {
     id?: number
     title?: string
+    keywords?: string
     describe?: string
     tags?: Tag[]
     cover?: NetDiskFile

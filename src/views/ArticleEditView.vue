@@ -37,6 +37,9 @@
         <el-form-item label="排序" prop="orderNum">
           <el-input-number v-model="article.orderNum" :min="0" :max="999" />
         </el-form-item>
+        <el-form-item label="关键字" prop="keywords">
+          <el-input v-model="article.keywords" />
+        </el-form-item>
         <el-form-item label="摘要" prop="describe">
           <el-input type="textarea" v-model="article.describe" />
         </el-form-item>
@@ -88,6 +91,7 @@ import CodeMirror from "codemirror";
         articleClass: null,
         tags: [],
         cover: null,
+        keywords: '',
         describe: '',
         content: '',
         isOriginal: true,
