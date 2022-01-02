@@ -1,8 +1,3 @@
-// noinspection NodeCoreCodingAssistance
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const path = require('path')
-
-const isDevelopment = process.env.NODE_ENV === "development";
 module.exports = {
     devServer: {
         disableHostCheck: true,
@@ -20,6 +15,5 @@ module.exports = {
                 args[0].title = "Bincker的个人博客";
                 return args;
             })
-    },
-    configureWebpack: process.env.WEBPACK_TARGET !== undefined ? require(`./webpack.${process.env.WEBPACK_TARGET}.config`) : undefined
+    }
 }
