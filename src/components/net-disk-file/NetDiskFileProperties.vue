@@ -43,10 +43,10 @@
       <el-checkbox label="可写" :value="detail.writable" />
     </el-form-item>
     <el-form-item label="任何人可读">
-      <el-checkbox :value="detail.everyoneReadable" v-on:change="changeEveryoneReadable" />
+      <el-checkbox :value="detail.everyoneReadable" @change="changeEveryoneReadable" />
     </el-form-item>
     <el-form-item label="任何人可写">
-      <el-checkbox :value="detail.everyoneWritable" v-on:change="changeEveryoneWritable" />
+      <el-checkbox :value="detail.everyoneWritable" @change="changeEveryoneWritable" />
     </el-form-item>
     <el-form-item label="可读用户列表" v-if="detail.readableUserList && canChangePermission">
       <div class="flex-row">
@@ -55,7 +55,7 @@
           <span>{{user.username}}</span>
         </div>
         <span v-if="detail.readableUserList.length > 10">等{{detail.readableUserList.length}}人</span>
-        <el-button circle icon="el-icon-edit" v-on:click="onEditReadableUserList" />
+        <el-button circle icon="el-icon-edit" @click="onEditReadableUserList" />
       </div>
     </el-form-item>
     <el-form-item label="可写用户列表" v-if="detail.writableUserList && canChangePermission">
@@ -65,21 +65,23 @@
           <span>{{user.username}}</span>
         </div>
         <span v-if="detail.writableUserList.length > 10">等{{detail.writableUserList.length}}人</span>
-        <el-button circle icon="el-icon-edit" v-on:click="onEditWritableUserList" />
+        <el-button circle icon="el-icon-edit" @click="onEditWritableUserList" />
       </div>
     </el-form-item>
-    <el-dialog :visible="showUserTransferDialog" v-on:close="showUserTransferDialog=false" append-to-body>
+    <el-dialog :visible="showUserTransferDialog" @close="showUserTransferDialog=false" append-to-body>
       <user-transfer ref="userTransfer" v-model="userTransferValue" />
-      <div slot="footer">
-        <el-button type="primary" v-if="userTransferCompleteCallback" v-on:click="userTransferCompleteCallback">确定</el-button>
-        <el-button v-on:click="showUserTransferDialog = false">取消</el-button>
-      </div>
+      <template #footer>
+        <div>
+          <el-button type="primary" v-if="userTransferCompleteCallback" @click="userTransferCompleteCallback">确定</el-button>
+          <el-button @click="showUserTransferDialog = false">取消</el-button>
+        </div>
+      </template>
     </el-dialog>
   </el-form>
 </template>
 
 <script lang="ts">
-import {Component, Vue} from "vue-property-decorator";
+import {Options, Vue} from "vue-class-component";
 import NetDiskFile from "@/domain/NetDiskFile";
 import NetDiskFileService from "@/service/NetDiskFileService";
 import CommonUtils from "@/utils/CommonUtils";
@@ -87,7 +89,7 @@ import {AppProvider} from "@/App.vue";
 import UserTransfer from "@/components/user/UserTransfer.vue";
 import {FileSystemTypeTitle} from "@/domain/FileSystemTypeEnum";
 
-@Component({
+@Options({
   components: {UserTransfer},
   inject: ['app'],
   props: {
@@ -96,7 +98,7 @@ import {FileSystemTypeTitle} from "@/domain/FileSystemTypeEnum";
       required: true
     }
   },
-  data: ()=>{
+  data(): any{
     return {
       detail: {},
       humanSize: "-",
@@ -106,7 +108,7 @@ import {FileSystemTypeTitle} from "@/domain/FileSystemTypeEnum";
       userTransferCompleteCallback: null
     }
   },
-  created() {
+  created(): void {
     this.loadDetail()
   },
   watch: {

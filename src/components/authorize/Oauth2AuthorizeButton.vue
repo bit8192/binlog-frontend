@@ -1,17 +1,17 @@
 <template>
-  <el-button type="primary" v-on:click="authorize" class="py-2 px-4">
+  <el-button type="primary" @click="authorize" class="py-2 px-4">
     <slot />
   </el-button>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import Component from "vue-class-component";
+import {Options, Vue} from "vue-class-component";
 import CommonUtils from "../../utils/CommonUtils";
 import UserInfo from "../../domain/UserInfo";
 import SuccessMsg from "@/domain/SuccessMsg";
+import {ElMessage} from "element-plus";
 
-@Component({
+@Options({
   props: {
     authorizeUrl: {
       type: String,
@@ -43,12 +43,12 @@ export default class Oauth2AuthorizeButton extends Vue{
         if(successMsg.success){
           this.$emit("success")
           if(successMsg.msg) {
-            this.$message.info(successMsg.msg);
+            ElMessage.info(successMsg.msg);
           }
           authorizeWindow.close();
           return;
         }else if(successMsg.msg){
-          this.$message.warning(successMsg.msg);
+          ElMessage.warning(successMsg.msg);
         }
       }else if(result){
         authorizeWindow.close();

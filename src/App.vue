@@ -23,14 +23,13 @@
       </span>
     </el-footer>
     <el-dialog
-        id="login-dialog"
         show-close
         close-on-press-escape
-        :visible="showLoginDialog"
-        v-on:close="showLoginDialog = false"
+        v-model="showLoginDialog"
+        @close="showLoginDialog = false"
     >
       <h2 slot="title">登录</h2>
-      <login-panel ref="loginPanel" slot="default" v-on:logged="logged" />
+      <login-panel ref="loginPanel" slot="default" @logged="logged" />
     </el-dialog>
   </div>
 </template>
@@ -40,12 +39,13 @@ import CommonService from "@/service/CommonService";
 import NavMenu from "@/components/NavMenu.vue";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {faGithub} from "@fortawesome/free-brands-svg-icons";
-import {Component, Vue} from "vue-property-decorator";
+import {Options, Vue} from "vue-class-component";
 import LoginPanel from "@/components/authorize/LoginPanel.vue";
 import NetworkError from "@/error/NetworkError";
 import AuthenticationService from "@/service/AuthenticationService";
 import UserDetail from "@/domain/UserDetail";
 import ChineseVerifyCode from "@/components/ChineseVerifyCode.vue";
+import {MUTATION_IS_HAPPY, MUTATION_SYSTEM_PROFILE, MUTATION_USER_INFO} from "./createStore";
 
 library.add(faGithub)
 
@@ -60,46 +60,24 @@ export interface AppProvider{
   binlogIsHappy: ()=>boolean
 }
 
-@Component({
+@Options({
   components: {NavMenu, LoginPanel},
   provide(): any{
     return {
       app: {
-        //判断是否已经登录，而不用去调用获取用户信息进行判断
-        isLogged: ()=>{
-          return !!this.userInfo;
-        },
-        //获取当前登录用户信息
-        getLoggedUserInfo: ()=>this.userInfo,
-        /**
-         * 通知更新用户信息
-         */
-        updateUserInfo: async ()=>{
-          this.logged(await AuthenticationService.getSelfInfo())
-        },
         //提供打开登录页面弹窗接口
-        openLoginDialog: ()=>{
+        openLoginDialog: () => {
           this.showLoginDialog = true
         },
-        //向下级组件提供事件注册方法
-        addUserInfoChangeListener: (fun: (UserDetail)=>void)=>{
-          this.userInfoChangeListeners.push(fun)
-        },
-        removeUserInfoChangeListener: (fun: (UserDetail)=>void)=>{
-          const index = this.userInfoChangeListeners.findIndex(f=>f===fun)
-          if(index < 0) return
-          this.userInfoChangeListeners.splice(index, 1)
-        },
         //通知注销
-        logout: async ()=>{
-          this.logout()
+        logout: async () => {
+          await this.logout()
         },
-        binlogIsHappy: ()=>this.binlogIsHappy(),
       }
-    }
+    };
   },
   watch: {
-    showLoginDialog(value: boolean){
+    showLoginDialog(value: boolean): void{
       if(value) ChineseVerifyCode.refreshVerifyCodeIfExpire()
     }
   }
@@ -107,7 +85,6 @@ export interface AppProvider{
 export default class App extends Vue{
   systemProfile!: SystemProfile
   showLoginDialog!: boolean
-  userInfoChangeListeners = new Array<(UserInfo) => void>()
   userInfo?: UserDetail
 
   data(): any {
@@ -118,32 +95,28 @@ export default class App extends Vue{
   }
 
   async created(): Promise<void> {
-    this.systemProfile = await CommonService.getSystemProfile()
+    this.systemProfile = await CommonService.getSystemProfile();
+    this.$store.commit(MUTATION_SYSTEM_PROFILE, this.systemProfile);
     try {
       const userInfo = await AuthenticationService.getSelfInfo();
-      this.logged(userInfo)
+      this.logged(userInfo);
     }catch (e){
       //ignore
     }
+    this.$store.commit(MUTATION_IS_HAPPY, !!this.userInfo || this.systemProfile?.expression === "happy")
     this.checkRedirect()
   }
-
   checkRedirect(): void{
     if(this.$route.query.redirectPath){
       this.$router.replace(this.$route.query.redirectPath as string);
+      this.$route.query.redirectPath = null;
     }
   }
 
   logged(userInfo: UserDetail): void{
     this.userInfo = userInfo
+    this.$store.commit(MUTATION_USER_INFO, userInfo)
     this.showLoginDialog = false
-    this.userInfoChangeListeners.forEach(fun=>{
-      try{
-        fun(userInfo)
-      }catch (e){
-        console.error(e)
-      }
-    })
   }
 
   async logout(): Promise<void>{
@@ -152,24 +125,13 @@ export default class App extends Vue{
     ChineseVerifyCode.refreshVerifyCode()
     this.userInfo = null
     this.showLoginDialog = true
-    this.userInfoChangeListeners.forEach(fun=>{
-      try {
-        fun(null)
-      }catch (e) {
-        console.error(e)
-      }
-    })
+    this.$store.commit(MUTATION_USER_INFO, null)
   }
-
-  binlogIsHappy(): boolean{
-    return !!this.userInfo || (this.systemProfile && this.systemProfile.expression === "happy");
-  }
-
   /**
    * 异常处理
    * @param error
    */
-  errorCaptured(error: Error): void{
+  errorCaptured(error: Error): boolean{
     if(error instanceof NetworkError && error.response){
       switch (error.response.status) {
         case 401:
@@ -179,7 +141,9 @@ export default class App extends Vue{
         default:
           break;
       }
+      return true;
     }
+    return false;
   }
 }
 </script>

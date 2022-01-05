@@ -6,11 +6,10 @@
 </template>
 
 <script lang="ts">
-import {Component, Vue} from "vue-property-decorator";
+import {Options, Vue} from "vue-class-component";
 
-@Component({})
-export default class EmptyData extends Vue{
-}
+@Options({})
+export default class EmptyData extends Vue{}
 </script>
 
 <style scoped lang="scss">

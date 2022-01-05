@@ -1,5 +1,3 @@
-import {Notification} from "element-ui";
-
 function processError(e, type: "info" | "warning" | "success" | "error", isCatch: boolean, isPrint: boolean) {
     if (e && e.tipMsg) {
         Notification[type](e.tipMsg)

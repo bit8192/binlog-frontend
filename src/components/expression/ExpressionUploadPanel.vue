@@ -1,23 +1,27 @@
 <template>
   <div>
-    <el-button class="el-icon-plus mr-2" slot="trigger" v-on:click="$refs.uploadInput.click()">添加文件</el-button>
-    <el-button type="success" v-on:click="doUpload" :disabled="!expressionList.length || uploading">上传</el-button>
-    <input type="file" multiple="multiple" accept="image/*" class="d-none" ref="uploadInput" v-on:change="onFileInputChange" />
+    <el-button class="el-icon-plus mr-2" @click="$refs.uploadInput.click()">添加文件</el-button>
+    <el-button type="success" @click="doUpload" :disabled="!expressionList.length || uploading">上传</el-button>
+    <input type="file" multiple="multiple" accept="image/*" class="d-none" ref="uploadInput" @change="onFileInputChange" />
     <ul class="list-style-none">
       <li v-for="(file, index) of expressionList" class="flex-row position-relative file-item mb-2" :key="file.uid">
         <div class="flex-1 text-center flex-row justify-content-center">
-          <el-image :src="file.url" fit="contain" v-on:error="onLoadImageError(file, index)" />
+          <el-image :src="file.url" fit="contain" @error="onLoadImageError(file, index)" />
         </div>
-        <el-button type="text" icon="el-icon-delete" class="p-1 color-secondary color-warning-hover position-absolute" style="top: 5px; right: 5px" v-on:click="expressionList.splice(index, 1)" />
+        <el-button type="text" icon="el-icon-delete" class="p-1 color-secondary color-warning-hover position-absolute" style="top: 5px; right: 5px" @click="expressionList.splice(index, 1)" />
         <div class="p-3 flex-1 pt-5">
-          <el-input placeholder="唯一标题,引用时的替换值,请用下划线连接关键字" class="width-100 mb-2" v-model="file.dto.title" v-on:blur="checkTitle(file)" >
-            <el-popover v-if="!!file.titleErrorMsg" trigger="hover" slot="suffix">
-              <i slot="reference" class="el-icon-error color-danger el-input__icon" />
-              <div class="text-center">
-                <span class="d-block color-warning">{{file.titleErrorMsg}}</span>
-                <el-image v-if="!!file.repetitiveExpressionUrl" :src="file.repetitiveExpressionUrl" />
-              </div>
-            </el-popover>
+          <el-input placeholder="唯一标题,引用时的替换值,请用下划线连接关键字" class="width-100 mb-2" v-model="file.dto.title" @blur="checkTitle(file)" >
+            <template #suffix>
+              <el-popover v-if="!!file.titleErrorMsg" trigger="hover">
+                <template #reference>
+                  <i class="el-icon-error color-danger el-input__icon" />
+                </template>
+                <div class="text-center">
+                  <span class="d-block color-warning">{{file.titleErrorMsg}}</span>
+                  <el-image v-if="!!file.repetitiveExpressionUrl" :src="file.repetitiveExpressionUrl" />
+                </div>
+              </el-popover>
+            </template>
           </el-input>
           <tag-select v-model="file.tags" :tags="tagList" :add-action="tagAction" class="mb-2" :add-item-min-len="1" />
         </div>
@@ -27,8 +31,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import Component from "vue-class-component";
+import {Options, Vue} from "vue-class-component";
 import ExpressionDto from "@/domain/ExpressionDto";
 import TagSelect from "@/components/TagSelect.vue";
 import ExpressionTag from "@/domain/ExpressionTag";
@@ -36,6 +39,7 @@ import {URL_EXPRESSION, URL_EXPRESSION_TAG} from "@/constants/UrlApiExpression";
 import ExpressionService from "@/service/ExpressionService";
 import NetworkError from "@/error/NetworkError";
 import {REG_EXP_EXPRESSION_TITLE} from "@/constants/RegExp";
+import {ElMessage} from "element-plus";
 
 //最大上传文件大小
 const MAX_FILE_SIZE = 200 * 1024;
@@ -48,7 +52,7 @@ declare interface ExpressionInfo{
   titleErrorMsg?: string,
   repetitiveExpressionUrl?: string //如果发现有相同标题的表情时将放在这里
 }
-@Component({
+@Options({
   components: {TagSelect}
 })
 export default class ExpressionUploadPanel extends Vue{
@@ -80,9 +84,9 @@ export default class ExpressionUploadPanel extends Vue{
     const files = new Array<File>()
     for (let file of (e.target as HTMLInputElement).files) {
       if(this.expressionList.some(e=>e.file.name === file.name)){
-        this.$message.warning("文件[" + file.name + "]重复")
+        ElMessage.warning("文件[" + file.name + "]重复")
       }else if(file.size > MAX_FILE_SIZE){
-        this.$message.warning("表情[" + file.name + "]太大了(" + (file.size / 1024).toFixed(2) + "kb), 不得超过" + MAX_FILE_SIZE / 1024 + "kb")
+        ElMessage.warning("表情[" + file.name + "]太大了(" + (file.size / 1024).toFixed(2) + "kb), 不得超过" + MAX_FILE_SIZE / 1024 + "kb")
       }else{
         files.push(file);
       }
@@ -103,7 +107,7 @@ export default class ExpressionUploadPanel extends Vue{
    * 如果加载图片失败，说明不支持这个格式，提示并删掉
    */
   onLoadImageError(file: ExpressionInfo, index: number): void{
-    this.$message.warning("无效图片:" + file.file.name)
+    ElMessage.warning("无效图片:" + file.file.name)
     this.expressionList.splice(index, 1)
   }
 
@@ -144,15 +148,15 @@ export default class ExpressionUploadPanel extends Vue{
   async doUpload(): Promise<void>{
     for (const expressionInfo of this.expressionList) {
       if(expressionInfo.repetitiveExpressionUrl) {
-        this.$message.warning("标题有重复，请修改一哈")
+        ElMessage.warning("标题有重复，请修改一哈")
         return;
       }
       if(!expressionInfo.dto.title.trim().length){
-        this.$message.warning("标题必填哟")
+        ElMessage.warning("标题必填哟")
         return;
       }
       if(!expressionInfo.dto.title.match(REG_EXP_EXPRESSION_TITLE)){
-        this.$message.warning("标题[" + expressionInfo.dto.title + "]不合法");
+        ElMessage.warning("标题[" + expressionInfo.dto.title + "]不合法");
         return;
       }
     }

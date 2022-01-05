@@ -1,17 +1,17 @@
 <template>
   <div class="net-disk-file-view">
-    <net-disk-file-list :init-path-id="initPathId" v-on:change="onChange" style="height: 100%"/>
+    <net-disk-file-list :init-path-id="initPathId" @change="onChange" style="height: 100%"/>
   </div>
 </template>
 
 <script lang="ts">
-import {Component, Vue} from "vue-property-decorator";
+import {Options, Vue} from "vue-class-component";
 import NetDiskFileList from "@/components/net-disk-file/NetDiskFileList.vue";
 import NetDiskFile from "@/domain/NetDiskFile";
 
-@Component({
+@Options({
   components: {NetDiskFileList},
-  data: ()=>{
+  data(): any{
     return {
       initPathId: undefined
     }

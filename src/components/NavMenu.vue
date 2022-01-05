@@ -1,38 +1,23 @@
 <template>
   <div id="nav">
-    <router-link to="/" class="d-contents">
+    <router-link to="/" class="d-flex align-items-center">
       <img :src="logo" alt="logo" height="50" />
-      <h1 id="nav-title">{{profile && profile.name || "Blog"}}</h1>
+      <h1 id="nav-title">{{ profile?.name || "Blog" }}</h1>
     </router-link>
-    <div class="flex-1">
+    <div class="mx-1">
       <slot/>
     </div>
-    <el-menu mode="horizontal" router :default-active="$route.path" class="hidden-sm-and-down" v-on:select="onSelectMenu">
+    <el-menu mode="horizontal" router :default-active="currentPath" @select="onSelectMenu">
       <template v-for="item in menuList.filter(i=>i.visible)">
         <el-menu-item v-if="!item.children || !item.children.length" :key="item.title" :index="item.route">
-          <el-badge v-if="item.title === '消息' && unreadMessageCount && $route.path !== '/message'" :value="unreadMessageCount" style="line-height: initial">{{item.title}}</el-badge>
+          <el-badge v-if="item.title === '消息' && unreadMessageCount && currentPath !== '/message'" :value="unreadMessageCount" style="line-height: initial">{{item.title}}</el-badge>
           <span v-else>{{item.title}}</span>
         </el-menu-item>
-        <el-submenu v-else :key="item.route" index="0">
-          <template slot="title">{{item.title}}</template>
+        <el-sub-menu v-else :key="item.route" index="0">
+          <template #title>{{item.title}}</template>
           <el-menu-item v-for="submenu in item.children" :key="submenu.title" :index="item.route">{{submenu.title}}</el-menu-item>
-        </el-submenu>
+        </el-sub-menu>
       </template>
-    </el-menu>
-    <el-menu mode="horizontal" router :default-active="$route.path" class="hidden-md-and-up" menu-trigger="click">
-      <el-submenu index="">
-        <template slot="title"><font-awesome-icon :icon="['fas', 'bars']" size="lg"/></template>
-        <template v-for="item in menuList.filter(i=>i.visible)">
-          <el-menu-item v-if="!item.children || !item.children.length" :key="item.title" :index="item.route">
-            <el-badge v-if="item.title === '消息' && unreadMessageCount && $route.path !== '/message'" :value="unreadMessageCount">{{item.title}}</el-badge>
-            <span v-else>{{item.title}}</span>
-          </el-menu-item>
-          <el-submenu v-else :key="item.route" index="0">
-            <template slot="title">{{item.title}}</template>
-            <el-menu-item v-for="submenu in item.children" :key="submenu.title" :index="item.route">{{submenu.title}}</el-menu-item>
-          </el-submenu>
-        </template>
-      </el-submenu>
     </el-menu>
   </div>
 </template>
@@ -40,8 +25,7 @@
 <script lang="ts">
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {faBars} from "@fortawesome/free-solid-svg-icons";
-import {Component, Vue} from "vue-property-decorator";
-import {AppProvider} from "@/App.vue";
+import {Options, Vue} from "vue-class-component";
 import UserInfo from "@/domain/UserInfo";
 import MessageService from "@/service/MessageService";
 library.add(faBars)
@@ -53,13 +37,12 @@ declare interface Menu{
   visible: boolean
 }
 
-@Component({
+@Options({
   props: ['profile'],
-  inject: ['app'],
-  created(): void{
-    this.app.addUserInfoChangeListener(this.onUserInfoChange)
-    if(this.app.isLogged()){
-      const userInfo = this.app.getLoggedUserInfo()
+  mounted(): void{
+    this.unWatchUserInfo = this.$store.watch(s=>s.userInfo, this.onUserInfoChange)
+    if(this.$store.state.isLogged){
+      const userInfo = this.$store.state.userInfo
       if(userInfo.isBlogger || userInfo.isAdmin){
         this.netDiskFileMenu.visible = true
       }
@@ -70,13 +53,18 @@ declare interface Menu{
       this.refreshUnreadMessageCount()
     }
   },
+  computed: {
+    currentPath(){
+      return this.$route.path;
+    }
+  },
+
   beforeDestroy(): void{
-    this.app.removeUserInfoChangeListener(this.onUserInfoChange)
+    this.unWatchUserInfo()
   }
 })
 export default class NavMenu extends Vue{
   menuList: Menu[]
-  app: AppProvider
   logo: any
   unreadMessageCount: number
   netDiskFileMenu: Menu
@@ -166,7 +154,7 @@ export default class NavMenu extends Vue{
    * @param index 下标
    */
   onSelectMenu(index: number): void{
-    if(this.menuList[index] !== this.messageMenu && this.app.isLogged()){
+    if(this.menuList[index] !== this.messageMenu && this.$store.state.isLogged){
       this.refreshUnreadMessageCount()
     }
   }
@@ -182,7 +170,7 @@ $nav-padding-horizontal: 1em;
   height: $nav-height;
   border-bottom: solid 1px #e6e6e6;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   padding-left: $nav-padding-horizontal;
   padding-right: $nav-padding-horizontal;

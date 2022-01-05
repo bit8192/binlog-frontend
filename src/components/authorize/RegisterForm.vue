@@ -21,7 +21,7 @@
       <el-input v-model="user.password" placeholder="密码，绑定有第三方帐号可以不设置密码" type="password" />
     </el-form-item>
     <el-form-item label="再次输入密码" v-if="user.password">
-      <el-input v-model="repassword" placeholder="再次输入密码" v-on:input="$refs.form.validateField('password')" type="password" />
+      <el-input v-model="repassword" placeholder="再次输入密码" @input="$refs.form.validateField('password')" type="password" />
     </el-form-item>
     <el-form-item label="邮箱" prop="email">
       <el-input v-model="user.email" placeholder="形式而已，我也不会向你的邮箱发送任何邮件" />
@@ -37,23 +37,29 @@
     </el-form-item>
     <el-form-item label="绑定QQ">
       <el-input v-model="user.qqOpenId" disabled >
-        <el-button slot="append" title="重新绑定" v-on:click="$emit('rebind', 'qq')">
-          <font-awesome-icon :icon="['fab', 'qq']" size="2x" />
-        </el-button>
+        <template #append>
+          <el-button title="重新绑定" @click="$emit('rebind', 'qq')">
+            <font-awesome-icon :icon="['fab', 'qq']" size="2x" />
+          </el-button>
+        </template>
       </el-input>
     </el-form-item>
     <el-form-item label="绑定微信">
       <el-input v-model="user.wechatOpenId" disabled>
-        <el-button slot="append" title="重新绑定" v-on:click="$emit('rebind', 'wechat')">
-          <font-awesome-icon :icon="['fab', 'weixin']" size="2x" />
-        </el-button>
+        <template #append>
+          <el-button title="重新绑定" @click="$emit('rebind', 'wechat')">
+            <font-awesome-icon :icon="['fab', 'weixin']" size="2x" />
+          </el-button>
+        </template>
       </el-input>
     </el-form-item>
     <el-form-item label="绑定Github">
       <el-input v-model="user.github" disabled>
-        <el-button slot="append" title="重新绑定" v-on:click="$emit('rebind', 'github')">
-          <font-awesome-icon :icon="['fab', 'github']" size="2x" />
-        </el-button>
+        <template #append>
+          <el-button title="重新绑定" @click="$emit('rebind', 'github')">
+            <font-awesome-icon :icon="['fab', 'github']" size="2x" />
+          </el-button>
+        </template>
       </el-input>
     </el-form-item>
     <el-form-item label="谁不是人？">
@@ -62,14 +68,13 @@
       </div>
     </el-form-item>
     <el-form-item>
-      <el-button type="primary" v-on:click="register">注册</el-button>
+      <el-button type="primary" @click="register">注册</el-button>
     </el-form-item>
   </el-form>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import Component from "vue-class-component";
+import {Options, Vue} from "vue-class-component";
 import UserDto from "@/domain/UserDto";
 import {URL_FILES} from "@/constants/UrlApiFiles";
 import {library} from "@fortawesome/fontawesome-svg-core";
@@ -79,11 +84,11 @@ import {faGithub, faQq, faWeixin} from "@fortawesome/free-brands-svg-icons";
 import UserService from "@/service/UserService";
 import {REG_EXP_PHONE_NUM, REG_EXP_USERNAME, REG_EXP_WEBSITE} from "@/constants/RegExp";
 import ChineseVerifyCode from "@/components/ChineseVerifyCode.vue";
-import {ElForm} from "element-ui/types/form";
+import {ElMessage} from "element-plus";
 
 library.add(faUser, faQq, faWeixin, faGithub)
 
-@Component({
+@Options({
   components: {ChineseVerifyCode}
 })
 export default class RegisterForm extends Vue{
@@ -139,8 +144,8 @@ export default class RegisterForm extends Vue{
    * 注册
    */
   async register(): Promise<void>{
-    if(!( await (this.$refs.form as ElForm).validate() )) {
-      this.$message.warning("好像什么东西填错了")
+    if(!( await (this.$refs.form as any).validate() )) {
+      ElMessage.warning("好像什么东西填错了")
       return;
     }
     try {
@@ -150,7 +155,7 @@ export default class RegisterForm extends Vue{
         this.user = {username: "", headImg: "", qqOpenId: "", wechatOpenId: "", github: ""}
       }else{
         if(result.msg){
-          this.$message.warning(result.msg)
+          ElMessage.warning(result.msg)
         }
       }
     }finally {

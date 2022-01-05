@@ -1,13 +1,15 @@
 <template>
   <div
       :class="'drag-split-' + orientation"
-      v-on:mousedown="$_onMousedown"
+      @mousedown="onMousedown"
   >
     <div :class="'drag-split-icon ' + 'drag-split-icon-' + orientation" />
   </div>
 </template>
 
 <script lang="ts">
+import {Options, Vue} from "vue-class-component";
+
 declare interface Data{
   left: number
   top: number
@@ -16,7 +18,8 @@ declare interface Data{
 let dragging = false;
 let dragStartX = 0;
 let dragStartY = 0;
-export default {
+
+@Options({
   name: "DragSplit",
   data(): Data{
     return {
@@ -31,45 +34,49 @@ export default {
     }
   },
   created() :void{
-    this.$_onMouseup = this.$_onMouseup.bind(this)
-    this.$_onMousemove = this.$_onMousemove.bind(this)
-    this.$_onMouseleave = this.$_onMouseleave.bind(this)
+    this.onMouseup = this.onMouseup.bind(this)
+    this.onMousemove = this.onMousemove.bind(this)
+    this.onMouseleave = this.onMouseleave.bind(this)
   },
-  methods: {
-    $_onMousedown(e: MouseEvent): void{
-      const target = e.currentTarget as HTMLElement
-      dragging = true
-      dragStartX = e.clientX
-      dragStartY = e.clientY
-      target.offsetParent.addEventListener("mouseup", this.$_onMouseup)
-      target.offsetParent.addEventListener("mousemove", this.$_onMousemove)
-      target.offsetParent.addEventListener("mouseleave",this.$_onMouseleave)
-      this.$emit("dragstart")
-    },
-    $_onMouseup(): void{
-      this.$_dragover()
-      this.$emit("dragover")
-    },
-    $_onMouseleave(): void{
-      this.$_dragover()
-      this.$emit("dragleave")
-    },
-    $_dragover(): void{
-      dragging = false
-      this.top = 0
-      this.left = 0
-      const target = this.$el as HTMLElement
-      target.offsetParent.removeEventListener("mouseup", this.$_onMouseup)
-      target.offsetParent.removeEventListener("mousemove", this.$_onMousemove)
-      target.offsetParent.removeEventListener("mouseleave", this.$_onMouseleave)
-    },
-    $_onMousemove(e: MouseEvent): void{
-      if(dragging){
-        if(this.orientation === "horizontal"){
-          this.$emit("drag", e.clientY - dragStartY)
-        }else if(this.orientation === "vertical"){
-          this.$emit("drag", e.clientX - dragStartX)
-        }
+})
+export default class DragSplit extends Vue{
+  top: number
+  left: number
+  orientation: string
+
+  onMousedown(e: MouseEvent): void{
+    const target = e.currentTarget as HTMLElement
+    dragging = true
+    dragStartX = e.clientX
+    dragStartY = e.clientY
+    target.offsetParent.addEventListener("mouseup", this.onMouseup)
+    target.offsetParent.addEventListener("mousemove", this.onMousemove)
+    target.offsetParent.addEventListener("mouseleave",this.onMouseleave)
+    this.$emit("dragstart")
+  }
+  onMouseup(): void{
+    this.dragover()
+    this.$emit("dragover")
+  }
+  onMouseleave(): void{
+    this.dragover()
+    this.$emit("dragleave")
+  }
+  dragover(): void{
+    dragging = false
+    this.top = 0
+    this.left = 0
+    const target = this.$el as HTMLElement
+    target.offsetParent.removeEventListener("mouseup", this.onMouseup)
+    target.offsetParent.removeEventListener("mousemove", this.onMousemove)
+    target.offsetParent.removeEventListener("mouseleave", this.onMouseleave)
+  }
+  onMousemove(e: MouseEvent): void{
+    if(dragging){
+      if(this.orientation === "horizontal"){
+        this.$emit("drag", e.clientY - dragStartY)
+      }else if(this.orientation === "vertical"){
+        this.$emit("drag", e.clientX - dragStartX)
       }
     }
   }

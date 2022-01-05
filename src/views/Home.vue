@@ -4,12 +4,14 @@
       <article-page ref="articlePage" />
     </el-col>
     <el-col :md="6" :xs="24" class="home-panel-right">
-      <user-state-panel class="mb-1" v-if="app.binlogIsHappy()" />
+      <user-state-panel class="mb-1" v-if="isHappy" />
       <bloggers-panel class="mb-1" />
       <div class="follow-panel">
         <article-search-panel :article-page="articlePage"/>
         <el-card class="mt-1">
-          <h3 slot="header">阳光男孩 在线磕头</h3>
+          <template #header>
+            <h3>阳光男孩 在线磕头</h3>
+          </template>
           <a :href="payImage" target="_blank" title="请我喝一杯Java">
             <el-image :src="begImage" />
           </a>
@@ -24,25 +26,21 @@ import ArticlePage from "@/components/article/ArticlePage.vue";
 import ArticleSearchPanel from "@/components/ArticleSearchPanel.vue";
 import CommonService from "@/service/CommonService";
 import UserStatePanel from "@/components/UserStatePanel.vue";
-import {Component, Vue} from "vue-property-decorator";
+import {Options, Vue} from "vue-class-component";
 import BloggersPanel from "@/components/BloggersPanel.vue";
-import {AppProvider} from "@/App.vue";
-import {Store} from "vuex";
-import VueRouter from "vue-router";
 
-@Component({
+@Options({
   components: {BloggersPanel, UserStatePanel, ArticleSearchPanel, ArticlePage},
-  inject: ['app']
+  computed: {
+    isHappy(){
+      return this.$store.state.isHappy
+    }
+  },
 })
 export default class Home extends Vue{
   articlePage: ArticlePage
   begImage = require("@/assets/beg.jpg")
   payImage = require("@/assets/pay.webp")
-  app: AppProvider
-
-  async asyncData(store: Store<any>, router: VueRouter): Promise<void>{
-    store.commit("setMsg")
-  }
 
   data(): any{
     return {
@@ -52,15 +50,6 @@ export default class Home extends Vue{
 
   mounted(): void{
     this.articlePage = this.$refs.articlePage as ArticlePage
-    this.app.addUserInfoChangeListener(this.onUserInfoChange)
-  }
-
-  beforeDestroy(): void{
-    this.app.removeUserInfoChangeListener(this.onUserInfoChange)
-  }
-
-  onUserInfoChange(): void{
-    this.$forceUpdate()
   }
 
   async created() : Promise<void>{

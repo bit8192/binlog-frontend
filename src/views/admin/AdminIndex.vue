@@ -3,19 +3,27 @@
     <el-menu style="width: 200px" router :default-active="$route.path">
       <el-menu-item index="/admin/overview">
         <i class="el-icon-s-data" />
-        <span slot="title">概况</span>
+        <template #title>
+          <span>概况</span>
+        </template>
       </el-menu-item>
       <el-menu-item index="/admin/request-log">
         <i class="el-icon-tickets" />
-        <span slot="title">请求日志</span>
+        <template #title>
+          <span>请求日志</span>
+        </template>
       </el-menu-item>
       <el-menu-item index="/admin/user-management">
         <i class="el-icon-user-solid" />
-        <span slot="title">用户</span>
+        <template #title>
+          <span>用户</span>
+        </template>
       </el-menu-item>
       <el-menu-item index="/admin/system-setting">
         <i class="el-icon-setting"/>
-        <span slot="title">设置</span>
+        <template #title>
+          <span>设置</span>
+        </template>
       </el-menu-item>
     </el-menu>
     <div class="flex-1 bg-white" style="overflow-y: auto">
@@ -25,10 +33,9 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import Component from "vue-class-component";
+import {Options, Vue} from "vue-class-component";
 
-@Component({})
+@Options({})
 export default class AdminIndex extends Vue{
 }
 </script>

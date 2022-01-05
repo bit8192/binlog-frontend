@@ -1,20 +1,22 @@
 <template>
 <div class="net-disk-file-upload-panel">
   <div>
-    <el-button type="primary" size="small" v-on:click="$refs.uploadInput.click()">
+    <el-button type="primary" size="small" @click="$refs.uploadInput.click()">
       添加文件
-      <input type="file" style="display: none" ref="uploadInput" v-on:change="onUploadInputChange" />
+      <input type="file" style="display: none" ref="uploadInput" @change="onUploadInputChange" />
     </el-button>
     <ul class="list-style-none my-2">
       <li v-for="(file, index) of fileList" :key="file.url" class="flex-row justify-content-between align-items-center">
         <el-image :src="file.url" style="height: 100px" fit="contain">
-          <div slot="error" class="text-center" style="line-height: 100px">
-            <font-awesome-icon icon="file" class="color-text-sub" size="4x" style="vertical-align: middle" />
-          </div>
+          <template #error>
+            <div class="text-center" style="line-height: 100px">
+              <font-awesome-icon icon="file" class="color-text-sub" size="4x" style="vertical-align: middle" />
+            </div>
+          </template>
         </el-image>
         <h4>{{file.rawFile.name}}</h4>
         <span class="color-text-sub">{{file.size}}</span>
-        <el-button type="text" icon="el-icon-delete" class="color-warning color-warning-hover" v-on:click="onRemoveFile(index)" />
+        <el-button type="text" icon="el-icon-delete" class="color-warning color-warning-hover" @click="onRemoveFile(index)" />
       </li>
     </ul>
   </div>
@@ -31,7 +33,7 @@
             <span>{{user.username}}</span>
           </li>
           <li class="d-inline-block">
-            <el-button icon="el-icon-edit" circle v-on:click="selectReadableUserList"/>
+            <el-button icon="el-icon-edit" circle @click="selectReadableUserList"/>
           </li>
         </ul>
       </el-form-item>
@@ -42,30 +44,30 @@
             <span>{{user.username}}</span>
           </li>
           <li class="d-inline-block">
-            <el-button icon="el-icon-edit" circle v-on:click="selectWritableUserList"/>
+            <el-button icon="el-icon-edit" circle @click="selectWritableUserList"/>
           </li>
         </ul>
       </el-form-item>
       <el-form-item label="存储位置">
         <file-system-type-selector :file-system-type-list="availableFileSystemTypeList" v-model="fileInfo.fileSystemType" />
       </el-form-item>
-      <el-dialog :visible="showUserTransferDialog" v-on:close="showUserTransferDialog = false" append-to-body>
+      <el-dialog :visible="showUserTransferDialog" @close="showUserTransferDialog = false" append-to-body>
         <user-transfer v-model="selectedUserIds" ref="userTransfer" />
         <div class="text-right">
-          <el-button type="primary" v-on:click="this.selectUserListCompleteCallback">确定</el-button>
+          <el-button type="primary" @click="this.selectUserListCompleteCallback">确定</el-button>
         </div>
       </el-dialog>
     </el-form>
   </div>
   <div class="text-right">
-    <el-button size="small" type="success" :disabled="uploadBtnDisabled" v-on:click="doUpload">上传</el-button>
+    <el-button size="small" type="success" :disabled="uploadBtnDisabled" @click="doUpload">上传</el-button>
     <p class="p-0"><span class="color-text-sub" v-if="uploading">{{progressTip}}</span></p>
   </div>
 </div>
 </template>
 
 <script lang="ts">
-import {Component, Vue} from "vue-property-decorator";
+import {Options, Vue} from "vue-class-component";
 import NetDiskFileDto from "../../domain/NetDiskFileDto";
 import UserInfo from "@/domain/UserInfo";
 import UserTransfer from "@/components/user/UserTransfer.vue";
@@ -81,7 +83,7 @@ declare interface CustomFile{
   size: string
   id: number
 }
-@Component({
+@Options({
   components: {FileSystemTypeSelector, UserTransfer},
   props: {
     parentId: {
@@ -94,11 +96,11 @@ declare interface CustomFile{
     },
     availableFileSystemTypeList: {
       type: Array,
-      default: []
+      default: (): any[] => []
     }
   },
   watch: {
-    parentId(value): void{
+    parentId(value: any): void{
       this.fileInfo.parentId = value;
       if(!this.availableFileSystemTypeList || this.availableFileSystemTypeList.every(i=>i !== this.fileInfo.fileSystemType)){
         this.fileInfo.fileSystemType = "LOCAL";

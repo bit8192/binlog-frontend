@@ -5,13 +5,13 @@
 </template>
 
 <script lang="ts">
-import {Component, Vue} from "vue-property-decorator";
-import {CreateElement, FunctionalComponentOptions, VNode} from "vue";
+import {Options, Vue} from "vue-class-component";
 import UserInfo from "@/domain/UserInfo";
 import {REG_EXP_COMMENT_EXPRESSION, REG_EXP_MEMBERS} from "@/constants/RegExp";
 import {URL_EXPRESSION} from "@/constants/UrlApiExpression";
+import {Component, defineComponent, h} from "vue";
 
-@Component({
+@Options({
   props: {
     content: {
       type: String,
@@ -28,7 +28,7 @@ import {URL_EXPRESSION} from "@/constants/UrlApiExpression";
 export default class CommentContent extends Vue{
   content: string
   members: UserInfo[]
-  renderContent: Array<FunctionalComponentOptions>
+  renderContent: Array<Component>
 
   data(): any{
     return {
@@ -39,8 +39,8 @@ export default class CommentContent extends Vue{
   /**
    * 处理内容
    */
-  handleContent(): Array<FunctionalComponentOptions>{
-    let result: Array<string|FunctionalComponentOptions> = [this.content];
+  handleContent(): Array<Component>{
+    let result: Array<string|Component> = [this.content];
     const replaceInfoArr = this.getReplaceInfo();
     for (let replaceInfo of replaceInfoArr) {
       for (let i = 0; i < result.length; i++) {
@@ -68,7 +68,7 @@ export default class CommentContent extends Vue{
           index = matchStart + matchLength
         }
         if(index < targetStr.length){//没有匹配完的字符串放回去
-          result.push(targetStr.substr(index))
+          result.push(targetStr.substring(index))
         }
         const surplusItems = result.splice(i + 1, result.length - i - 1);//剩下没匹配的项目
         result = result.splice(0, i).concat(replaceResult, surplusItems);//已经完成匹配的拼接匹配结果和没匹配的
@@ -80,13 +80,12 @@ export default class CommentContent extends Vue{
     for (let i = 0; i < result.length; i++) {
       const content = result[i];
       if(typeof content === "string"){
-        result[i] = {
-          functional: true,
-          render: (createElement: CreateElement)=>createElement("span", content)
-        }
+        result[i] = defineComponent({
+          render: ()=>h("span", content)
+        })
       }
     }
-    return result as Array<FunctionalComponentOptions>;
+    return result as Array<Component>;
   }
 
   /**
@@ -99,11 +98,8 @@ export default class CommentContent extends Vue{
       regexp: /\n/g,
       replaceGroup: 0,
       isReplace: ()=>true,
-      replaceResult: ()=>({
-        functional: true,
-        render(createElement: CreateElement): VNode{
-          return createElement("br")
-        }
+      replaceResult: ()=>defineComponent({
+        render: ()=>h("br")
       })
     })
     //删除的评论
@@ -111,11 +107,8 @@ export default class CommentContent extends Vue{
       regexp: /^$/g,
       replaceGroup: 0,
       isReplace: ()=>true,
-      replaceResult: ()=>({
-        functional: true,
-        render(createElement: CreateElement): VNode{
-          return createElement("span", {class: "color-text-sub"}, "评论已删除")
-        }
+      replaceResult: ()=>defineComponent({
+        render: ()=>h("span", {class: "color-text-sub"}, "评论已删除")
       })
     })
     //  @到的用户
@@ -127,13 +120,10 @@ export default class CommentContent extends Vue{
             isReplace: (matchResult: RegExpMatchArray): boolean =>{
               return this.members.some(m=>m.username === matchResult[2])
             },
-            replaceResult(matchResult: RegExpMatchArray): FunctionalComponentOptions | string {
-              return {
-                functional: true,
-                render(createElement:CreateElement): VNode{
-                  return createElement("ElButton", {class: "comment-member mx-1", props: {type: "text"}}, "@" + matchResult[2])
-                }
-              }
+            replaceResult(matchResult: RegExpMatchArray): Component | string {
+              return defineComponent({
+                render: ()=>h("ElButton", {class: "comment-member mx-1", props: {type: "text"}}, "@" + matchResult[2])
+              })
             }
           }
       )
@@ -143,20 +133,19 @@ export default class CommentContent extends Vue{
       regexp: REG_EXP_COMMENT_EXPRESSION,
       replaceGroup: 0,
       isReplace: ()=>true,
-      replaceResult(matchResult: RegExpMatchArray): FunctionalComponentOptions | string {
-        return {
-          functional: true,
-          render(createElement: CreateElement): VNode | VNode[] {
-            return createElement("ElImage", {
+      replaceResult(matchResult: RegExpMatchArray): Component | string {
+        return defineComponent({
+          render: () => {
+            return h("ElImage", {
               props: {
                 src: URL_EXPRESSION + '/' + decodeURIComponent(matchResult[1]),
               }
             }, [
-              createElement("span", {slot: "placeholder"}, matchResult[0]),
-              createElement("span", {slot: "error"}, matchResult[0])
+              h("span", {slot: "placeholder"}, matchResult[0]),
+              h("span", {slot: "error"}, matchResult[0])
             ])
           }
-        }
+        })
       }
     })
     return result;
@@ -168,7 +157,7 @@ declare interface ReplaceInfo{
   replaceGroup: number//进行替换的子匹配项, 如果非0, 那么会从第0个group中搜索当前子匹配项来获取替换位置
   getReplaceIndex?(matchResult: RegExpMatchArray): number//如果通过replaceGroup无法正确获取替换位置，那么可以提供这个方法自定义获取
   isReplace(matchResult: RegExpMatchArray): boolean//判断是否进行替换
-  replaceResult(matchResult: RegExpMatchArray): FunctionalComponentOptions|string//替换结果
+  replaceResult(matchResult: RegExpMatchArray): Component|string//替换结果
 }
 </script>
 

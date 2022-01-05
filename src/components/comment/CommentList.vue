@@ -13,24 +13,24 @@
             <comment-content :content="comment.content" :members="comment.members" />
             <div class="color-text-sub">
               <span class="mr-3">{{comment.createdDate}}</span>
-              <el-button v-if="!comment.removed" type="text" :class="'mr-3' + (comment.isAgreed ? '' : ' color-text-sub')" v-on:click="()=>toggleCommentAgree(comment.id)">
+              <el-button v-if="!comment.removed" type="text" :class="'mr-3' + (comment.isAgreed ? '' : ' color-text-sub')" @click="()=>toggleCommentAgree(comment.id)">
                 <font-awesome-icon :icon="[comment.isAgreed ? 'fas' : 'far', 'thumbs-up']" />
                 {{comment.agreedNum ? comment.agreedNum : ''}}
               </el-button>
-              <el-button v-if="!comment.removed" type="text" :class="'mr-3' + (comment.isTrod ? '' : ' color-text-sub')" v-on:click="()=>toggleCommentTread(comment.id)">
+              <el-button v-if="!comment.removed" type="text" :class="'mr-3' + (comment.isTrod ? '' : ' color-text-sub')" @click="()=>toggleCommentTread(comment.id)">
                 <font-awesome-icon :icon="[comment.isTrod ? 'fas' : 'far', 'thumbs-down']" />
                 {{ comment.treadNum ? comment.treadNum : '' }}
               </el-button>
-              <el-button v-if="!comment.removed" type="text" class="color-text-sub" v-on:click="()=>reply(comment, null)">
+              <el-button v-if="!comment.removed" type="text" class="color-text-sub" @click="()=>reply(comment, null)">
                 <font-awesome-icon :icon="['far', 'comment']" />
               </el-button>
-              <el-button type="text" class="color-text-sub" v-if="comment.content && comment.createdUser && comment.createdUser.id === (userInfo ? userInfo.id : null)" v-on:click="removeComment(comment)">
+              <el-button type="text" class="color-text-sub" v-if="comment.content && comment.createdUser && comment.createdUser.id === (userInfo ? userInfo.id : null)" @click="removeComment(comment)">
                 删除
               </el-button>
             </div>
-            <sub-comment-list ref="subCommentList" :comment-id="comment.id" :comments="comment.replies || []" :comment-count="comment.repliesNum || 0" v-on:reply="subReply" :user-info="userInfo" />
+            <sub-comment-list ref="subCommentList" :comment-id="comment.id" :comments="comment.replies || []" :comment-count="comment.repliesNum || 0" @reply="subReply" :user-info="userInfo" />
           </div>
-          <comment-reply-input v-if="replyCommentId === comment.id" v-model="replyContent" v-on:submit="submitReply" :placeholder="'回复 @' + replyTargetUsername + ':'" />
+          <comment-reply-input v-if="replyCommentId === comment.id" v-model="replyContent" @submit="submitReply" :placeholder="'回复 @' + replyTargetUsername + ':'" />
         </div>
       </div>
     </template>
@@ -39,7 +39,7 @@
 </template>
 
 <script lang="ts">
-import {Component, Vue} from "vue-property-decorator";
+import {Options, Vue} from "vue-class-component";
 import {Comment} from "@/domain/Comment";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {
@@ -63,10 +63,11 @@ import CommentReplyInput from "@/components/comment/CommentReplyInput.vue";
 import Page from "@/domain/Page";
 import ElementUtils from "@/utils/ElementUtils";
 import UserInfo from "@/domain/UserInfo";
+import {ElMessageBox} from "element-plus";
 
 library.add(faUser, faSolidThumbsUp, faRegularThumbsUp, faSolidThumbsDown, faRegularThumbsDown, faComment)
 
-@Component({
+@Options({
   components: {CommentReplyInput, CommentContent, SubCommentList, EmptyData},
   props: {
     loadData:{
@@ -95,6 +96,7 @@ export default class CommentList extends Vue{
 
   data(): any{
     return {
+      isLoading: false,
       comments: [],
       replyCommentId: null,
       replySubCommentId: null,
@@ -248,7 +250,7 @@ export default class CommentList extends Vue{
   }
 
   async removeComment(comment: Comment): Promise<void>{
-    if((await this.$confirm("是否确认删除", "警告")) !== "confirm") return;
+    if((await ElMessageBox.confirm("是否确认删除", "警告")) !== "confirm") return;
     await CommentService.removeComment(comment.id)
     comment.content = ""
   }

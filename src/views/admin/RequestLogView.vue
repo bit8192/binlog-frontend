@@ -47,7 +47,7 @@
       <el-date-picker v-model="dateRange" type="daterange" ranger-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" size="small" />
     </el-form-item>
     <el-form-item>
-      <el-button size="small" icon="el-icon-search" v-on:click="refresh" />
+      <el-button size="small" icon="el-icon-search" @click="refresh" />
     </el-form-item>
   </el-form>
   <el-table :data="requestLogs" border class="flex-1" height="auto">
@@ -66,19 +66,18 @@
     <el-table-column prop="userId" label="userId" width="80" />
   </el-table>
   <div class="text-right">
-    <el-pagination :current-page="pageIndex + 1" :page-size="pageSize" :page-count="pageCount" :total="totalElements" layout="total, prev, pager, next" v-on:current-change="p=>{pageIndex = p - 1; loadPage()}" />
+    <el-pagination :current-page="pageIndex + 1" :page-size="pageSize" :page-count="pageCount" :total="totalElements" layout="total, prev, pager, next" @current-change="p=>{pageIndex = p - 1; loadPage()}" />
   </div>
 </div>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import Component from "vue-class-component";
+import {Options, Vue} from "vue-class-component";
 import {RequestLog} from "@/domain/RequestLog";
 import RequestLogService from "@/service/RequestLogService";
 import UserSelect from "@/components/user/UserSelect.vue";
 
-@Component({
+@Options({
   components: {UserSelect}
 })
 export default class RequestLogView extends Vue{
@@ -111,7 +110,7 @@ export default class RequestLogView extends Vue{
     }
   }
 
-  mounted(): void{
+  mounted(): void {
     this.loadPage()
   }
 

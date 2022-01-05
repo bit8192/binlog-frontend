@@ -1,20 +1,22 @@
 <template>
   <div class="user-transfer flex-row justify-content-center">
     <el-transfer :data="userList" v-model="selectedUserIds" :props="{key: 'id', label: 'username'}" :titles="['用户列表', '已选']" >
-      <span slot-scope="{option}" class="d-inline-block" style="line-height: 40px">
-        <el-avatar :src="option.headImg" style="vertical-align: bottom" class="mr-2" />
-        <span>{{option.username}}</span>
-      </span>
+      <template #default="{option}">
+        <span class="d-inline-block" style="line-height: 40px">
+          <el-avatar :src="option.headImg" style="vertical-align: bottom" class="mr-2" />
+          <span>{{option.username}}</span>
+        </span>
+      </template>
     </el-transfer>
   </div>
 </template>
 
 <script lang="ts">
-import {Component, Vue} from "vue-property-decorator";
+import {Options, Vue} from "vue-class-component";
 import UserInfo from "@/domain/UserInfo";
 import UserService from "@/service/UserService";
 
-@Component({
+@Options({
   props: {
     value: {
       type: Array
@@ -34,10 +36,10 @@ import UserService from "@/service/UserService";
     await this.loadUserList()
   },
   watch: {
-    value(value: number[]){
+    value(value: number[]): void{
       this.selectedUserIds = value
     },
-    selectedUserIds(value: number[]){
+    selectedUserIds(value: number[]): void{
       this.$emit("change", value)
     }
   }
@@ -46,7 +48,6 @@ export default class UserTransfer extends Vue{
   userList: UserInfo[]
   selectedUserIds: number[]
 
-  // noinspection JSUnusedLocalSymbols
   private async loadUserList(): Promise<void>{
     this.userList = await UserService.getAllUserList()
   }

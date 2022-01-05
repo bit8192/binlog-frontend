@@ -2,75 +2,79 @@
 <div class="flex-column">
   <div class="flex-row align-items-center net-disk-file-view-tools-bar">
     <el-button-group style="margin-right: 1em">
-      <el-button size="small" :disabled="!(currentHistoryIndex !== -1 && currentHistoryIndex !== 0 && history.length > 1)" v-on:click="back">
+      <el-button size="small" :disabled="!(currentHistoryIndex !== -1 && currentHistoryIndex !== 0 && history.length > 1)" @click="back">
         <font-awesome-icon icon="angle-left" />
       </el-button>
-      <el-button size="small" :disabled="!(currentHistoryIndex > -1 && currentHistoryIndex < history.length - 1)" v-on:click="forward">
+      <el-button size="small" :disabled="!(currentHistoryIndex > -1 && currentHistoryIndex < history.length - 1)" @click="forward">
         <font-awesome-icon icon="angle-right" />
       </el-button>
     </el-button-group>
     <el-breadcrumb separator-class="el-icon-arrow-right" style="flex: 1">
       <el-breadcrumb-item v-for="(item, index) of parents" :key="item.id">
-        <el-button type="text" v-on:click="goto(item.id)" :disabled="index === parents.length - 1">
+        <el-button type="text" @click="goto(item.id)" :disabled="index === parents.length - 1">
           {{item.name}}
         </el-button>
       </el-breadcrumb-item>
     </el-breadcrumb>
     <el-input placeholder="搜索" style="width: auto" size="small">
-      <el-button slot="append" icon="el-icon-search"/>
+      <template #append>
+        <el-button icon="el-icon-search"/>
+      </template>
     </el-input>
   </div>
-  <!--suppress HtmlDeprecatedAttribute -->
-  <div ref="files" class="net-disk-file-view-files flex-1 flex-row flex-wrap align-items-start" v-on:click="onBoxClick" v-on:contextmenu="onBoxContextmenu" v-on:paste="onPaste">
+  <div ref="files" class="net-disk-file-view-files flex-1 flex-row flex-wrap align-items-start" @click="onBoxClick" @contextmenu="onBoxContextmenu" @paste="onPaste">
     <template v-if="fileList.length">
-      <!--suppress HtmlDeprecatedAttribute -->
       <net-disk-file-item
           v-for="file in fileList"
           :key="file.id"
           :file="file"
           :rename="renameFileId === file.id"
           :selected="selectedFileIds.has(file.id)"
-          v-on:renameComplete="name=>onRenameComplete(file, name)"
-          v-on:renameCancel="()=>onRenameCancel(file)"
-          v-on:click="e=>onItemClick(e, file)"
-          v-on:contextmenu="e=>onItemContextMenu(e, file)"
-          v-on:dblclick="e=>onItemDblclick(e, file)"
+          @renameComplete="name=>onRenameComplete(file, name)"
+          @renameCancel="()=>onRenameCancel(file)"
+          @click="e=>onItemClick(e, file)"
+          @contextmenu="e=>onItemContextMenu(e, file)"
+          @dblclick="e=>onItemDblclick(e, file)"
           class="mx-2 mb-2"
       />
     </template>
     <empty-data v-else class="flex-1" />
-    <context-menu :items="menuItems" v-on:click-item="onContextMenuItemClick" />
-    <el-dialog :visible="showUploadPanel" v-on:close="showUploadPanel = false" append-to-body>
+    <context-menu :items="menuItems" @click-item="onContextMenuItemClick" />
+    <el-dialog :visible="showUploadPanel" @close="showUploadPanel = false" append-to-body>
       <net-disk-file-upload-panel
           ref="uploadPanel"
           :additional-permission="currentDirectory && currentDirectory.writable"
           :parent-id="currentDirectory ? currentDirectory.id : null"
           :available-file-system-type-list="(currentDirectory && currentDirectory.fileSystemTypeSet) || []"
-          v-on:complete="onUploadComplete"
+          @complete="onUploadComplete"
       />
     </el-dialog>
-    <el-dialog :visible="showMoveToDirSelectDialog" v-on:close="showMoveToDirSelectDialog = false" append-to-body>
-      <net-disk-file-tree ref="moveToDirSelect" :is-directory="true" v-on:clickItem="moveSelectedTo" :filter-fun="(file)=>file.id !== selectedFileIds.values().next().value" show-root />
+    <el-dialog :visible="showMoveToDirSelectDialog" @close="showMoveToDirSelectDialog = false" append-to-body>
+      <net-disk-file-tree ref="moveToDirSelect" :is-directory="true" @clickItem="moveSelectedTo" :filter-fun="(file)=>file.id !== selectedFileIds.values().next().value" show-root />
     </el-dialog>
-    <el-dialog :visible="showPropertiesDialog" v-on:close="showPropertiesDialog = false" append-to-body>
+    <el-dialog :visible="showPropertiesDialog" @close="showPropertiesDialog = false" append-to-body>
       <net-disk-file-properties :id="showPropertiesTargetId" v-if="showPropertiesTargetId" />
     </el-dialog>
-    <el-dialog :visible="showFileSystemTypeSelectorDialog" v-on:close="showFileSystemTypeSelectorDialog = false" append-to-body>
-      <h4 slot="title">你想创建在哪里？</h4>
+    <el-dialog :visible="showFileSystemTypeSelectorDialog" @close="showFileSystemTypeSelectorDialog = false" append-to-body>
+      <template #title>
+        <h4>你想创建在哪里？</h4>
+      </template>
       <div class="text-center">
-        <file-system-type-selector :file-system-type-list="(currentDirectory && currentDirectory.fileSystemTypeSet) || []" v-model="selectedFileSystemType" slot="default" />
+        <file-system-type-selector :file-system-type-list="(currentDirectory && currentDirectory.fileSystemTypeSet) || []" v-model="selectedFileSystemType" />
       </div>
-      <div slot="footer">
-        <el-button v-on:click="()=>fileSystemTypeSelectCallback(false)">取消</el-button>
-        <el-button type="primary" v-on:click="()=>fileSystemTypeSelectCallback(true)">确定</el-button>
-      </div>
+      <template #footer>
+        <div>
+          <el-button @click="fileSystemTypeSelectCallback(false)">取消</el-button>
+          <el-button type="primary" @click="fileSystemTypeSelectCallback(true)">确定</el-button>
+        </div>
+      </template>
     </el-dialog>
   </div>
 </div>
 </template>
 
 <script lang="ts">
-import {Component, Vue} from "vue-property-decorator";
+import {Options, Vue} from "vue-class-component";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {faAngleLeft, faAngleRight} from "@fortawesome/free-solid-svg-icons";
 import NetDiskFile from "@/domain/NetDiskFile";
@@ -83,9 +87,10 @@ import NetDiskFileTree from "@/components/net-disk-file/NetDiskFileTree.vue";
 import NetDiskFileProperties from "@/components/net-disk-file/NetDiskFileProperties.vue";
 import {FileSystemTypeEnum} from "@/domain/FileSystemTypeEnum";
 import FileSystemTypeSelector from "@/components/net-disk-file/FileSystemTypeSelector.vue";
+import {ElMessageBox} from "element-plus";
 library.add(faAngleLeft, faAngleRight)
 
-@Component({
+@Options({
   components: {
     FileSystemTypeSelector,
     NetDiskFileProperties, NetDiskFileTree, NetDiskFileUploadPanel, NetDiskFileItem, ContextMenu, EmptyData},
@@ -319,13 +324,13 @@ export default class NetDiskFileList extends Vue{
     }else{
       msg = "是否删除文件[" + files.map(f=>f.name).join("、") + "]";
     }
-    const result = await this.$alert(msg)
+    const result = await ElMessageBox.alert(msg)
     if(result !== "confirm") return
     for (let file of files) {
       try{
         await NetDiskFileService.delete(file.id)
       }catch (e) {
-        if((await this.$alert("删除文件[" + file.name + "]失败, 是否继续")) !== "confirm") return
+        if((await ElMessageBox.alert("删除文件[" + file.name + "]失败, 是否继续")) !== "confirm") return
       }
       this.fileList.splice(this.fileList.findIndex(f=>f===file), 1)
       this.selectedFileIds.delete(file.id)
@@ -457,7 +462,7 @@ export default class NetDiskFileList extends Vue{
     }else{
       msg = "是否确定将[" + files.map(f=>f.name).join("、") + "]移动到[" + targetDir.name + "]?"
     }
-    if((await this.$alert(msg)) !== "confirm") return;
+    if((await ElMessageBox.alert(msg)) !== "confirm") return;
     for (let file of files) {
       const detail = await NetDiskFileService.getDetail(file.id);
       try {
@@ -473,7 +478,7 @@ export default class NetDiskFileList extends Vue{
         this.fileList.splice(this.fileList.findIndex(f=>f.id === file.id), 1)
         this.selectedFileIds.delete(file.id)
       }catch (e){
-        if((await this.$alert("文件[" + file.name + "]移动失败，是否继续?")) !== "confirm") return;
+        if((await ElMessageBox.alert("文件[" + file.name + "]移动失败，是否继续?")) !== "confirm") return;
       }
     }
   }

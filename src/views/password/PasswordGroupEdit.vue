@@ -10,13 +10,11 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import Component from "vue-class-component";
+import {Options, Vue} from "vue-class-component";
 import PasswordGroup from "@/domain/PasswordGroup";
-import {ElForm} from "element-ui/types/form";
 import PasswordGroupService from "@/service/PasswordGroupService";
 
-@Component({
+@Options({
   name: "PasswordGroupEdit",
   props: {
     value: Object
@@ -26,7 +24,7 @@ import PasswordGroupService from "@/service/PasswordGroupService";
     event: "save"
   },
   watch: {
-    value(val: PasswordGroup){
+    value(val: PasswordGroup): void{
       this.passwordGroup = val || {};
     }
   }
@@ -45,7 +43,7 @@ export default class PasswordGroupEdit extends Vue{
   }
 
   public async save(): Promise<PasswordGroup>{
-    const form = this.$refs.form as ElForm
+    const form = this.$refs.form as any
     if(!(await form.validate())) return null;
     let result: PasswordGroup;
     if(this.passwordGroup.id){

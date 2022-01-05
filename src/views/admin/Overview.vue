@@ -2,7 +2,7 @@
   <div class="p-4">
     <div class="flex-row mb-4">
       <el-card class="flex-1 mr-2" :body-style="{padding: '5px 8px'}">
-        <template slot="header">
+        <template #header>
           <span class="number-span-title color-text-sub">访问量</span>
           <div class="text-center">
             <span class="number-span">{{binlogStatus.totalVisitNum || '-'}}</span>
@@ -56,7 +56,7 @@
         </ul>
       </el-card>
       <el-card class="flex-1 mr-2" :body-style="{padding: '5px 8px'}">
-        <template slot="header">
+        <template #header>
           <span class="number-span-title color-text-sub">接口访问量</span>
           <div class="text-center">
             <span class="number-span">{{binlogStatus.totalRequestNum || '-'}}</span>
@@ -110,7 +110,7 @@
         </ul>
       </el-card>
       <el-card class="flex-1 mr-2" :body-style="{padding: '5px 8px'}">
-        <template slot="header">
+        <template #header>
           <span class="number-span-title color-text-sub">用户量</span>
           <div class="text-center">
             <span class="number-span">{{ binlogStatus.totalUserNum || '-' }}</span>
@@ -164,7 +164,7 @@
         </ul>
       </el-card>
       <el-card class="flex-1" :body-style="{padding: '5px 8px'}">
-        <template slot="header">
+        <template #header>
           <span class="number-span-title color-text-sub">登录用户量</span>
           <div class="text-center">
             <span class="number-span">{{binlogStatus.totalLoginNum || '-'}}</span>
@@ -219,17 +219,17 @@
       </el-card>
     </div>
     <div>
-      <el-date-picker type="daterange" ranger-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" size="small" v-model="dateRange" v-on:change="onDatePickerChange" class="mr-2" />
-      <el-button type="text" v-on:click="setDateRange('今天')">今天</el-button>
-      <el-button type="text" v-on:click="setDateRange('昨天')">昨天</el-button>
-      <el-button type="text" v-on:click="setDateRange('本周')">本周</el-button>
-      <el-button type="text" v-on:click="setDateRange('上周')">上周</el-button>
-      <el-button type="text" v-on:click="setDateRange('本月')">本月</el-button>
-      <el-button type="text" v-on:click="setDateRange('上个月')">上个月</el-button>
-      <el-button type="text" v-on:click="setDateRange('今年')">今年</el-button>
-      <el-button type="text" v-on:click="setDateRange('去年')">去年</el-button>
+      <el-date-picker type="daterange" ranger-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" size="small" v-model="dateRange" @change="onDatePickerChange" class="mr-2" />
+      <el-button type="text" @click="setDateRange('今天')">今天</el-button>
+      <el-button type="text" @click="setDateRange('昨天')">昨天</el-button>
+      <el-button type="text" @click="setDateRange('本周')">本周</el-button>
+      <el-button type="text" @click="setDateRange('上周')">上周</el-button>
+      <el-button type="text" @click="setDateRange('本月')">本月</el-button>
+      <el-button type="text" @click="setDateRange('上个月')">上个月</el-button>
+      <el-button type="text" @click="setDateRange('今年')">今年</el-button>
+      <el-button type="text" @click="setDateRange('去年')">去年</el-button>
     </div>
-    <el-tabs active-name="visit" v-on:tab-click="onTabClick" ref="statisticsTabs">
+    <el-tabs active-name="visit" @tab-click="onTabClick" ref="statisticsTabs">
       <el-tab-pane label="浏览量" name="visit">
         <div ref="visitLineChart" style="height: 300px" />
       </el-tab-pane>
@@ -247,8 +247,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import Component from "vue-class-component";
+import {Options, Vue} from "vue-class-component";
 import * as echarts from "echarts/core"
 import {GridComponent, TitleComponent, TooltipComponent} from "echarts/components";
 import {BarChart, LineChart} from "echarts/charts";
@@ -259,11 +258,10 @@ import BinlogStatus from "@/domain/BinlogStatus";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {faLongArrowAltDown, faLongArrowAltUp} from "@fortawesome/free-solid-svg-icons";
 import DateUtils from "@/utils/DateUtils";
-import {TabPane} from "element-ui";
 echarts.use([GridComponent, LineChart, CanvasRenderer, TitleComponent, TooltipComponent, BarChart]);
 library.add(faLongArrowAltUp, faLongArrowAltDown)
 
-@Component({})
+@Options({})
 export default class Overview extends Vue{
   binlogStatus: BinlogStatus
   dateRange: [Date, Date]
@@ -448,7 +446,7 @@ export default class Overview extends Vue{
     await this.updateChart(this.currentTabName);
   }
 
-  onTabClick(tabPanel: TabPane): void{
+  onTabClick(tabPanel: any): void{
     this.currentTabName = tabPanel.name;
     this.$nextTick(()=>this.updateChart(tabPanel.name));
   }

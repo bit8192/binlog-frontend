@@ -7,13 +7,13 @@
           <div class="expression-info">
             <div class="flex-row align-items-center">
               <span class="flex-1 color-white text-ellipsis text-left mr-2" style="font-size: 1.2em">{{expression.title}}</span>
-              <el-button type="text" :class="'py-0' + (expression.isAgreed ? '' : ' color-white')" style="font-size: 1.2em" v-on:click="toggleAgree(expression)">
+              <el-button type="text" :class="'py-0' + (expression.isAgreed ? '' : ' color-white')" style="font-size: 1.2em" @click="toggleAgree(expression)">
                 <font-awesome-icon :icon="[expression.isAgreed ? 'fas' : 'far', 'thumbs-up']" />
                 {{ expression.agreedNum }}
               </el-button>
             </div>
             <ul class="list-style-none text-left text-ellipsis">
-              <li class="d-inline mr-2 color-text-link" v-for="tag of expression.tags" :key="tag.id" style="font-size: .8em; cursor: pointer" v-on:click="e=>toggleSelectTag(e, tag)">#{{tag.title}}</li>
+              <li class="d-inline mr-2 color-text-link" v-for="tag of expression.tags" :key="tag.id" style="font-size: .8em; cursor: pointer" @click="e=>toggleSelectTag(e, tag)">#{{tag.title}}</li>
             </ul>
             <div class="flex-row align-items-center">
               <el-avatar :src="expression.createdUser.headImg" size="small" />
@@ -22,19 +22,19 @@
           </div>
         </div>
       </div>
-      <el-pagination layout="prev,pager,next" :current-page="pageIndex + 1" :page-size="pageSize" :page-count="pageCount" v-on:current-change="page=>gotoPage(page - 1)" />
+      <el-pagination layout="prev,pager,next" :current-page="pageIndex + 1" :page-size="pageSize" :page-count="pageCount" @current-change="page=>gotoPage(page - 1)" />
     </el-card>
     <div class="flex-1">
       <el-card class="expression-filter mb-1-md position-sticky" style="top: 1em">
-        <el-input v-model="keywords" placeholder="关键字" size="small" suffix-icon="el-icon-search" ref="searchInput" clearable v-on:clear="gotoPage" />
+        <el-input v-model="keywords" placeholder="关键字" size="small" suffix-icon="el-icon-search" ref="searchInput" clearable @clear="gotoPage" />
         <ul class="list-style-none mt-2">
           <li class="d-inline px-1" v-for="tag of tags" :key="tag.id">
-            <el-tag size="small" style="cursor: pointer" :effect="selectedTagIds.has(tag.id) ? 'dark' : 'plain'" v-on:click="e=>toggleSelectTag(e, tag)">{{ tag.title }}({{ tag.expressionNum }})</el-tag>
+            <el-tag size="small" style="cursor: pointer" :effect="selectedTagIds.has(tag.id) ? 'dark' : 'plain'" @click="e=>toggleSelectTag(e, tag)">{{ tag.title }}({{ tag.expressionNum }})</el-tag>
           </li>
         </ul>
-        <el-button type="primary" class="mt-2" style="width: 100%" v-on:click="onUpload" v-if="app.binlogIsHappy()">上传</el-button>
-        <el-dialog :visible="showUploadPanel" v-on:close="showUploadPanel = false" append-to-body>
-          <expression-upload-panel v-on:complete="onUploadComplete" />
+        <el-button type="primary" class="mt-2" style="width: 100%" @click="onUpload" v-if="$store.state.isHappy">上传</el-button>
+        <el-dialog :visible="showUploadPanel" @close="showUploadPanel = false" append-to-body>
+          <expression-upload-panel @complete="onUploadComplete" />
         </el-dialog>
       </el-card>
     </div>
@@ -42,8 +42,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import Component from "vue-class-component";
+import {Options, Vue} from "vue-class-component";
 import ExpressionTag from "@/domain/ExpressionTag";
 import ExpressionService from "@/service/ExpressionService";
 import ExpressionVo from "@/domain/ExpressionVo";
@@ -52,11 +51,10 @@ import {library} from "@fortawesome/fontawesome-svg-core";
 import {faThumbsUp} from "@fortawesome/free-solid-svg-icons";
 import {faThumbsUp as faRegularThumbsUp} from "@fortawesome/free-regular-svg-icons";
 import ExpressionUploadPanel from "@/components/expression/ExpressionUploadPanel.vue";
-import {ElInput} from "element-ui/types/input";
 import {AppProvider} from "@/App.vue";
 library.add(faThumbsUp, faRegularThumbsUp)
 
-@Component({
+@Options({
   components: {ExpressionUploadPanel},
   inject: ['app'],
   created(): void{
@@ -64,10 +62,10 @@ library.add(faThumbsUp, faRegularThumbsUp)
     this.loadData()
   },
   mounted(): void{
-    ((this.$refs.searchInput as ElInput).$refs.input as HTMLElement).addEventListener("keydown", this.onSearchInputKeyDown);
+    (this.$refs.searchInput.$refs.input as HTMLElement).addEventListener("keydown", this.onSearchInputKeyDown);
   },
   beforeDestroy(): void{
-    ((this.$refs.searchInput as ElInput).$refs.input as HTMLElement).removeEventListener("keydown", this.onSearchInputKeyDown);
+    ((this.$refs.searchInput as any).$refs.input as HTMLElement).removeEventListener("keydown", this.onSearchInputKeyDown);
   }
 })
 export default class Expression extends Vue{
@@ -151,8 +149,8 @@ export default class Expression extends Vue{
     this.gotoPage()
   }
 
-  onUpload(): void{
-    if(!this.app.isLogged()) {
+  onUpload(): void {
+    if (!this.$store.state.isLogged) {
       this.app.openLoginDialog();
       return;
     }

@@ -1,23 +1,22 @@
 <template>
   <el-form ref="form" :model="articleClass" :rules="formRules">
     <el-form-item prop="title">
-      <el-input placeholder="标题" v-model="articleClass.title" v-on:change="$_onChange" />
+      <el-input placeholder="标题" v-model="articleClass.title" @change="onChange" />
     </el-form-item>
     <el-form-item>
-      <el-switch v-model="articleClass.visible" v-on:change="$_onChange" active-text="可见"></el-switch>
+      <el-switch v-model="articleClass.visible" @change="onChange" active-text="可见"></el-switch>
     </el-form-item>
     <el-form-item>
-      <el-input-number v-model="articleClass.orderNum" :min="0" :max="999" placeholder="排序" v-on:change="$_onChange" ></el-input-number>
+      <el-input-number v-model="articleClass.orderNum" :min="0" :max="999" placeholder="排序" @change="onChange" ></el-input-number>
     </el-form-item>
   </el-form>
 </template>
 
 <script lang="ts">
 import ArticleClass from "@/domain/ArticleClass";
-import {Component, Vue} from "vue-property-decorator";
-import {ElForm} from "element-ui/types/form";
+import {Options, Vue} from "vue-class-component";
 
-@Component({
+@Options({
   name: "ArticleClassForm",
   props: {
     value: Object
@@ -48,7 +47,7 @@ export default class ArticleClassForm extends Vue{
       }
     }
   }
-  $_onChange(): void{
+  onChange(): void{
     this.$emit("change", this.articleClass)
   }
   created(): void{
@@ -56,7 +55,7 @@ export default class ArticleClassForm extends Vue{
   }
   validate(): Promise<boolean>{
     return new Promise<boolean>(resolve => {
-      const form = this.$refs.form as ElForm;
+      const form = this.$refs.form as any;
       form.validate((valid: boolean)=>{
         if(valid){
           resolve(true)

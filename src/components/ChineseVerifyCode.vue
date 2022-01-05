@@ -1,12 +1,13 @@
 <template>
 <div class="chinese-verify-code">
-  <div class="chinese-verify-code-image-box" v-on:click="onVerifyCodeClick">
+  <div class="chinese-verify-code-image-box" @click="onVerifyCodeClick">
     <el-image :src="verifyCodeUrl + '?t=' + verifyCodeTimestamp" >
-      <el-skeleton loading animated slot="placeholder">
-        <el-skeleton-item variant="image" style="width: 300px; height: 300px" />
-      </el-skeleton>
+      <template #placeholder>
+        <el-skeleton loading animated>
+          <el-skeleton-item variant="image" style="width: 300px; height: 300px" />
+        </el-skeleton>
+      </template>
     </el-image>
-    <!--suppress HtmlUnknownAttribute -->
     <div
         class="chinese-verify-code-point"
         v-for="(point, index) in points" :key="point.x + '-' + point.y" :style="'left: ' + point.x + 'px; top: ' + point.y + 'px'"
@@ -16,7 +17,7 @@
     </div>
   </div>
   <div>
-    <el-button type="text" v-on:click="refresh">看不清？换一张</el-button>
+    <el-button type="text" @click="refresh">看不清？换一张</el-button>
   </div>
 </div>
 </template>
@@ -24,7 +25,7 @@
 <script lang="ts">
 import CommonUtils from "@/utils/CommonUtils";
 import NotificationError from "@/error/NotificationError";
-import {Component, Vue} from "vue-property-decorator";
+import {Options, Vue} from "vue-class-component";
 import ElementUtils from "@/utils/ElementUtils";
 import {URL_VERIFY_CODE} from "@/constants/UrlApiCommon";
 
@@ -32,7 +33,7 @@ interface Point{
   x: number
   y: number
 }
-@Component({
+@Options({
   props: {
     minPointLen: {
       type: Number,

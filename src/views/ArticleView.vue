@@ -1,8 +1,10 @@
 <template>
   <div>
     <div :class="'article-cover transition-from-top-enter-active' + ((loadingArticle || loadingCover) ? ' transition-from-top-enter' : ' transition-from-top-enter-to')">
-      <el-image :src="imagePath + info.cover.id" fit="contain" v-if="info.cover" v-on:load="()=>{this.$refs.catalog.refresh(); loadingCover = false}" v-on:error="()=>{this.$refs.catalog.refresh(); loadingCover = false}">
-        <error-image slot="error" />
+      <el-image :src="imagePath + info.cover.id" fit="contain" v-if="info.cover" @load="()=>{this.$refs.catalog.refresh(); loadingCover = false}" @error="()=>{this.$refs.catalog.refresh(); loadingCover = false}">
+        <template #error>
+          <error-image />
+        </template>
       </el-image>
       <div :class="['article-header', {'no-cover': !info.cover}]">
         <h1 class="article-title">{{info.title}}</h1>
@@ -29,13 +31,13 @@
         <article-catalog ref="catalog" id="article-catalog" element="article" />
       </el-card>
       <div class="flex-5 flex-1-md width-100 article-container">
-        <markdown-it-vue id="article" :content="info.content || ''" />
+        <markdown id="article" :content="info.content || ''" />
       </div>
     </div>
 
-    <el-card :class="'mt-1 transition-fade-in-enter-active' + (((app.binlogIsHappy() && loadingComments) || (!app.binlogIsHappy() && (loadingArticle || loadingCover))) ? ' transition-fade-in-enter' : ' transition-fade-in-enter-to')" :body-style="{padding: '5px 1em'}">
+    <el-card :class="'mt-1 transition-fade-in-enter-active' + ((($store.state.isLogged && loadingComments) || (!$store.state.isHappy && (loadingArticle || loadingCover))) ? ' transition-fade-in-enter' : ' transition-fade-in-enter-to')" :body-style="{padding: '5px 1em'}">
       <div class="flex-row justify-content-between align-items-center">
-        <el-button type="text" ref="agreeButton" :class="'article-action' + (this.info.isAgreed ? '' : ' color-text-sub ')" title="不错哦" v-on:click="toggleAgree">
+        <el-button type="text" ref="agreeButton" :class="'article-action' + (this.info.isAgreed ? '' : ' color-text-sub ')" title="不错哦" @click="toggleAgree">
           <font-awesome-icon icon="thumbs-up" size="2x" />&nbsp;{{info.agreedNum}}
         </el-button>
         <a :href="payImage" class="color-text-sub article-action" target="_blank" title="请我喝一杯Java">
@@ -47,20 +49,22 @@
         <router-link :to="'edit/' + info.id" class="color-text-sub" v-if="info.createdUser && userInfo && info.createdUser.id === userInfo.id">
           <font-awesome-icon icon="edit" size="2x" />
         </router-link>
-        <el-button type="text" class="article-action color-text-sub" v-if="info.createdUser && userInfo && info.createdUser.id === userInfo.id" v-on:click="deleteArticle">
+        <el-button type="text" class="article-action color-text-sub" v-if="info.createdUser && userInfo && info.createdUser.id === userInfo.id" @click="deleteArticle">
           <font-awesome-icon icon="trash-alt" size="2x" />
         </el-button>
       </div>
     </el-card>
-    <el-card :class="'mt-1 article-comment-container transition-fade-in-enter-active' + (loadingComments ? ' transition-fade-in-enter' : ' transition-fade-in-enter-to')" v-if="app.binlogIsHappy()">
-      <h3 slot="header">{{info.commentNum}}评论</h3>
+    <el-card :class="'mt-1 article-comment-container transition-fade-in-enter-active' + (loadingComments ? ' transition-fade-in-enter' : ' transition-fade-in-enter-to')" v-if="$store.state.isHappy">
+      <template #header>
+        <h3>{{info.commentNum}}评论</h3>
+      </template>
       <div class="flex-row position-relative">
         <el-avatar :src="userInfo ? userInfo.headImg : ''" :size="50" class="mr-4">
           <font-awesome-icon icon="user" size="lg" />
         </el-avatar>
-        <comment-reply-input v-model="commentContent" v-on:submit="submitComment" class="flex-1" />
+        <comment-reply-input v-model="commentContent" @submit="submitComment" class="flex-1" />
         <div v-if="!userInfo" class="flex-row justify-content-center align-items-center position-absolute bg-mask" style="left: 0; right:0; top:0; bottom: 0">
-          <el-button v-on:click="this.app.openLoginDialog">登录后进行评论</el-button>
+          <el-button @click="this.app.openLoginDialog">登录后进行评论</el-button>
         </div>
       </div>
       <comment-list ref="commentList" :load-data="loadComments" class="mt-3"/>
@@ -72,30 +76,29 @@
 <script lang="ts">
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {faCoffee, faEdit, faShare, faTag, faThumbsUp, faTrashAlt, faUser} from "@fortawesome/free-solid-svg-icons";
-import MarkdownItVue from 'markdown-it-vue'
-import 'markdown-it-vue/dist/markdown-it-vue.css'
+import Markdown from 'vue3-markdown-it';
 import ArticleCatalog from "@/components/article/ArticleCatalog.vue";
 import ErrorImage from "@/components/ErrorImage.vue";
 import ArticleService from "@/service/ArticleService";
 import {URL_NET_DISK_FILE} from "@/constants/UrlApiNetDiskFile";
-import {Component as VueComponent} from "vue";
-import {Component, Vue} from "vue-property-decorator";
+import {Options, Vue} from "vue-class-component";
 import Article from "@/domain/Article";
 import UserInfo from "@/domain/UserInfo";
 import CommentList from "@/components/comment/CommentList.vue";
 import EmptyData from "@/components/EmptyData.vue";
-import {ElButton} from "element-ui/types/button";
 import {AppProvider} from "@/App.vue";
 import CommentReplyInput from "@/components/comment/CommentReplyInput.vue";
 import {LOCAL_STORAGE_KEY_VIEWED_ARTICLE_IDS} from "@/constants/LocalStorageKeys";
 import Pageable from "@/domain/Pageable";
 import Page from "@/domain/Page";
 import {Comment} from "@/domain/Comment";
+import {ElMessage, ElMessageBox} from "element-plus";
+import {BinlogStore} from "@/createStore";
 
 library.add(faTag, faThumbsUp, faShare, faCoffee, faUser, faEdit, faTrashAlt)
 
-@Component({
-  components: {CommentReplyInput, EmptyData, CommentList, ErrorImage, ArticleCatalog, MarkdownItVue: MarkdownItVue as VueComponent},
+@Options({
+  components: {CommentReplyInput, EmptyData, CommentList, ErrorImage, ArticleCatalog, Markdown},
   inject: ['app']
 })
 export default class ArticleView extends Vue{
@@ -108,12 +111,12 @@ export default class ArticleView extends Vue{
   loadingCover: boolean
   loadingComments: boolean
   payImage = require("@/assets/pay.webp")
+  unWatchUserInfo: ()=>void
 
   data(): any{
     return {
-      info: {id: parseInt(this.$route.params.id)},
+      info: {id: parseInt(this.$route.params.id as string)},
       imagePath: URL_NET_DISK_FILE + "/get/",
-      userInfo: this.app.getLoggedUserInfo(),
       commentContent: "",
       loadingArticle: true,
       loadingCover: true,
@@ -130,17 +133,17 @@ export default class ArticleView extends Vue{
   }
 
   async loadArticle(): Promise<void>{
-    this.info = await ArticleService.getDetail(this.$route.params.id)
+    this.info = await ArticleService.getDetail(this.$route.params.id as string)
     if(document) document.title = this.info.title
     this.loadingArticle = false
-    this.$nextTick(()=>{
+    await this.$nextTick(()=>{
       (this.$refs.catalog as ArticleCatalog).refresh()
     })
   }
 
   async created() : Promise<void>{
     await this.loadArticle();
-    this.app.addUserInfoChangeListener(this.onUserInfoChange)
+    this.unWatchUserInfo = this.$store.watch((state: BinlogStore)=>state.userInfo, this.onUserInfoChange);
     await this.viewArticle();
     //没有封面则直接显示不用等待图片加载完成
     if(!this.info.cover){
@@ -178,7 +181,7 @@ export default class ArticleView extends Vue{
   }
 
   beforeDestroy(): void{
-    this.app.removeUserInfoChangeListener(this.onUserInfoChange)
+    this.unWatchUserInfo()
   }
 
   beforeRouteUpdate(): void{
@@ -193,7 +196,7 @@ export default class ArticleView extends Vue{
     const result = await ArticleService.toggleAgree(this.info.id);
     this.info.isAgreed = result.value
     this.info.agreedNum += result.value ? 1 : -1;
-    ((this.$refs.agreeButton as ElButton).$el as HTMLElement).blur()
+    ((this.$refs.agreeButton as any).$el as HTMLElement).blur()
   }
 
   /**
@@ -210,7 +213,7 @@ export default class ArticleView extends Vue{
    */
   async submitComment(): Promise<void>{
     if(!this.commentContent.trim()) {
-      this.$message.warning("请输入评论内容");
+      ElMessage.warning("请输入评论内容");
       return;
     }
     const comment = await ArticleService.commenting(this.info.id, this.commentContent);
@@ -222,9 +225,9 @@ export default class ArticleView extends Vue{
    * 删除文章
    */
   async deleteArticle(): Promise<void>{
-    if((await this.$confirm("是否确定删除？", "警告")) !== "confirm") return;
+    if((await ElMessageBox.confirm("是否确定删除？", "警告")) !== "confirm") return;
     await ArticleService.delete(this.info.id)
-    this.$message.success("删除成功")
+    ElMessage.success("删除成功")
     this.$router.back()
   }
 }

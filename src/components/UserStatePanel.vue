@@ -2,28 +2,28 @@
   <el-card shadow="hover">
     <div class="text-center pt-5">
       <router-link to="/user/change-head-image" title="更换头像" v-if="userInfo">
-        <el-avatar :src="userInfo ? userInfo.headImg : ''" :size="80" style="cursor: pointer"/>
+        <el-avatar :src="userInfo?.headImg || ''" :size="80" style="cursor: pointer"/>
       </router-link>
       <el-avatar src="" :size="80" v-else/>
       <div>
-        <span v-if="userInfo">{{ userInfo.username }}</span>
-        <el-button v-else type="text" v-on:click="openLoginDialog">登录/注册</el-button>
+        <span v-if="userInfo">{{ userInfo?.username }}</span>
+        <el-button v-else type="text" @click="openLoginDialog">登录/注册</el-button>
       </div>
     </div>
     <div class="flex-row justify-content-center align-items-center">
       <div class="text-center">
-        <span class="d-block user-integral">{{ (userInfo && userInfo.agreedNum) || "-"}}</span>
+        <span class="d-block user-integral">{{ userInfo?.agreedNum || "-"}}</span>
         <span class="d-block color-text-sub">获赞</span>
       </div>
       <span class="user-state-panel-divider" />
       <div class="text-center">
-        <span class="d-block user-integral">{{ (userInfo && userInfo.commentNum) || "-" }}</span>
+        <span class="d-block user-integral">{{ userInfo?.commentNum || "-" }}</span>
         <span class="d-block color-text-sub">评论</span>
       </div>
-      <template v-if="userInfo && userInfo.isBlogger">
+      <template v-if="userInfo?.isBlogger">
         <span class="user-state-panel-divider" />
         <div class="text-center">
-          <span class="d-block user-integral">{{ (userInfo && userInfo.articleNum) || "-"}}</span>
+          <span class="d-block user-integral">{{ userInfo?.articleNum || "-"}}</span>
           <span class="d-block color-text-sub">文章</span>
         </div>
       </template>
@@ -35,15 +35,15 @@
         </router-link>
         <span class="user-state-panel-divider" />
       </template>
-      <el-button type="text" class="color-text-sub" v-on:click="()=>this.showChangePasswordDialog = true">
+      <el-button type="text" class="color-text-sub" @click="()=>this.showChangePasswordDialog = true">
         修改密码
       </el-button>
       <span class="user-state-panel-divider" />
-      <el-button type="text" class="color-text-sub" v-on:click="logout">
+      <el-button type="text" class="color-text-sub" @click="logout">
         注销
       </el-button>
     </div>
-    <el-dialog :visible="showChangePasswordDialog" v-on:close="()=>this.showChangePasswordDialog = false">
+    <el-dialog :visible="showChangePasswordDialog" @close="()=>this.showChangePasswordDialog = false">
       <el-form :model="passwordFormData" :rules="passwordFormRule" ref="changePasswordForm">
         <el-form-item label="新密码" prop="password">
           <el-input type="password" v-model="passwordFormData.password" />
@@ -51,7 +51,7 @@
         <el-form-item label="再次输入" prop="repeat_password">
           <el-input type="password" v-model="passwordFormData.repeat_password" />
         </el-form-item>
-        <el-button type="primary" v-on:click="submitChangePassword">确定</el-button>
+        <el-button type="primary" @click="submitChangePassword">确定</el-button>
       </el-form>
     </el-dialog>
   </el-card>
@@ -59,13 +59,18 @@
 
 <script lang="ts">
 import AuthenticationService from "../service/AuthenticationService";
-import {Component, Vue} from "vue-property-decorator";
+import {ElMessage} from "element-plus";
 import {AppProvider} from "@/App.vue";
 import UserDetail from "@/domain/UserDetail";
-import {ElForm} from "element-ui/types/form";
+import {Options, Vue} from "vue-class-component";
 
-@Component({
+@Options({
   inject: ["app"],
+  computed: {
+    userInfo(){
+      return this.$store.state.userInfo
+    }
+  }
 })
 export default class UserStatePanel extends Vue{
   userInfo!: UserDetail
@@ -95,48 +100,29 @@ export default class UserStatePanel extends Vue{
     }
   }
 
-  created(): void{
-    this.app.addUserInfoChangeListener(this.onUserInfoChange)
-    this.readUserInfo()
-  }
-
-  beforeDestroy(): void{
-    this.app.removeUserInfoChangeListener(this.onUserInfoChange)
-  }
-
-  private async readUserInfo(): Promise<void>{
-    if(this.app.isLogged()){
-      this.userInfo = await AuthenticationService.getSelfInfo()
-    }
-  }
-
-  onUserInfoChange(userInfo: UserDetail): void{
-    this.userInfo = userInfo
-  }
-
-  openLoginDialog(): void{
+  openLoginDialog(): void {
     this.app.openLoginDialog();
   }
 
   /**
    * 注销
    */
-  async logout(): Promise<void>{
+  async logout(): Promise<void> {
     await this.app.logout()
   }
 
   /**
    * 修改密码
    */
-  async submitChangePassword(): Promise<void>{
-    const form = this.$refs.changePasswordForm as ElForm;
-    if(!(await form.validate())) return;
+  async submitChangePassword(): Promise<void> {
+    const form = this.$refs.changePasswordForm as any;
+    if (!(await form.validate())) return;
     const result = await AuthenticationService.changePassword(this.passwordFormData.password)
-    if(result.value){
+    if (result.value) {
       this.showChangePasswordDialog = false
-      this.$message.success("修改成功")
-    }else{
-      this.$message.warning("修改失败")
+      ElMessage.success("修改成功")
+    } else {
+      ElMessage.warning("修改失败")
     }
   }
 }

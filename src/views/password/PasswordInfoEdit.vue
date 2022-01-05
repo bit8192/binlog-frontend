@@ -13,8 +13,10 @@
   </el-form-item>
   <el-form-item label="密码" prop="encodedPassword">
     <el-input v-model="passwordInfo.encodedPassword" :type="passwordInputType" >
-      <el-button slot="append" icon="el-icon-view" v-on:click="passwordInputType = passwordInputType === 'password' ? 'text' : 'password'" />
-      <el-button slot="append" v-on:click="generatePassword" title="随机生成" >gen</el-button>
+      <template #append>
+        <el-button icon="el-icon-view" @click="passwordInputType = passwordInputType === 'password' ? 'text' : 'password'" />
+        <el-button @click="generatePassword" title="随机生成" >gen</el-button>
+      </template>
     </el-input>
   </el-form-item>
   <el-form-item label="网址" prop="url">
@@ -29,8 +31,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import Component from "vue-class-component";
+import {Options, Vue} from "vue-class-component";
 import PasswordInfo from "@/domain/PasswordInfo";
 import PasswordGroup from "@/domain/PasswordGroup";
 import PasswordGroupService from "@/service/PasswordGroupService";
@@ -39,7 +40,7 @@ import PasswordInfoService from "@/service/PasswordInfoService";
 import MainPasswordReader from "@/views/password/MainPasswordReader.vue";
 import * as aes256 from "aes256";
 
-@Component({
+@Options({
   name: "PasswordInfoEdit",
   components: {MainPasswordReader},
   props: {

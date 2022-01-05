@@ -20,13 +20,12 @@
 
 <script lang="ts">
 import ArchiveVo from "@/domain/ArchiveVo";
-import Vue from "vue";
-import Component from "vue-class-component";
+import {Options, Vue} from "vue-class-component";
 import Pageable from "@/domain/Pageable";
 import ArchiveService from "@/service/ArchiveService";
 import DateUtils from "@/utils/DateUtils";
 
-@Component({
+@Options({
   name: "ArchiveView"
 })
 export default class ArchiveView extends Vue{

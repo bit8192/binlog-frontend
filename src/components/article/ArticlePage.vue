@@ -1,10 +1,8 @@
 <template>
   <div class="container-article">
     <div v-if="articleList.length">
-      <template v-for="article in articleList">
-        <article-list-item :key="article.id" :info="article" />
-      </template>
-      <el-pagination layout="prev,pager,next" :current-page="pageable.page + 1" :page-count="pageCount" :page-size="pageable.size" v-on:current-change="gotoPage" />
+      <article-list-item v-for="article in articleList" :key="article.id" :info="article" />
+      <el-pagination layout="prev,pager,next" :current-page="pageable.page + 1" :page-count="pageCount" :page-size="pageable.size" @current-change="gotoPage" />
     </div>
     <empty-data v-else />
     <el-backtop ref="backTop" />
@@ -17,9 +15,9 @@ import Article from "@/domain/Article";
 import EmptyData from "@/components/EmptyData.vue";
 import ArticleService from "@/service/ArticleService";
 import Pageable from "@/domain/Pageable";
-import {Component, Vue} from "vue-property-decorator";
+import {Options, Vue} from "vue-class-component";
 
-@Component({
+@Options({
   components: {EmptyData, ArticleListItem},
   props: {
     queryParam: Object

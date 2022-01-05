@@ -5,7 +5,7 @@
       style="width: 100%"
       value-key="id"
       :filter-method="tagSelectFilterFun"
-      v-on:change="onTagSelectChange"
+      @change="onTagSelectChange"
       :loading="tagSelectLoading"
       multiple
       filterable
@@ -34,12 +34,10 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import Component from "vue-class-component";
+import {Options, Vue} from "vue-class-component";
 import axios from "axios";
-import {ElOptionGroup} from "element-ui/types/option-group";
 
-@Component({
+@Options({
   model: {
     prop: "value",
     event: "change"
@@ -126,7 +124,7 @@ export default class TagSelect extends Vue{
     this.tagSearchResult = result;
     //这个分组总在意想不到的时候隐藏自己
     this.$nextTick(()=>{
-      if(this.$refs.selectableGroup) (this.$refs.selectableGroup as ElOptionGroup).$emit("queryChange")
+      if(this.$refs.selectableGroup) (this.$refs.selectableGroup as any).$emit("queryChange")
     })
   }
 

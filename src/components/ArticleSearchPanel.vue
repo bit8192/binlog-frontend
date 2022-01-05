@@ -8,7 +8,7 @@
       :load="loadArticleClassTree"
       :expand-on-click-node="false"
       lazy
-      v-on:node-click="onArticleClassClick"
+      @node-click="onArticleClassClick"
       ref="articleClassTree"
       highlight-current
       class="article-search-panel-article-class-tree"
@@ -16,7 +16,7 @@
   <el-divider><span class="color-text-sub">标签</span></el-divider>
   <ul class="list-style-none">
     <li v-for="tag in tags" :key="tag.id" class="d-inline-block m-2">
-        <el-tag size="small" :effect="selectedTagIdSet.has(tag.id) ? 'dark' : 'plain'" v-on:click="e=>onTagClick(e, tag)" style="cursor: pointer">
+        <el-tag size="small" :effect="selectedTagIdSet.has(tag.id) ? 'dark' : 'plain'" @click="e=>onTagClick(e, tag)" style="cursor: pointer">
           {{tag.title}}({{tag.articleNum}})
         </el-tag>
     </li>
@@ -27,22 +27,21 @@
 
 <script lang="ts">
 import Tag from "../domain/Tag";
-import {Component, Vue} from "vue-property-decorator";
+import {Options, Vue} from "vue-class-component";
 import TagService from "@/service/TagService";
 import ArticlePage from "@/components/article/ArticlePage.vue";
 import ArticleClassVo from "@/domain/ArticleClassVo";
-import {ElTree, TreeNode} from "element-ui/types/tree";
 import ArticleClass from "@/domain/ArticleClass";
 import ArticleClassService from "@/service/ArticleClassService";
-import {ElInput} from "element-ui/types/input";
+import Node from "element-plus/es/components/tree/src/model/node";
 
-@Component({
+@Options({
   props: {
     articlePage: [ArticlePage, undefined]
   },
   watch: {
     $route: {
-      handler(){
+      handler(): void{
         this.readQueryParams();
       },
       deep: true
@@ -68,7 +67,7 @@ export default class ArticleSearchPanel extends Vue{
   }
 
   readQueryParams(): void{
-    const tree = this.$refs.articleClassTree as ElTree<number, ArticleClass>;
+    const tree = this.$refs.articleClassTree as any;
     if(this.$route.query.articleClassId){
       this.selectedArticleClassId = parseInt(Array.isArray(this.$route.query.articleClassId) ? this.$route.query.articleClassId[0] : this.$route.query.articleClassId);
     }else if(tree){
@@ -102,7 +101,7 @@ export default class ArticleSearchPanel extends Vue{
   mounted(): void{
     this.loadData();
     this.readQueryParams();
-    (this.$refs.searchInput as ElInput).$el.addEventListener("keydown", this.onSearchInputKeydown)
+    (this.$refs.searchInput as any).$el.addEventListener("keydown", this.onSearchInputKeydown)
   }
 
   private async loadData(): Promise<void>{
@@ -113,7 +112,7 @@ export default class ArticleSearchPanel extends Vue{
   /**
    * 加载文章分类数据
    */
-  private async loadArticleClassTree(node: TreeNode<number, ArticleClassVo>, resolve: (articleClasses:Array<ArticleClass>)=>void): Promise<void>{
+  private async loadArticleClassTree(node: Node, resolve: (articleClasses:Array<ArticleClass>)=>void): Promise<void>{
     this.loadArticleClassTreePromise = ArticleClassService.searchByParent(node.data?.id)
     this.loadArticleClassTreePromise.then(result=>resolve(result));
     this.loadArticleClassTreePromise.finally(()=>{
@@ -135,7 +134,7 @@ export default class ArticleSearchPanel extends Vue{
    */
   private onArticleClassClick(articleClass: ArticleClass, _: any, element: Vue): void{
     if(articleClass.id === this.selectedArticleClassId){
-      (this.$refs.articleClassTree as ElTree<number, ArticleClass>).setCurrentKey(null);
+      (this.$refs.articleClassTree as any).setCurrentKey(null);
       (element.$el as HTMLElement).blur()
       this.selectedArticleClassId = null
     }else{

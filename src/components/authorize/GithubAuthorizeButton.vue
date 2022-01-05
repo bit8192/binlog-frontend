@@ -1,5 +1,5 @@
 <template>
-  <oauth2-authorize-button :authorize-url="authorizeUrl" :check-notice="checkNotice" v-on:authorized="u=>$emit('authorized', u)" v-on:success="$emit('success')" ref="btn">
+  <oauth2-authorize-button :authorize-url="authorizeUrl" :check-notice="checkNotice" @authorized="u=>$emit('authorized', u)" @success="$emit('success')" ref="btn">
     <div style="line-height: 30px">
       <font-awesome-icon :icon="['fab', 'github']" size="2x" style="vertical-align: middle" />
       Github帐号登录
@@ -8,8 +8,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import Component from "vue-class-component";
+import {Options, Vue} from "vue-class-component";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {faGithub} from "@fortawesome/free-brands-svg-icons";
 import {URL_AUTHORIZE_GITHUB} from "@/constants/UrlApiAuthentication";
@@ -18,7 +17,7 @@ import Oauth2AuthorizeButton from "@/components/authorize/Oauth2AuthorizeButton.
 
 library.add(faGithub)
 
-@Component({
+@Options({
   components: {Oauth2AuthorizeButton}
 })
 export default class GithubAuthorizeButton extends Vue{

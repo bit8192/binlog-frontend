@@ -1,42 +1,43 @@
-import Vue from 'vue'
-import App from './App.vue'
+import Binlog from './App.vue'
 import router from './router'
 import configAxios from "@/config/config-axios"
 import './style/index.scss'
-import ElementUI from 'element-ui'
-import 'element-ui/lib/theme-chalk/index.css'
-import 'element-ui/lib/theme-chalk/display.css'
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import 'nprogress/nprogress.css'
 import configNProgress from "@/config/config-nprogress";
-import VueRouter from "vue-router";
+import {Router} from "vue-router";
 import {Store} from "vuex";
-import createStore from './createStore'
+import createStore, {BinlogStore} from './createStore'
 import DateUtils from "@/utils/DateUtils";
+import {createApp as createVueApp, App} from "vue";
 
-Vue.component('font-awesome-icon', FontAwesomeIcon)
+export default function createApp(): {app: App, router: Router, store: Store<BinlogStore>}{
+    //配置Vuex
+    const store = createStore();
 
-Vue.config.productionTip = false
+    const app = createVueApp(Binlog);
 
-//配置NProgress
-configNProgress()
+    //配置路由
+    app.use(router);
 
-//配置ElementUI
-Vue.use(ElementUI)
-//全局工具
-Vue.prototype.DateUtils = DateUtils;
+    //配置Vuex
+    app.use(store);
 
-//配置Vuex
-const store = createStore()
+    app.component('font-awesome-icon', FontAwesomeIcon);
 
-//系统配置
-configAxios({})
+    //配置NProgress
+    configNProgress();
 
-export default function createApp(): {app: Vue, router: VueRouter, store: Store<any>}{
-    const app = new Vue({
-        router,
-        render: h => h(App),
-        store
-    });
-    return {app, router, store}
+    //配置ElementUI
+    app.use(ElementPlus);
+
+    //全局工具
+    app.config.globalProperties.DateUtils = DateUtils;
+
+    //axios配置
+    configAxios({});
+
+    return {app, router, store};
 }

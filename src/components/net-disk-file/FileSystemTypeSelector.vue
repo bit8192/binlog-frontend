@@ -1,24 +1,22 @@
 <template>
   <el-button-group>
-    <template v-for="type of list">
-      <el-button :type="value === type ? 'primary' : undefined" :key="type" v-on:click="()=>onClick(type)">
-        {{titleMap[type] || ''}}
-      </el-button>
-    </template>
+    <el-button v-for="type of list" :type="value === type ? 'primary' : undefined" :key="type" @click="()=>onClick(type)">
+      {{titleMap[type] || ''}}
+    </el-button>
   </el-button-group>
 </template>
 
 <script lang="ts">
 import NetDiskFileService from "@/service/NetDiskFileService";
 import {FileSystemTypeEnum, FileSystemTypeTitle} from "@/domain/FileSystemTypeEnum";
-import { Component, Vue } from "vue-property-decorator";
+import { Options, Vue } from "vue-class-component";
 
-@Component({
+@Options({
   props: {
     value: String,
     fileSystemTypeList: {
       type: Array,
-      default: []
+      default: ():any[] => []
     }
   },
   model: {
@@ -26,7 +24,7 @@ import { Component, Vue } from "vue-property-decorator";
     event: "change"
   },
   watch: {
-    async fileSystemTypeList(list){
+    async fileSystemTypeList(list: any[]): Promise<void>{
       if(!list || !list.length) {
         if (!this.allAvailableFileSystemTypeList) {
           this.allAvailableFileSystemTypeList = await NetDiskFileService.getAvailableFileSystemTypeList();

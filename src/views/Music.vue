@@ -3,8 +3,12 @@
 </template>
 
 <script>
-export default {
-  name: "Music"
+import {Options, Vue} from "vue-class-component";
+
+@Options({
+  name: "MusicPage"
+})
+export default class Music extends Vue{
 }
 </script>
 

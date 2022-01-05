@@ -2,60 +2,60 @@
 <div class="markdown-editor">
   <div class="markdown-editor-tools-bar">
     <el-tooltip content="粗体">
-      <el-button size="small" v-on:click="bold"><font-awesome-icon icon="bold" size="lg" /></el-button>
+      <el-button size="small" @click="bold"><font-awesome-icon icon="bold" size="lg" /></el-button>
     </el-tooltip>
     <el-tooltip content="斜体">
-      <el-button size="small" v-on:click="italic"><font-awesome-icon icon="italic" size="lg" /></el-button>
+      <el-button size="small" @click="italic"><font-awesome-icon icon="italic" size="lg" /></el-button>
     </el-tooltip>
     <el-tooltip content="删除线">
-      <el-button size="small" v-on:click="removeLine"><font-awesome-icon icon="strikethrough" size="lg" /></el-button>
+      <el-button size="small" @click="removeLine"><font-awesome-icon icon="strikethrough" size="lg" /></el-button>
     </el-tooltip>
     <el-tooltip content="上标">
-      <el-button size="small" v-on:click="superscript"><font-awesome-icon icon="superscript" size="lg" /></el-button>
+      <el-button size="small" @click="superscript"><font-awesome-icon icon="superscript" size="lg" /></el-button>
     </el-tooltip>
     <el-tooltip content="下标">
-      <el-button size="small" v-on:click="subscript"><font-awesome-icon icon="subscript" size="lg" /></el-button>
+      <el-button size="small" @click="subscript"><font-awesome-icon icon="subscript" size="lg" /></el-button>
     </el-tooltip>
     <el-tooltip content="升级标题">
-      <el-button size="small" v-on:click="upHeading"><font-awesome-icon icon="heading" size="lg" /><font-awesome-icon icon="long-arrow-alt-up" size="xs" /></el-button>
+      <el-button size="small" @click="upHeading"><font-awesome-icon icon="heading" size="lg" /><font-awesome-icon icon="long-arrow-alt-up" size="xs" /></el-button>
     </el-tooltip>
     <el-tooltip content="降级标题">
-      <el-button size="small" v-on:click="downHeading"><font-awesome-icon icon="heading" size="lg" /><font-awesome-icon icon="long-arrow-alt-down" size="xs" /></el-button>
+      <el-button size="small" @click="downHeading"><font-awesome-icon icon="heading" size="lg" /><font-awesome-icon icon="long-arrow-alt-down" size="xs" /></el-button>
     </el-tooltip>
     <el-tooltip content="链接">
-      <el-button size="small" v-on:click="link"><font-awesome-icon icon="link" size="lg" /></el-button>
+      <el-button size="small" @click="link"><font-awesome-icon icon="link" size="lg" /></el-button>
     </el-tooltip>
     <el-tooltip content="代码">
-      <el-button size="small" v-on:click="code"><font-awesome-icon icon="code" size="lg" /></el-button>
+      <el-button size="small" @click="code"><font-awesome-icon icon="code" size="lg" /></el-button>
     </el-tooltip>
     <el-tooltip content="上传图像/附件">
-      <el-button size="small" v-on:click="showUploadPanel = !showUploadPanel"><font-awesome-icon icon="upload" size="lg" /></el-button>
+      <el-button size="small" @click="showUploadPanel = !showUploadPanel"><font-awesome-icon icon="upload" size="lg" /></el-button>
     </el-tooltip>
     <el-tooltip :content="isPreview ? '取消预览' : '预览'">
-      <el-button size="small" v-on:click="preview"><font-awesome-icon :icon="isPreview ? 'eye-slash' : 'eye'" size="lg" /></el-button>
+      <el-button size="small" @click="preview"><font-awesome-icon :icon="isPreview ? 'eye-slash' : 'eye'" size="lg" /></el-button>
     </el-tooltip>
     <el-tooltip :content="isFullscreen ? '取消全屏' : '全屏'">
-      <el-button size="small" v-on:click="fullscreen"><font-awesome-icon :icon="fullscreen ? 'compress' : 'expand'" size="lg" /></el-button>
+      <el-button size="small" @click="fullscreen"><font-awesome-icon :icon="fullscreen ? 'compress' : 'expand'" size="lg" /></el-button>
     </el-tooltip>
-    <el-dialog :visible="showUploadPanel" v-on:close="showUploadPanel = false">
-      <net-disk-file-list v-on:open="onSelectFile" />
+    <el-dialog :visible="showUploadPanel" @close="showUploadPanel = false">
+      <net-disk-file-list @open="onSelectFile" />
     </el-dialog>
   </div>
   <div class="markdown-editor-main">
-    <vue-codemirror
+    <codemirror
         ref="editor"
         v-model="content"
         :options="{mode: 'markdown', tabSize: 4, lineNumbers: true, theme: 'idea', foldGutter: true}"
         :style="((editorWidth && isPreview) ? 'width: ' + editorWidth + 'px; ' : 'flex: 1; ') + (isFullscreen ? 'max-height: 100vh;' : '')"
-        v-on:blur="onBlur"
+        @blur="onBlur"
     />
     <div class="markdown-editor-viewer-box" v-if="isPreview">
       <drag-split
-          v-on:dragstart="onSplitDragstart"
-          v-on:dragleave="onSplitDragleave"
-          v-on:drag="onSplitDrag"
+          @dragstart="onSplitDragstart"
+          @dragleave="onSplitDragleave"
+          @drag="onSplitDrag"
       />
-      <markdown-it-vue
+      <markdown
           class="markdown-editor-viewer"
           ref="viewer"
           :content="content"
@@ -68,14 +68,7 @@
 </template>
 
 <script lang="ts">
-import {Component, Vue} from "vue-property-decorator"
-import MarkdownItVue from "markdown-it-vue"
-import 'markdown-it-vue/dist/markdown-it-vue.css'
-import {Component as VueComponent} from "vue"
-import {codemirror} from 'vue-codemirror'
-import 'codemirror/lib/codemirror.css'
-import 'codemirror/mode/markdown/markdown.js'
-import 'codemirror/theme/idea.css'
+import {Options, Vue} from "vue-class-component"
 import DragSplit from "@/components/DragSplit.vue"
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {
@@ -96,11 +89,12 @@ import {
   faExpand,
   faCompress
 } from "@fortawesome/free-solid-svg-icons";
-import CodeMirror from "codemirror";
 import NetDiskFile from "@/domain/NetDiskFile";
 import {URL_NET_DISK_FILE} from "@/constants/UrlApiNetDiskFile";
-import {REG_EXP_IMAGE_FILE} from "@/constants/RegExp";
 import NetDiskFileList from "@/components/net-disk-file/NetDiskFileList.vue";
+import Markdown from 'vue3-markdown-it';
+import Codemirror from 'codemirror-editor-vue3';
+
 library.add(
     faBold,
     faItalic,
@@ -133,10 +127,13 @@ interface Data{
  * 上次view的宽度, 开始调整时记录
  */
 let prevEditorWidth = 0
-@Component({
+@Options({
   components: {
     NetDiskFileList,
-    DragSplit, MarkdownItVue: MarkdownItVue as VueComponent, VueCodemirror: codemirror as VueComponent},
+    DragSplit,
+    Markdown,
+    Codemirror
+  },
   props: {
     value: String
   },
@@ -155,10 +152,10 @@ let prevEditorWidth = 0
     }
   },
   watch: {
-    content(val): void{
+    content(val: string): void{
       this.$emit("change", val)
     },
-    value(val): void{
+    value(val: string): void{
       if(val !== this.content){
         this.content = val
       }
@@ -202,8 +199,8 @@ export default class MarkdownEditor extends Vue{
   /**
    * 获取CodeMirror
    */
-  private getCodeMirror(): CodeMirror.Editor{
-    return (this.$refs.editor as any).codemirror as CodeMirror.Editor
+  private getCodeMirror(): any{
+    return (this.$refs.editor as any).codemirror as any
   }
 
   mounted(): void{
@@ -263,7 +260,6 @@ export default class MarkdownEditor extends Vue{
     this.replaceSelection("~", "~")
   }
 
-  // noinspection JSMethodCanBeStatic
   /**
    * 升级内容标题
    * @param content

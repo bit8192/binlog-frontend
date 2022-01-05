@@ -1,23 +1,23 @@
 <template>
-  <el-tabs :active-name="systemProfile.useQQAuthorize || systemProfile.useGithubAuthorize ? 'oauth2' : 'username-password'" v-on:click-tab="onTabsClick" ref="tabs">
+  <el-tabs :active-name="systemProfile.useQQAuthorize || systemProfile.useGithubAuthorize ? 'oauth2' : 'username-password'" @click-tab="onTabsClick" ref="tabs">
     <el-tab-pane label="合作帐号登录" :disabled="!systemProfile.useQQAuthorize && !systemProfile.useGithubAuthorize" name="oauth2" >
       <div class="flex-row flex-wrap">
-        <qq-authorize-button v-if="systemProfile.useQQAuthorize" v-on:authorized="onQqAuthorized" v-on:success="onLoginSuccess" ref="qqAuthorizeBtn" />
-        <github-authorize-button v-if="systemProfile.useGithubAuthorize" v-on:authorized="onGithubAuthorized" v-on:success="onLoginSuccess" ref="githubAuthorizeBtn" />
+        <qq-authorize-button v-if="systemProfile.useQQAuthorize" @authorized="onQqAuthorized" @success="onLoginSuccess" ref="qqAuthorizeBtn" />
+        <github-authorize-button v-if="systemProfile.useGithubAuthorize" @authorized="onGithubAuthorized" @success="onLoginSuccess" ref="githubAuthorizeBtn" />
       </div>
     </el-tab-pane>
     <el-tab-pane label="帐号密码登录" name="username-password">
-      <username-password-login-form ref="usernameLoginForm" v-on:success="onLoginSuccess" />
+      <username-password-login-form ref="usernameLoginForm" @success="onLoginSuccess" />
     </el-tab-pane>
     <el-tab-pane label="注册" name="register" v-if="systemProfile.allowRegister">
-      <register-form v-on:rebind="rebind" ref="registerForm" v-on:success="onLoginSuccess" />
+      <register-form @rebind="rebind" ref="registerForm" @success="onLoginSuccess" />
     </el-tab-pane>
   </el-tabs>
 </template>
 
 <script lang="ts">
 import ChineseVerifyCode from "@/components/ChineseVerifyCode.vue";
-import { Component, Vue } from 'vue-property-decorator';
+import { Options, Vue } from 'vue-class-component';
 import CommonService from "@/service/CommonService";
 import QqAuthorizeButton from "@/components/authorize/QqAuthorizeButton.vue";
 import GithubAuthorizeButton from "@/components/authorize/GithubAuthorizeButton.vue";
@@ -26,9 +26,9 @@ import UserInfo from "@/domain/UserInfo";
 import UsernamePasswordLoginForm from "@/components/authorize/UsernamePasswordLoginForm.vue";
 import AuthenticationService from "@/service/AuthenticationService";
 import RegisterForm from "@/components/authorize/RegisterForm.vue";
-import {ElTabPane} from "element-ui/types/tab-pane";
+import {ElMessage} from "element-plus";
 
-@Component({
+@Options({
   components: {RegisterForm, UsernamePasswordLoginForm, GithubAuthorizeButton, QqAuthorizeButton, ChineseVerifyCode},
   data(){
     return {
@@ -45,7 +45,7 @@ export default class LoginPanel extends Vue{
   }
 
   // noinspection JSMethodCanBeStatic
-  private onTabsClick(tab: ElTabPane): void{
+  private onTabsClick(tab: any): void{
     if(tab.name === "username-password"){
       ChineseVerifyCode.refreshVerifyCodeIfExpire()
     }else if(tab.name === "register"){
@@ -72,7 +72,7 @@ export default class LoginPanel extends Vue{
    */
   private async onQqAuthorized(user: UserInfo): Promise<void>{
     if(!this.systemProfile.allowRegister){
-      this.$message.warning("该第三方帐号未在本站注册");
+      ElMessage.warning("该第三方帐号未在本站注册");
       return;
     }
     (this.$refs.tabs as any).currentName = "register";
@@ -87,7 +87,7 @@ export default class LoginPanel extends Vue{
    */
   private async onGithubAuthorized(user: UserInfo): Promise<void>{
     if(!this.systemProfile.allowRegister){
-      this.$message.warning("该第三方帐号未在本站注册");
+      ElMessage.warning("该第三方帐号未在本站注册");
       return;
     }
     (this.$refs.tabs as any).currentName = "register";

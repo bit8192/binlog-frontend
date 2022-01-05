@@ -1,15 +1,15 @@
 <template>
   <transition name="transition-from-top-fast">
-    <div class="context-menu" tabindex="0" v-on:blur="onContextMenuBlur" :style="'left:' + left + 'px; top: ' + top + 'px;'" v-show="show">
+    <div class="context-menu" tabindex="0" @blur="onContextMenuBlur" :style="'left:' + left + 'px; top: ' + top + 'px;'" v-show="show">
       <ul>
-        <li :class="'context-menu-item ' + (items[key].disabled ? 'context-menu-item-disabled ' : '')" v-for="key in Object.keys(items)" :key="key" v-on:click="()=>onClick(key, items[key])">{{items[key].title}}</li>
+        <li :class="'context-menu-item ' + (items[key].disabled ? 'context-menu-item-disabled ' : '')" v-for="key in Object.keys(items)" :key="key" @click="()=>onClick(key, items[key])">{{items[key].title}}</li>
       </ul>
     </div>
   </transition>
 </template>
 
 <script lang="ts">
-import {Component, Vue} from "vue-property-decorator";
+import {Options, Vue} from "vue-class-component";
 import ElementUtils from "@/utils/ElementUtils";
 
 declare interface Data{
@@ -17,7 +17,7 @@ declare interface Data{
   top: number
   show: boolean
 }
-@Component({
+@Options({
   props: {
     items: Object,
   }
@@ -27,7 +27,7 @@ export default class ContextMenu extends Vue{
   left!: number
   top!: number
   el: HTMLElement
-  parentElement: HTMLElement
+  menuParentElement: HTMLElement
   show!: boolean
 
   data(): Data{
@@ -44,14 +44,14 @@ export default class ContextMenu extends Vue{
 
   mounted(): void{
     this.el = this.$el as HTMLElement
-    this.parentElement = (this.el.parentElement || document) as HTMLElement
+    this.menuParentElement = (this.el.parentElement || document) as HTMLElement
     this.el.focus()
-    this.parentElement.oncontextmenu = ()=>false
-    this.parentElement.addEventListener("contextmenu", this.onContextMenu)
+    this.menuParentElement.oncontextmenu = ()=>false
+    this.menuParentElement.addEventListener("contextmenu", this.onContextMenu)
   }
 
   beforeDestroy(): void{
-    this.parentElement.removeEventListener("contextmenu", this.onContextMenu)
+    this.menuParentElement.removeEventListener("contextmenu", this.onContextMenu)
   }
 
   /**
@@ -60,7 +60,7 @@ export default class ContextMenu extends Vue{
    */
   onContextMenu(e: MouseEvent | any): void{
     if(ElementUtils.inElement(e.target, this.el)) return
-    const parentPosition = ElementUtils.getElementPosition(this.parentElement)
+    const parentPosition = ElementUtils.getElementPosition(this.menuParentElement)
     this.left = e.clientX - parentPosition.offsetLeft
     this.top = e.clientY - parentPosition.offsetTop
     this.show = true

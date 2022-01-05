@@ -11,18 +11,18 @@
         </div>
         <div class="color-text-sub">
           <span class="mr-3">{{reply.createdDate}}</span>
-          <el-button v-if="!reply.removed" type="text" :class="'mr-3' + (reply.isAgreed ? '' : ' color-text-sub')" v-on:click="()=>toggleSubCommentAgree(reply.id)">
+          <el-button v-if="!reply.removed" type="text" :class="'mr-3' + (reply.isAgreed ? '' : ' color-text-sub')" @click="()=>toggleSubCommentAgree(reply.id)">
             <font-awesome-icon :icon="[reply.isAgreed ? 'fas' : 'far', 'thumbs-up']"/>
             {{reply.agreedNum ? reply.agreedNum : ''}}
           </el-button>
-          <el-button v-if="!reply.removed" type="text" :class="'mr-3' + (reply.isTrod ? '' : ' color-text-sub')" v-on:click="()=>toggleSubCommentTread(reply.id)">
+          <el-button v-if="!reply.removed" type="text" :class="'mr-3' + (reply.isTrod ? '' : ' color-text-sub')" @click="()=>toggleSubCommentTread(reply.id)">
             <font-awesome-icon :icon="[reply.isTrod ? 'fas' : 'far', 'thumbs-down']"/>
             {{ reply.treadNum ? reply.treadNum : '' }}
           </el-button>
-          <el-button v-if="!reply.removed" type="text" v-on:click="onReply(reply)" class="color-text-sub">
+          <el-button v-if="!reply.removed" type="text" @click="onReply(reply)" class="color-text-sub">
             <font-awesome-icon :icon="['far', 'comment']" />
           </el-button>
-          <el-button type="text" class="color-text-sub" v-if="reply.content && reply.createdUser.id === (userInfo ? userInfo.id : null)" v-on:click="removeReply(reply)">删除</el-button>
+          <el-button type="text" class="color-text-sub" v-if="reply.content && reply.createdUser.id === (userInfo ? userInfo.id : null)" @click="removeReply(reply)">删除</el-button>
         </div>
       </div>
     </div>
@@ -32,15 +32,15 @@
         :page-count="commentPage.totalPages"
         :current-page="commentPage.number + 1"
         layout="prev, pager, next"
-        v-on:current-change="onCurrentPageChange"
+        @current-change="onCurrentPageChange"
         hide-on-single-page
     />
-    <span v-else-if="commentCount > 3" class="color-text-sub">剩余<span class="text-bold">{{commentCount - comments.length}}</span>条回复，<el-button type="text" v-on:click="expand">点击查看</el-button></span>
+    <span v-else-if="commentCount > 3" class="color-text-sub">剩余<span class="text-bold">{{commentCount - comments.length}}</span>条回复，<el-button type="text" @click="expand">点击查看</el-button></span>
   </div>
 </template>
 
 <script lang="ts">
-import {Component, Vue} from "vue-property-decorator";
+import {Options, Vue} from "vue-class-component";
 import {Comment} from "@/domain/Comment";
 import Pageable from "../../domain/Pageable";
 import CommentService from "@/service/CommentService";
@@ -50,9 +50,10 @@ import {faUser} from "@fortawesome/free-solid-svg-icons";
 import CommentContent from "@/components/comment/CommentContent.vue";
 import {faComment} from "@fortawesome/free-regular-svg-icons";
 import UserInfo from "@/domain/UserInfo";
+import {ElMessageBox} from "element-plus";
 library.add(faUser, faComment)
 
-@Component({
+@Options({
   components: {CommentContent},
   props: {
     commentId: {
@@ -164,7 +165,7 @@ export default class SubCommentList extends Vue{
    * 删除回复
    */
   async removeReply(reply: Comment): Promise<void>{
-    if((await this.$confirm("是否确认删除", "警告")) !== "confirm") return;
+    if((await ElMessageBox.confirm("是否确认删除", "警告")) !== "confirm") return;
     await CommentService.removeReply(reply.id)
     reply.content = ""
   }

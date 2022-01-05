@@ -12,7 +12,7 @@
           <el-checkbox label="下次记住我" v-model="rememberMe" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" style="width: 100%" v-on:click="login">登录</el-button>
+          <el-button type="primary" style="width: 100%" @click="login">登录</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -21,13 +21,12 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import Component from "vue-class-component";
+import {Options, Vue} from "vue-class-component";
 import NotificationErrorHandler from "../../decorators/NotificationErrorHandler";
 import AuthenticationService from "../../service/AuthenticationService";
 import ChineseVerifyCode from "../ChineseVerifyCode.vue";
 
-@Component({
+@Options({
   components: {ChineseVerifyCode},
   data(): any{
     return {

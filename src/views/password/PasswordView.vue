@@ -3,55 +3,57 @@
   <el-row :gutter="20">
     <el-col :span="6">
       <div class="d-flex mb-2">
-        <el-input suffix-icon="el-icon-search" size="small" clearable class="flex-1" v-model="groupKeywords" v-on:change="refreshGroupPage" />
-        <el-button icon="el-icon-plus" size="small" class="ml-2" v-on:click="addGroup" />
+        <el-input suffix-icon="el-icon-search" size="small" clearable class="flex-1" v-model="groupKeywords" @change="refreshGroupPage" />
+        <el-button icon="el-icon-plus" size="small" class="ml-2" @click="addGroup" />
       </div>
       <empty-data v-if="!groupPage.content.length" />
       <ul class="list-style-none station-list" v-else>
-        <li v-for="group of groupPage.content" :key="group.id" :class="['d-flex align-items-center justify-content-between', {selected: group.id === selectedGroup.id}]" v-on:click="changeSelectGroup(group)">
+        <li v-for="group of groupPage.content" :key="group.id" :class="['d-flex align-items-center justify-content-between', {selected: group.id === selectedGroup.id}]" @click="changeSelectGroup(group)">
           <div>
             <h5 class="h5">{{group.title}}</h5>
             <span class="fs-6 color-sub">{{group.remark}}</span>
           </div>
           <div>
-            <el-button type="text" icon="el-icon-edit" v-on:click.stop="doEditGroup(group)" />
-            <el-button type="text" icon="el-icon-delete" v-on:click.stop="deleteGroup(group)" />
+            <el-button type="text" icon="el-icon-edit" @click.stop="doEditGroup(group)" />
+            <el-button type="text" icon="el-icon-delete" @click.stop="deleteGroup(group)" />
           </div>
         </li>
       </ul>
-      <el-pagination layout="prev,pager,next" :total="groupPage.totalElements" :page-size="groupPageable.size" :current-page="groupPageable.page + 1" small v-on:current-change="groupPageChange" />
+      <el-pagination layout="prev,pager,next" :total="groupPage.totalElements" :page-size="groupPageable.size" :current-page="groupPageable.page + 1" small @current-change="groupPageChange" />
     </el-col>
     <el-col :span="18">
       <div class="d-flex flex-row align-items-center mb-3">
-        <el-input suffix-icon="el-icon-search" size="small" v-model="passwordKeywords" v-on:change="refreshPasswordPage" />
-        <el-button type="primary" icon="el-icon-plus" size="small" class="ml-3" v-on:click="addPassword" :disabled="!selectedGroup" />
+        <el-input suffix-icon="el-icon-search" size="small" v-model="passwordKeywords" @change="refreshPasswordPage" />
+        <el-button type="primary" icon="el-icon-plus" size="small" class="ml-3" @click="addPassword" :disabled="!selectedGroup" />
         <el-button type="primary" icon="el-icon-setting" size="small" class="ml-3" />
       </div>
       <empty-data v-if="!passwordPage.content.length" />
       <ul class="list-style-none" v-else>
         <li v-for="password of passwordPage.content" :key="password.id" class="mb-3">
           <el-card shadow="hover">
-            <div slot="header">
-              <div class="d-flex flex-row align-items-center justify-content-between">
-                <div>
-                  <span class="h4">{{password.title}}</span>&nbsp;&nbsp;&nbsp;
-                  <el-button type="text" icon="el-icon-document-copy" v-on:click="copyTitle(password)" />
+            <template #header>
+              <div>
+                <div class="d-flex flex-row align-items-center justify-content-between">
+                  <div>
+                    <span class="h4">{{password.title}}</span>&nbsp;&nbsp;&nbsp;
+                    <el-button type="text" icon="el-icon-document-copy" @click="copyTitle(password)" />
+                  </div>
+                  <div>
+                    <el-button type="text" icon="el-icon-edit" @click="editPassword(password)" />
+                    <el-button type="text" icon="el-icon-delete" @click="deletePassword(password)" />
+                  </div>
                 </div>
-                <div>
-                  <el-button type="text" icon="el-icon-edit" v-on:click="editPassword(password)" />
-                  <el-button type="text" icon="el-icon-delete" v-on:click="deletePassword(password)" />
-                </div>
+                <span class="color-text-sub">{{password.encryptionRemark ? '' : password.remark}}</span>
               </div>
-              <span class="color-text-sub">{{password.encryptionRemark ? '' : password.remark}}</span>
-            </div>
+            </template>
             <div>
               <span>{{password.username}}</span>
-              <el-button type="text" icon="el-icon-document-copy" class="ml-2" v-on:click="copyUsername(password)" />
+              <el-button type="text" icon="el-icon-document-copy" class="ml-2" @click="copyUsername(password)" />
             </div>
             <div>
               <span class="color-text-sub">{{ viewPasswordItem === password ? decryptedPassword : '●●●●●●●●●●●●●●●●●' }}</span>
-              <el-button type="text" icon="el-icon-view" class="ml-3" v-on:click="viewPassword(password)" />
-              <el-button type="text" icon="el-icon-document-copy" class="ml-3" v-on:click="copyPassword(password)" />
+              <el-button type="text" icon="el-icon-view" class="ml-3" @click="viewPassword(password)" />
+              <el-button type="text" icon="el-icon-document-copy" class="ml-3" @click="copyPassword(password)" />
             </div>
             <div class="color-text-sub fs-6">
               <span>{{password.createdDate}}</span>
@@ -60,28 +62,30 @@
               <el-divider class="mb-2" />
               <pre v-if="viewRemarkItem === password" class="color-text-sub">{{ decryptedRemark }}</pre>
               <div class="text-center">
-                <el-button type="text" icon="el-icon-caret-top" v-on:click="viewRemark(password)" v-if="viewRemarkItem === password">隐藏</el-button>
-                <el-button type="text" icon="el-icon-caret-bottom" v-on:click="viewRemark(password)" v-else>显示</el-button>
+                <el-button type="text" icon="el-icon-caret-top" @click="viewRemark(password)" v-if="viewRemarkItem === password">隐藏</el-button>
+                <el-button type="text" icon="el-icon-caret-bottom" @click="viewRemark(password)" v-else>显示</el-button>
               </div>
             </template>
           </el-card>
         </li>
       </ul>
-      <el-pagination layout="prev,pager,next" :total="passwordPage.totalElements" :page-size="passwordPageable.size" :current-page="passwordPageable.page + 1" v-on:current-change="passwordPageChange" />
+      <el-pagination layout="prev,pager,next" :total="passwordPage.totalElements" :page-size="passwordPageable.size" :current-page="passwordPageable.page + 1" @current-change="passwordPageChange" />
     </el-col>
   </el-row>
-  <el-dialog :title="selectedPasswordInfo && selectedPasswordInfo.title" :visible="!!selectedPasswordInfo" v-on:close="selectedPasswordInfo = null">
+  <el-dialog :title="selectedPasswordInfo && selectedPasswordInfo.title" :visible="!!selectedPasswordInfo" @close="selectedPasswordInfo = null">
     <password-info-edit v-model="selectedPasswordInfo" ref="passwordEdit" />
-    <div slot="footer">
-      <el-button v-on:click="selectedPasswordInfo = null">取消</el-button>
-      <el-button type="primary" v-on:click="savePassword">确定</el-button>
-    </div>
+    <template #footer>
+      <div>
+        <el-button @click="selectedPasswordInfo = null">取消</el-button>
+        <el-button type="primary" @click="savePassword">确定</el-button>
+      </div>
+    </template>
   </el-dialog>
-  <el-dialog :title="selectedGroup && selectedGroup.title" :visible="showGroupDialog" v-on:close="showGroupDialog = false">
-    <password-group-edit v-model="editGroup" v-on:cancel="showGroupDialog = false" ref="groupEdit" />
+  <el-dialog :title="selectedGroup && selectedGroup.title" :visible="showGroupDialog" @close="showGroupDialog = false">
+    <password-group-edit v-model="editGroup" @cancel="showGroupDialog = false" ref="groupEdit" />
     <div slot="footer">
-      <el-button v-on:click="showGroupDialog = false">取消</el-button>
-      <el-button type="primary" v-on:click="saveGroup">确定</el-button>
+      <el-button @click="showGroupDialog = false">取消</el-button>
+      <el-button type="primary" @click="saveGroup">确定</el-button>
     </div>
   </el-dialog>
   <main-password-reader ref="mainPasswordReader" />
@@ -89,8 +93,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import Component from "vue-class-component";
+import {Options, Vue} from "vue-class-component";
 import PasswordGroup from "@/domain/PasswordGroup";
 import PasswordInfo from "@/domain/PasswordInfo";
 import PasswordInfoEdit from "@/views/password/PasswordInfoEdit.vue";
@@ -103,8 +106,9 @@ import aes256 from "aes256";
 import MainPasswordReader from "@/views/password/MainPasswordReader.vue";
 import CommonUtils from "@/utils/CommonUtils";
 import EmptyData from "@/components/EmptyData.vue";
+import {ElMessage, ElMessageBox} from "element-plus";
 
-@Component({
+@Options({
   name: "PasswordView",
   components: {EmptyData, MainPasswordReader, PasswordGroupEdit, PasswordInfoEdit},
 })
@@ -193,7 +197,7 @@ export default class PasswordView extends Vue{
   }
 
   async deleteGroup(group: PasswordGroup): Promise<void>{
-    if((await this.$confirm("是否确定删除密码分组[" + group.title + "]")) != "confirm") return;
+    if((await ElMessageBox.confirm("是否确定删除密码分组[" + group.title + "]")) != "confirm") return;
     await PasswordGroupService.delete(group.id);
     this.groupPage.content.splice(this.groupPage.content.findIndex(i=>i.id === group.id), 1);
     this.groupPage.totalElements --;
@@ -256,17 +260,17 @@ export default class PasswordView extends Vue{
 
   copyTitle(passwordInfo: PasswordInfo): void{
     CommonUtils.copyString(passwordInfo.title);
-    this.$message.success("复制成功");
+    ElMessage.success("复制成功");
   }
 
   copyUsername(passwordInfo: PasswordInfo): void{
     CommonUtils.copyString(passwordInfo.username);
-    this.$message.success("复制成功");
+    ElMessage.success("复制成功");
   }
 
   async copyPassword(passwordInfo: PasswordInfo): Promise<void> {
     CommonUtils.copyString(aes256.decrypt(await this.getMainPassword(), passwordInfo.encodedPassword));
-    this.$message.success("复制成功");
+    ElMessage.success("复制成功");
     await PasswordInfoService.updateUseTimes(passwordInfo.id);
   }
 
@@ -276,7 +280,7 @@ export default class PasswordView extends Vue{
 
   async addPassword(): Promise<void>{
     if(!this.selectedGroup){
-      this.$message.warning("请选择分组");
+      ElMessage.warning("请选择分组");
       return;
     }
     this.selectedPasswordInfo = {
@@ -285,7 +289,7 @@ export default class PasswordView extends Vue{
   }
 
   async deletePassword(password: PasswordInfo): Promise<void>{
-    if((await this.$confirm("是否确定删除密码[" + password.title + "]")) != "confirm") return;
+    if((await ElMessageBox.confirm("是否确定删除密码[" + password.title + "]")) != "confirm") return;
     await PasswordInfoService.delete(password.id);
     this.passwordPage.content.splice(this.passwordPage.content.findIndex(i=>i.id === password.id), 1);
     this.passwordPage.totalElements --;

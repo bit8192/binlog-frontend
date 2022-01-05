@@ -22,15 +22,16 @@
           :expand-on-click-node="false"
           auto-expand-parent
           :default-expanded-keys="expandedKeys"
-          v-on:node-click="$_sectionClickEventListener"
+          @node-click="sectionClickEventListener"
       >
+        <template v-slot:default="{node}">
         <span
             :id="'section-' + node.data.id"
             :class="node.data.id === currentSectionId ? 'catalog-section-selected' : ''"
-            slot-scope="{ node }"
         >
           {{ node.label }}
         </span>
+        </template>
       </el-tree>
     </div>
   </div>
@@ -38,7 +39,7 @@
 
 <script lang="ts">
 import ElementPosition from "@/domain/ElementPosition";
-import {Component, Vue} from "vue-property-decorator";
+import {Options, Vue} from "vue-class-component";
 import Throttle from "@/decorators/Throttle";
 import ElementUtils from "@/utils/ElementUtils";
 
@@ -54,7 +55,7 @@ interface Section{
 let targetElement: Element
 let targetElementOffset: ElementPosition
 let headers: HTMLElement[]
-@Component({
+@Options({
   props: {
     element: [String, Element]
   }
@@ -84,15 +85,15 @@ export default class ArticleCatalog extends Vue{
     if(targetElement instanceof Element){
       this.refresh()
     }
-    if(document) document.addEventListener("scroll", this.$_targetScrollEventListener)
+    if(document) document.addEventListener("scroll", this.targetScrollEventListener)
   }
 
   beforeDestroy() : void{
-    if(document) document.removeEventListener("scroll", this.$_targetScrollEventListener)
+    if(document) document.removeEventListener("scroll", this.targetScrollEventListener)
   }
 
     //章节点击事件
-  $_sectionClickEventListener(section: Section): void{
+  sectionClickEventListener(section: Section): void{
     if(!document) return;
     const scrollingElement = document.scrollingElement
     let sectionTop = ElementUtils.getElementPosition(section.element as HTMLElement).offsetTop + (this.$el as HTMLElement).offsetTop
@@ -101,7 +102,7 @@ export default class ArticleCatalog extends Vue{
 
   //文章滚动事件
   @Throttle()
-  $_targetScrollEventListener(): void{
+  targetScrollEventListener(): void{
     if(!targetElement || !targetElementOffset) return;
     //滚动框架元素，一般是html
     const scrollingElement = document ? document.scrollingElement : null

@@ -1,7 +1,7 @@
 import axios, {AxiosError, AxiosRequestConfig} from "axios"
-import {Message} from 'element-ui'
 import NetworkError from "@/error/NetworkError";
 import qs from "qs";
+import {ElMessage} from "element-plus";
 
 interface AxiosConfig {
     baseURL?: string
@@ -35,7 +35,7 @@ export default function configAxios(axiosConfig: AxiosConfig): void{
         function(response){
             if(!response) throw new Error()
             if(response.data?.msg){
-                Message.success(response.data?.msg);
+                ElMessage.success(response.data?.msg);
             }
             return response.data ? response.data : response;
         },
@@ -67,7 +67,7 @@ export default function configAxios(axiosConfig: AxiosConfig): void{
                 }
             }
             if(needNotify(config ? config.ignoreNotifyOnStatus : undefined, response ? response.status : undefined)) {
-                Message.error({
+                ElMessage.error({
                     message: msg,
                     showClose: true,
                     duration: 10000

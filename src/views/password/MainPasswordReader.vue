@@ -1,8 +1,8 @@
 <template>
-<el-dialog title="主密码" append-to-body :visible="visible" :show-close="false" :close-on-click-modal="false" v-on:close="onClose">
-  <el-form v-on:submit.native.prevent>
+<el-dialog title="主密码" append-to-body :visible="visible" :show-close="false" :close-on-click-modal="false" @close="onClose">
+  <el-form @submit.native.prevent>
     <el-form-item :rules="[{required: true, message: '请输入密码'}, {min: 6, message: '至少需要6位密码'}]">
-      <el-input type="password" v-model="password" clearable autofocus ref="input" v-on:change="onPasswordChange" />
+      <el-input type="password" v-model="password" clearable autofocus ref="input" @change="onPasswordChange" />
     </el-form-item>
     <el-checkbox label="本次会话不再输入" v-model="saveLocal" />
   </el-form>
@@ -10,17 +10,15 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import Component from "vue-class-component";
+import {Options, Vue} from "vue-class-component";
 import {SESSION_STORAGE_KEY_MAIN_PASSWORD} from "@/constants/SessionStorageKeys";
 import CommonUtils from "@/utils/CommonUtils";
 import PasswordProfileService from "@/service/PasswordProfileService";
 import PasswordProfile from "@/domain/PasswordProfile";
-import {ElInput} from "element-ui/types/input";
 import aes256 from "aes256";
 import AuthenticationService from "@/service/AuthenticationService";
 
-@Component({
+@Options({
   name: "MainPasswordReader"
 })
 export default class MainPasswordReader extends Vue{
@@ -67,7 +65,7 @@ export default class MainPasswordReader extends Vue{
     const result = new Promise<string>((resolve, reject) => {
       this.visible = true;
       this.$nextTick(()=>{
-        (this.$refs.input as ElInput).focus();
+        (this.$refs.input as any).focus();
       });
       this.readRejectMethod = reject;
       this.onPasswordChange = ()=>{

@@ -2,13 +2,13 @@
   <el-card shadow="hover" :class="bloggers.length ? '' : 'd-none'">
     <div class="text-center pt-5">
       <div class="position-relative" style="height: 90px">
-        <div class="blogger-avatar blogger-avatar-prev" v-on:click="viewPrevBlogger">
+        <div class="blogger-avatar blogger-avatar-prev" @click="viewPrevBlogger">
           <el-avatar v-if="prevBlogger" :src="prevBlogger.headImg" :size="80"/>
         </div>
         <div class="blogger-avatar" style="z-index: 1">
           <el-avatar :src="viewBlogger ? viewBlogger.headImg : ''" :size="80"/>
         </div>
-        <div class="blogger-avatar blogger-avatar-next" v-on:click="viewNextBlogger">
+        <div class="blogger-avatar blogger-avatar-next" @click="viewNextBlogger">
           <el-avatar v-if="nextBlogger" :src="nextBlogger.headImg" :size="80"/>
         </div>
       </div>
@@ -36,13 +36,13 @@
 </template>
 
 <script lang="ts">
-import {Component, Vue} from "vue-property-decorator";
+import {Options, Vue} from "vue-class-component";
 import {AppProvider} from "@/App.vue";
 import UserDetail from "@/domain/UserDetail";
 import UserService from "@/service/UserService";
 import UserInfo from "@/domain/UserInfo";
 
-@Component({
+@Options({
   inject: ['app']
 })
 export default class BloggersPanel extends Vue{

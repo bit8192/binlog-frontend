@@ -1,11 +1,10 @@
-<!--suppress HtmlDeprecatedAttribute -->
 <template>
   <div
       :class="'net-disk-file-item' + (selected ? ' net-disk-file-item-selected' : '')"
       :title="title"
-      v-on:click="e=>$emit('click', e)"
-      v-on:dblclick="e=>$emit('dblclick', e)"
-      v-on:contextmenu="e=>$emit('contextmenu', e)"
+      @click="e=>$emit('click', e)"
+      @dblclick="e=>$emit('dblclick', e)"
+      @contextmenu="e=>$emit('contextmenu', e)"
   >
     <div>
       <el-image
@@ -29,8 +28,8 @@
           v-if="rename"
           class="net-disk-file-item-rename-input"
           v-model="renameValue"
-          v-on:blur="()=>$emit('renameCancel')"
-          v-on:keydown="e=>e.key === 'Enter' && renameComplete()"
+          @blur="()=>$emit('renameCancel')"
+          @keydown="e=>e.key === 'Enter' && renameComplete()"
           autofocus
       />
       <span v-else class="net-disk-file-item-title">{{file.name}}</span>
@@ -39,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import {Component, Vue} from "vue-property-decorator";
+import {Options, Vue} from "vue-class-component";
 import NetDiskFile from "@/domain/NetDiskFile";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {faFile, faFolder} from "@fortawesome/free-solid-svg-icons";
@@ -47,7 +46,7 @@ import CommonUtils from "@/utils/CommonUtils";
 import {URL_NET_DISK_FILE_THUMBNAIL} from "@/constants/UrlApiNetDiskFile";
 library.add(faFolder, faFile)
 
-@Component({
+@Options({
   props: {
     file: {
       type: Object,

@@ -5,10 +5,9 @@
 </template>
 
 <script>
-import Vue from "vue";
-import Component from "vue-class-component";
+import {Options, Vue} from "vue-class-component";
 
-@Component({})
+@Options({})
 export default class UserManagement extends Vue{
 }
 </script>

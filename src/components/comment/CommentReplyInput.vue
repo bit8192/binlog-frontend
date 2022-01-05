@@ -1,23 +1,22 @@
 <template>
   <div>
-    <div class="flex-row" v-on:keyup="onInputKeyUp">
+    <div class="flex-row" @keyup="onInputKeyUp">
       <el-input type="textarea" v-model="inputValue" :rows="2" :placeholder="placeholder" ref="input" autofocus />
-      <el-button class="ml-2" v-on:click="()=>this.$emit('submit')">{{btnTitle}}</el-button>
+      <el-button class="ml-2" @click="()=>this.$emit('submit')">{{btnTitle}}</el-button>
     </div>
-    <emoji-popover v-on:select="emoji=>inputValue+=emoji" class="mr-3" />
+    <emoji-popover @select="emoji=>inputValue+=emoji" class="mr-3" />
     <slot name="action" />
   </div>
 </template>
 
 <script lang="ts">
-import {Component, Vue} from "vue-property-decorator";
-import {ElInput} from "element-ui/types/input";
+import {Options, Vue} from "vue-class-component";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {faSmile} from "@fortawesome/free-solid-svg-icons";
 import EmojiPopover from "@/components/comment/EmojiPopover.vue";
 library.add(faSmile)
 
-@Component({
+@Options({
   components: {EmojiPopover},
   model: {
     prop: 'value',
@@ -41,7 +40,7 @@ library.add(faSmile)
     }
   },
   mounted() :void{
-    if(this.autofocus) (this.$refs.input as ElInput).focus()
+    if(this.autofocus) (this.$refs.input as any).focus()
   }
 })
 export default class CommentReplyInput extends Vue{

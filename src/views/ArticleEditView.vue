@@ -10,8 +10,8 @@
               :value="article.articleClass ? article.articleClass.title : ''"
               placeholder="类型"
               style="width: 100%"
-              v-on:focus="()=>this.showArticleClassSelectDialog = true"
-              v-on:clear="()=>this.article.articleClass = null"
+              @focus="()=>this.showArticleClassSelectDialog = true"
+              @clear="()=>this.article.articleClass = null"
               clearable
           />
         </el-form-item>
@@ -19,13 +19,15 @@
           <tag-select v-model="article.tags" :action="tagAction" :add-action="tagAddAction" />
         </el-form-item>
         <el-form-item label="封面" prop="cover">
-          <img v-if="article.cover" :src="imagePath + article.cover.id" alt="封面图片" height="100%" style="cursor: pointer; max-width: 100%" v-on:click="showCoverSelectDialog = !showCoverSelectDialog" />
-          <div v-else class="article-edit-view-cover-select" v-on:click="showCoverSelectDialog = !showCoverSelectDialog">
+          <img v-if="article.cover" :src="imagePath + article.cover.id" alt="封面图片" height="100%" style="cursor: pointer; max-width: 100%" @click="showCoverSelectDialog = !showCoverSelectDialog" />
+          <div v-else class="article-edit-view-cover-select" @click="showCoverSelectDialog = !showCoverSelectDialog">
             <el-icon name="plus" style="display: block" />
           </div>
-          <el-dialog :visible="showCoverSelectDialog" v-on:close="()=>(this.showCoverSelectDialog = false) || this.$refs.form.validateField('cover')">
-            <span slot="title">选择封面</span>
-            <net-disk-file-list v-on:open="onSelectCover" />
+          <el-dialog :visible="showCoverSelectDialog" @close="()=>(this.showCoverSelectDialog = false) || this.$refs.form.validateField('cover')">
+            <template #title>
+              <span>选择封面</span>
+            </template>
+            <net-disk-file-list @open="onSelectCover" />
           </el-dialog>
         </el-form-item>
         <el-form-item label="选项">
@@ -44,17 +46,17 @@
           <el-input type="textarea" v-model="article.describe" />
         </el-form-item>
         <el-form-item label="正文" prop="content">
-          <markdown-editor :value="article.content" v-on:change="c=>article.content = c" style="width: 100%; line-height: initial" v-on:blur="()=>this.$refs.form.validateField('content')" v-on:pause="onPause" />
+          <markdown-editor :value="article.content" @change="c=>article.content = c" style="width: 100%; line-height: initial" @blur="()=>this.$refs.form.validateField('content')" @pause="onPause" />
         </el-form-item>
         <article-class-select-dialog
             ref="articleClassSelectDialog"
             :visible="showArticleClassSelectDialog"
-            v-on:select="onSelectArticleClass"
-            v-on:close="()=>(this.showArticleClassSelectDialog = false) || this.$refs.form.validateField('articleClass')"
+            @select="onSelectArticleClass"
+            @close="()=>(this.showArticleClassSelectDialog = false) || this.$refs.form.validateField('articleClass')"
         />
         <el-form-item>
-          <el-button type="success" size="lg" v-on:click="submit">提交</el-button>
-          <el-button size="lg" v-on:click="autoSave">储存到本地</el-button>
+          <el-button type="success" size="lg" @click="submit">提交</el-button>
+          <el-button size="lg" @click="autoSave">储存到本地</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -63,7 +65,7 @@
 
 <script lang="ts">
 import MarkdownEditor from "@/components/MarkdownEditor.vue";
-import {Component, Vue} from "vue-property-decorator";
+import {Options, Vue} from "vue-class-component";
 import ArticleClassSelectDialog from "@/components/article-class/ArticleClassSelectDialog.vue";
 import ArticleClassVo from "@/domain/ArticleClassVo";
 import Article from "@/domain/Article";
@@ -71,16 +73,15 @@ import NetDiskFileList from "@/components/net-disk-file/NetDiskFileList.vue";
 import {URL_NET_DISK_FILE} from "@/constants/UrlApiNetDiskFile";
 import NetDiskFile from "@/domain/NetDiskFile";
 import {REG_EXP_IMAGE_FILE} from "@/constants/RegExp";
-import {ElForm} from "element-ui/types/form";
 import ArticleService from "@/service/ArticleService";
 import TagSelect from "@/components/TagSelect.vue";
 import {URL_TAG, URL_TAG_LIST_ALL} from "@/constants/UrlApiTag";
 import {LOCAL_STORAGE_KEY_ARTICLE} from "@/constants/LocalStorageKeys";
 import NetDiskFileService from "@/service/NetDiskFileService";
 import DateUtils from "@/utils/DateUtils";
-import CodeMirror from "codemirror";
+import {ElMessage, ElMessageBox} from "element-plus";
 
-@Component({
+@Options({
   components: {TagSelect, NetDiskFileList, ArticleClassSelectDialog, MarkdownEditor},
   data(): any{
     return {
@@ -133,7 +134,7 @@ export default class ArticleEditView extends Vue{
     if(this.$route.params.id === 'new'){
       if(articleCache){
         try {
-          await this.$confirm("检测到本地保存有数据，是否进行编辑（否则将覆盖）")
+          await ElMessageBox.confirm("检测到本地保存有数据，是否进行编辑（否则将覆盖）")
           this.article = JSON.parse(articleCache);
         }catch (e) {
           localStorage.removeItem(LOCAL_STORAGE_KEY_ARTICLE)
@@ -142,14 +143,14 @@ export default class ArticleEditView extends Vue{
     } else {
       if(articleCache){
         try {
-          await this.$confirm("检测到本地保存有数据，是否进行编辑（否则将覆盖）")
+          await ElMessageBox.confirm("检测到本地保存有数据，是否进行编辑（否则将覆盖）")
           this.article = JSON.parse(articleCache)
         }catch (e) {
-          this.article = await ArticleService.getDetail(this.$route.params.id)
+          this.article = await ArticleService.getDetail(this.$route.params.id as string)
           localStorage.removeItem(LOCAL_STORAGE_KEY_ARTICLE)
         }
       }else{
-        this.article = await ArticleService.getDetail(this.$route.params.id)
+        this.article = await ArticleService.getDetail(this.$route.params.id as string)
       }
     }
     if(this.article && this.article.id && this.article.id !== +this.$route.params.id){
@@ -168,7 +169,7 @@ export default class ArticleEditView extends Vue{
   autoSave(): void{
     if(this.article.content) {
       localStorage.setItem(LOCAL_STORAGE_KEY_ARTICLE, JSON.stringify(this.article))
-      this.$message.info("本地已保存")
+      ElMessage.info("本地已保存")
     }
   }
 
@@ -182,7 +183,7 @@ export default class ArticleEditView extends Vue{
 
   private onSelectCover(file: NetDiskFile){
     if(!file.name.match(REG_EXP_IMAGE_FILE)){
-      this.$message.error("请选择（jpg、jpeg、png、webp）文件")
+      ElMessage.error("请选择（jpg、jpeg、png、webp）文件")
       return
     }
     this.article.cover = file
@@ -190,9 +191,9 @@ export default class ArticleEditView extends Vue{
   }
 
   private async submit(): Promise<void>{
-    const form = this.$refs.form as ElForm;
+    const form = this.$refs.form as any;
     if(! await form.validate()) {
-      this.$message.error("请完成表单")
+      ElMessage.error("请完成表单")
       return
     }
 
@@ -209,7 +210,7 @@ export default class ArticleEditView extends Vue{
   /**
    * 上传图片
    */
-  private async onPause(e: ClipboardEvent, editor: CodeMirror.Editor): Promise<void>{
+  private async onPause(e: ClipboardEvent, editor: any): Promise<void>{
     if(e.clipboardData.files.length){
       const netDiskFile = await NetDiskFileService.uploadMaterial(this.article.title || DateUtils.formatDate(), e.clipboardData.files[0],)
       if(netDiskFile.mediaType.includes("image")){

@@ -3,8 +3,12 @@
 </template>
 
 <script>
-export default {
-  name: "Tools"
+import {Options, Vue} from "vue-class-component";
+
+@Options({
+  name: "ToolsPage"
+})
+export default class Tools extends Vue{
 }
 </script>
 

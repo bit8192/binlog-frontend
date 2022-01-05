@@ -5,10 +5,9 @@
 </template>
 
 <script lang="ts">
-import Component from "vue-class-component";
-import Vue from "vue";
+import {Options, Vue} from "vue-class-component";
 
-@Component({})
+@Options({})
 export default class SystemSetting extends Vue{
 }
 </script>

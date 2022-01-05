@@ -11,11 +11,15 @@
   >
     <router-link :to="'/article/' + info.id" v-if="info.cover">
       <div class="article-item-header">
-        <el-image class="article-item-cover" :src="imagePath + info.cover.id" fit="cover" lazy v-on:load="loading = false">
-          <el-skeleton loading slot="placeholder">
-            <el-skeleton-item variant="image" />
-          </el-skeleton>
-          <error-image slot="error" />
+        <el-image class="article-item-cover" :src="imagePath + info.cover.id" fit="cover" lazy @load="loading = false">
+          <template v-slot:placeholder>
+            <el-skeleton loading>
+              <el-skeleton-item variant="image" />
+            </el-skeleton>
+          </template>
+          <template v-slot:error>
+            <error-image />
+          </template>
         </el-image>
       </div>
     </router-link>
@@ -36,8 +40,7 @@
           {{info.articleClass.title}}
         </router-link>
       </div>
-      <div class="tag-group" v-if="info.tags && info.tags.length">
-        <!--suppress JSUnresolvedVariable, JSUnusedLocalSymbols -->
+      <div class="tag-group" v-if="info.tags?.length">
         <router-link v-for="tag of info.tags" :key="tag.id" :to="'/?tagIds=' + tag.id">
           <el-tag size="mini" effect="plain" class="bg-transparent">{{tag.title}}</el-tag>
         </router-link>
@@ -45,7 +48,7 @@
       <p class="article-item-describe color-text-content">
         {{ info.describe }}
       </p>
-      <el-row class="article-item-image" :gutter="5" v-if="info.images && info.images.length">
+      <el-row class="article-item-image" :gutter="5" v-if="info.images?.length">
         <el-col
             v-for="img in info.images"
             :key="img"
@@ -56,19 +59,19 @@
         </el-col>
       </el-row>
       <div class="article-item-button-group no-margin-horizontal">
-        <el-button type="text" class="color-text-sub article-item-button">
+        <el-button type="text" class="article-item-button">
           <font-awesome-icon :icon="['far', 'share-square']" />
           <span style="padding-left: .5em">{{info.forwardingNum}}</span>
         </el-button>
-        <el-button type="text" class="color-text-sub article-item-button">
+        <el-button type="text" class="article-item-button">
           <font-awesome-icon :icon="['far', 'comment']" />
           <span style="padding-left: .5em">{{info.commentNum}}</span>
         </el-button>
-        <el-button type="text" :class="'article-item-button' + (info.isAgreed ? '' : ' color-text-sub')" v-on:click="toggleAgree">
+        <el-button type="text" :class="'article-item-button' + (info.isAgreed ? ' active' : '')" @click="toggleAgree">
           <font-awesome-icon :icon="['far', 'thumbs-up']" />
           <span style="padding-left: .5em">{{info.agreedNum}}</span>
         </el-button>
-        <el-button type="text" class="color-text-sub article-item-button">
+        <el-button type="text" class="article-item-button">
           <font-awesome-icon :icon="['far', 'eye']" />
           <span style="padding-left: .5em">{{info.viewingNum}}</span>
         </el-button>
@@ -81,17 +84,16 @@
 import {library} from "@fortawesome/fontawesome-svg-core"
 import {faShareSquare, faComment, faThumbsUp, faEye} from "@fortawesome/free-regular-svg-icons"
 import {faBars, faFire, faThumbtack} from "@fortawesome/free-solid-svg-icons";
-import TransitionScrollView from "@/components/TransitionScrollView.vue";
 import ErrorImage from "@/components/ErrorImage.vue";
 import {URL_NET_DISK_FILE} from "@/constants/UrlApiNetDiskFile";
-import {Component, Vue} from "vue-property-decorator";
+import {Options, Vue} from "vue-class-component";
 import ArticleService from "@/service/ArticleService";
 import Article from "@/domain/Article";
 
 library.add(faShareSquare, faComment, faThumbsUp, faEye, faBars, faThumbtack, faFire)
 
-@Component({
-  components: {ErrorImage, TransitionScrollView},
+@Options({
+  components: {ErrorImage},
   props: {
     info: Object
   },
@@ -115,6 +117,7 @@ export default class ArticleListItem extends Vue{
 <style scoped lang="scss">
 @import "src/style/mixin-common";
 @import "src/style/var-device-width";
+@import "src/style/var-color";
 
 .article-item{
   border-radius: $item-border-radius;
@@ -171,6 +174,10 @@ export default class ArticleListItem extends Vue{
 }
 .article-item-button{
   padding: 1em 2em;
+  color: $color-text-sub;
+}
+.article-item-button.active{
+  color: $color-primary;
 }
 @media (max-width: $device-width-xs) {
   .article-item-button-group{

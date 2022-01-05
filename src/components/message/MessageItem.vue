@@ -24,11 +24,11 @@
 </template>
 
 <script lang="ts">
-import {Component, Vue} from "vue-property-decorator";
+import {Options, Vue} from "vue-class-component";
 import Message from "../../domain/Message";
 import CommentContent from "@/components/comment/CommentContent.vue";
 
-@Component({
+@Options({
   components: {CommentContent},
   props: {
     message: Object

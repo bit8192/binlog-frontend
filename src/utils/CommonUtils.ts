@@ -35,7 +35,8 @@ export default class CommonUtils{
     /**
      * 空函数, 一般用于忽略catch
      */
-    static emptyFun() : void{
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    static emptyFun(...ignore: any[]) : void{
         /*empty*/
     }
 

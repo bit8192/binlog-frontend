@@ -4,18 +4,17 @@
       <el-avatar :src="headImageUrl" :size="120" style="cursor: pointer"/>
     </el-upload>
     <el-input placeholder="输入图片地址" v-model="headImageUrl" class="mt-5" />
-    <el-button type="default" class="mt-5" v-if="userInfo && userInfo.isBlogger" v-on:click="()=>this.showNetDiskFileDialog = true">网盘文件</el-button>
-    <el-button type="primary" class="mt-5" v-on:click="submitChangeHeadImage">提交</el-button>
-    <el-dialog :visible="showNetDiskFileDialog" v-on:close="()=>this.showNetDiskFileDialog = false">
-      <net-disk-file-list v-on:open="onSelectNetDiskFile" />
+    <el-button type="default" class="mt-5" v-if="$store.state.userInfo?.isBlogger" @click="()=>this.showNetDiskFileDialog = true">网盘文件</el-button>
+    <el-button type="primary" class="mt-5" @click="submitChangeHeadImage">提交</el-button>
+    <el-dialog :visible="showNetDiskFileDialog" @close="()=>this.showNetDiskFileDialog = false">
+      <net-disk-file-list @open="onSelectNetDiskFile" />
     </el-dialog>
   </div>
 </template>
 
 <script lang="ts">
-import {Component, Vue} from "vue-property-decorator";
+import {Options, Vue} from "vue-class-component";
 import {URL_FILES} from "@/constants/UrlApiFiles";
-import {AppProvider} from "@/App.vue"
 import UserInfo from "@/domain/UserInfo";
 import UploadFile from "@/domain/UploadFile";
 import UserService from "@/service/UserService";
@@ -24,30 +23,25 @@ import NetDiskFile from "@/domain/NetDiskFile";
 import {URL_NET_DISK_FILE} from "@/constants/UrlApiNetDiskFile";
 import {clearCache} from "@/decorators/Cached";
 import AuthenticationService from "@/service/AuthenticationService";
+import {ElMessage} from "element-plus";
+import {MUTATION_USER_INFO} from "@/createStore";
 
-@Component({
+@Options({
   components: {NetDiskFileList},
-  inject: ["app"],
-  data: ()=>{
+  data(): any{
     return {
       uploadFileUrl: URL_FILES,
-      userInfo: null,
       headImageUrl: "",
       showNetDiskFileDialog: false
     }
   }
 })
 export default class UserChangeHeadImageView extends Vue{
-  app: AppProvider
-  userInfo: UserInfo
   headImageUrl: string
   showNetDiskFileDialog: boolean
 
   created(): void{
-    this.userInfo = this.app.getLoggedUserInfo()
-    if(this.userInfo){
-      this.headImageUrl = this.userInfo.headImg
-    }
+    this.headImageUrl = this.$store.state.userInfo.headImg
   }
 
   /**
@@ -72,12 +66,14 @@ export default class UserChangeHeadImageView extends Vue{
   async submitChangeHeadImage(): Promise<void>{
     const result = await UserService.changeHeadImg(this.headImageUrl)
     if(result.value){
-      this.$message.success("修改成功")
+      ElMessage.success("修改成功")
       clearCache(AuthenticationService.getSelfInfo)
-      await this.app.updateUserInfo()
+      const userInfo = this.$store.state.userInfo as UserInfo;
+      userInfo.headImg = this.headImageUrl;
+      this.$store.commit(MUTATION_USER_INFO, userInfo);
       this.$router.back()
     }else{
-      this.$message.warning("修改失败")
+      ElMessage.warning("修改失败")
     }
   }
 }

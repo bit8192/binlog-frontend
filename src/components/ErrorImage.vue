@@ -7,10 +7,13 @@
 <script lang="ts">
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {faImage} from "@fortawesome/free-solid-svg-icons";
+import {Options, Vue} from "vue-class-component";
 
 library.add(faImage)
-export default {
+@Options({
   name: "ErrorImage"
+})
+export default class ErrorImage extends Vue{
 }
 </script>
 
