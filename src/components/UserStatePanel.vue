@@ -43,7 +43,7 @@
         注销
       </el-button>
     </div>
-    <el-dialog :visible="showChangePasswordDialog" @close="()=>this.showChangePasswordDialog = false">
+    <el-dialog v-model="showChangePasswordDialog" @close="()=>this.showChangePasswordDialog = false">
       <el-form :model="passwordFormData" :rules="passwordFormRule" ref="changePasswordForm">
         <el-form-item label="新密码" prop="password">
           <el-input type="password" v-model="passwordFormData.password" />

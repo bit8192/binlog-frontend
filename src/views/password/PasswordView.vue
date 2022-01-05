@@ -72,7 +72,7 @@
       <el-pagination layout="prev,pager,next" :total="passwordPage.totalElements" :page-size="passwordPageable.size" :current-page="passwordPageable.page + 1" @current-change="passwordPageChange" />
     </el-col>
   </el-row>
-  <el-dialog :title="selectedPasswordInfo && selectedPasswordInfo.title" :visible="!!selectedPasswordInfo" @close="selectedPasswordInfo = null">
+  <el-dialog :title="selectedPasswordInfo && selectedPasswordInfo.title" :model-value="!!selectedPasswordInfo" @close="selectedPasswordInfo = null">
     <password-info-edit v-model="selectedPasswordInfo" ref="passwordEdit" />
     <template #footer>
       <div>
@@ -81,7 +81,7 @@
       </div>
     </template>
   </el-dialog>
-  <el-dialog :title="selectedGroup && selectedGroup.title" :visible="showGroupDialog" @close="showGroupDialog = false">
+  <el-dialog :title="selectedGroup && selectedGroup.title" v-model="showGroupDialog" @close="showGroupDialog = false">
     <password-group-edit v-model="editGroup" @cancel="showGroupDialog = false" ref="groupEdit" />
     <div slot="footer">
       <el-button @click="showGroupDialog = false">取消</el-button>

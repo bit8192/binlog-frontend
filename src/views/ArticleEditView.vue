@@ -23,7 +23,7 @@
           <div v-else class="article-edit-view-cover-select" @click="showCoverSelectDialog = !showCoverSelectDialog">
             <el-icon name="plus" style="display: block" />
           </div>
-          <el-dialog :visible="showCoverSelectDialog" @close="()=>(this.showCoverSelectDialog = false) || this.$refs.form.validateField('cover')">
+          <el-dialog v-model="showCoverSelectDialog" @close="()=>(this.showCoverSelectDialog = false) || this.$refs.form.validateField('cover')">
             <template #title>
               <span>选择封面</span>
             </template>
@@ -50,7 +50,7 @@
         </el-form-item>
         <article-class-select-dialog
             ref="articleClassSelectDialog"
-            :visible="showArticleClassSelectDialog"
+            v-model="showArticleClassSelectDialog"
             @select="onSelectArticleClass"
             @close="()=>(this.showArticleClassSelectDialog = false) || this.$refs.form.validateField('articleClass')"
         />

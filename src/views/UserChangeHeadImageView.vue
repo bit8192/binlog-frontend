@@ -6,7 +6,7 @@
     <el-input placeholder="输入图片地址" v-model="headImageUrl" class="mt-5" />
     <el-button type="default" class="mt-5" v-if="$store.state.userInfo?.isBlogger" @click="()=>this.showNetDiskFileDialog = true">网盘文件</el-button>
     <el-button type="primary" class="mt-5" @click="submitChangeHeadImage">提交</el-button>
-    <el-dialog :visible="showNetDiskFileDialog" @close="()=>this.showNetDiskFileDialog = false">
+    <el-dialog v-model="showNetDiskFileDialog" @close="()=>this.showNetDiskFileDialog = false">
       <net-disk-file-list @open="onSelectNetDiskFile" />
     </el-dialog>
   </div>

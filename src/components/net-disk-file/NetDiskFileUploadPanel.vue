@@ -51,7 +51,7 @@
       <el-form-item label="存储位置">
         <file-system-type-selector :file-system-type-list="availableFileSystemTypeList" v-model="fileInfo.fileSystemType" />
       </el-form-item>
-      <el-dialog :visible="showUserTransferDialog" @close="showUserTransferDialog = false" append-to-body>
+      <el-dialog v-model="showUserTransferDialog" @close="showUserTransferDialog = false" append-to-body>
         <user-transfer v-model="selectedUserIds" ref="userTransfer" />
         <div class="text-right">
           <el-button type="primary" @click="this.selectUserListCompleteCallback">确定</el-button>

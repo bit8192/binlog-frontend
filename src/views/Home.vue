@@ -7,7 +7,7 @@
       <user-state-panel class="mb-1" v-if="isHappy" />
       <bloggers-panel class="mb-1" />
       <div class="follow-panel">
-        <article-search-panel :article-page="articlePage"/>
+        <article-search-panel @search="(param)=>$refs.articlePage.refresh(param.keywords, param.articleClassId, param.tagIds)" />
         <el-card class="mt-1">
           <template #header>
             <h3>阳光男孩 在线磕头</h3>
@@ -38,7 +38,6 @@ import BloggersPanel from "@/components/BloggersPanel.vue";
   },
 })
 export default class Home extends Vue{
-  articlePage: ArticlePage
   begImage = require("@/assets/beg.jpg")
   payImage = require("@/assets/pay.webp")
 
@@ -46,10 +45,6 @@ export default class Home extends Vue{
     return {
       articlePage: undefined,
     }
-  }
-
-  mounted(): void{
-    this.articlePage = this.$refs.articlePage as ArticlePage
   }
 
   async created() : Promise<void>{

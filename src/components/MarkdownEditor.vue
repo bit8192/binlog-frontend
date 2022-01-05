@@ -37,7 +37,7 @@
     <el-tooltip :content="isFullscreen ? '取消全屏' : '全屏'">
       <el-button size="small" @click="fullscreen"><font-awesome-icon :icon="fullscreen ? 'compress' : 'expand'" size="lg" /></el-button>
     </el-tooltip>
-    <el-dialog :visible="showUploadPanel" @close="showUploadPanel = false">
+    <el-dialog v-model="showUploadPanel" @close="showUploadPanel = false">
       <net-disk-file-list @open="onSelectFile" />
     </el-dialog>
   </div>

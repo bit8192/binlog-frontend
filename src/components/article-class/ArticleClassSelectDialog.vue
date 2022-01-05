@@ -2,7 +2,7 @@
   <div>
     <el-dialog
         title="选择文章分类"
-        :visible="visible"
+        v-model="value"
         class="article-class-select-dialog"
         @close="e=>this.$emit('close', e)"
     >
@@ -22,7 +22,7 @@
     </el-dialog>
     <el-dialog
         :title="addOrEdit ? '新增文章分类' : '编辑文章分类'"
-        :visible="showArticleClassDialog"
+        v-model="showArticleClassDialog"
         @close="showArticleClassDialog = false"
     >
       <article-class-form ref="articleClassForm" :value="articleClass" @change="(result)=>this.articleClass = result" />
@@ -57,11 +57,11 @@ declare interface Data{
 @Options({
   components: {ArticleClassForm, EmptyData},
   props: {
-    visible: Boolean,
+    value: Boolean,
   }
 })
 export default class ArticleClassSelect extends Vue{
-  visible!: boolean
+  value!: boolean
   showArticleClassDialog!: boolean
   //新增/编辑对象
   articleClass!: ArticleClass

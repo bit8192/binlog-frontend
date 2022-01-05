@@ -40,7 +40,7 @@
     </template>
     <empty-data v-else class="flex-1" />
     <context-menu :items="menuItems" @click-item="onContextMenuItemClick" />
-    <el-dialog :visible="showUploadPanel" @close="showUploadPanel = false" append-to-body>
+    <el-dialog v-model="showUploadPanel" @close="showUploadPanel = false" append-to-body>
       <net-disk-file-upload-panel
           ref="uploadPanel"
           :additional-permission="currentDirectory && currentDirectory.writable"
@@ -49,13 +49,13 @@
           @complete="onUploadComplete"
       />
     </el-dialog>
-    <el-dialog :visible="showMoveToDirSelectDialog" @close="showMoveToDirSelectDialog = false" append-to-body>
+    <el-dialog v-model="showMoveToDirSelectDialog" @close="showMoveToDirSelectDialog = false" append-to-body>
       <net-disk-file-tree ref="moveToDirSelect" :is-directory="true" @clickItem="moveSelectedTo" :filter-fun="(file)=>file.id !== selectedFileIds.values().next().value" show-root />
     </el-dialog>
-    <el-dialog :visible="showPropertiesDialog" @close="showPropertiesDialog = false" append-to-body>
+    <el-dialog v-model="showPropertiesDialog" @close="showPropertiesDialog = false" append-to-body>
       <net-disk-file-properties :id="showPropertiesTargetId" v-if="showPropertiesTargetId" />
     </el-dialog>
-    <el-dialog :visible="showFileSystemTypeSelectorDialog" @close="showFileSystemTypeSelectorDialog = false" append-to-body>
+    <el-dialog v-model="showFileSystemTypeSelectorDialog" @close="showFileSystemTypeSelectorDialog = false" append-to-body>
       <template #title>
         <h4>你想创建在哪里？</h4>
       </template>

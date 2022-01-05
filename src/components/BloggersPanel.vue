@@ -41,9 +41,15 @@ import {AppProvider} from "@/App.vue";
 import UserDetail from "@/domain/UserDetail";
 import UserService from "@/service/UserService";
 import UserInfo from "@/domain/UserInfo";
+import {BinlogStore} from "@/createStore";
 
 @Options({
-  inject: ['app']
+  inject: ['app'],
+  computed: {
+    currentUserInfo(){
+      return this.$store.state.userInfo;
+    }
+  }
 })
 export default class BloggersPanel extends Vue{
   bloggers!: Array<UserDetail>
@@ -53,6 +59,7 @@ export default class BloggersPanel extends Vue{
   viewIndex: number
   currentUserInfo: UserInfo
   app!: AppProvider
+  unWatchUserInfo: ()=>void
 
   data(): any{
     return {
@@ -61,21 +68,19 @@ export default class BloggersPanel extends Vue{
       viewBlogger: null,
       nextBlogger: null,
       viewIndex: 0,
-      currentUserInfo: null,
     }
   }
 
   created(): void{
-    this.currentUserInfo = this.app.getLoggedUserInfo()
     this.loadBloggers()
   }
 
   mounted(): void{
-    this.app.addUserInfoChangeListener(this.onUserInfoChange)
+    this.unWatchUserInfo = this.$store.watch((state: BinlogStore)=>state.userInfo, this.onUserInfoChange)
   }
 
   beforeDestroy(): void{
-    this.app.removeUserInfoChangeListener(this.onUserInfoChange)
+    this.unWatchUserInfo()
   }
 
   onUserInfoChange(userInfo: UserInfo): void{

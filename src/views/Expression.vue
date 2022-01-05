@@ -33,7 +33,7 @@
           </li>
         </ul>
         <el-button type="primary" class="mt-2" style="width: 100%" @click="onUpload" v-if="$store.state.isHappy">上传</el-button>
-        <el-dialog :visible="showUploadPanel" @close="showUploadPanel = false" append-to-body>
+        <el-dialog v-model="showUploadPanel" @close="showUploadPanel = false" append-to-body>
           <expression-upload-panel @complete="onUploadComplete" />
         </el-dialog>
       </el-card>

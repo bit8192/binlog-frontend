@@ -68,7 +68,7 @@
         <el-button circle icon="el-icon-edit" @click="onEditWritableUserList" />
       </div>
     </el-form-item>
-    <el-dialog :visible="showUserTransferDialog" @close="showUserTransferDialog=false" append-to-body>
+    <el-dialog v-model="showUserTransferDialog" @close="showUserTransferDialog=false" append-to-body>
       <user-transfer ref="userTransfer" v-model="userTransferValue" />
       <template #footer>
         <div>

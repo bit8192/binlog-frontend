@@ -29,29 +29,21 @@
 import Tag from "../domain/Tag";
 import {Options, Vue} from "vue-class-component";
 import TagService from "@/service/TagService";
-import ArticlePage from "@/components/article/ArticlePage.vue";
 import ArticleClassVo from "@/domain/ArticleClassVo";
 import ArticleClass from "@/domain/ArticleClass";
 import ArticleClassService from "@/service/ArticleClassService";
 import Node from "element-plus/es/components/tree/src/model/node";
 
 @Options({
-  props: {
-    articlePage: [ArticlePage, undefined]
-  },
   watch: {
-    $route: {
-      handler(): void{
-        this.readQueryParams();
-      },
-      deep: true
+    $route() {
+      this.readQueryParams();
     }
   }
 })
 export default class ArticleSearchPanel extends Vue{
   tags!: Tag[]
   keywords: string
-  articlePage: ArticlePage
   articleTreeProps = {label: 'title', isLeaf: (data: ArticleClassVo): boolean=>data.childrenNum < 1}
   selectedArticleClassId: number
   selectedTagIdSet: Set<number>
@@ -135,7 +127,7 @@ export default class ArticleSearchPanel extends Vue{
   private onArticleClassClick(articleClass: ArticleClass, _: any, element: Vue): void{
     if(articleClass.id === this.selectedArticleClassId){
       (this.$refs.articleClassTree as any).setCurrentKey(null);
-      (element.$el as HTMLElement).blur()
+      (element?.$el as HTMLElement)?.blur();
       this.selectedArticleClassId = null
     }else{
       this.selectedArticleClassId = articleClass.id
@@ -164,8 +156,11 @@ export default class ArticleSearchPanel extends Vue{
   }
 
   private refreshArticlePage(): void{
-    if(!this.articlePage) return;
-    this.articlePage.refresh(this.keywords, this.selectedArticleClassId, [...this.selectedTagIdSet])
+    this.$emit('search', {
+      keywords: this.keywords,
+      articleClassId: this.selectedArticleClassId,
+      tagIds: [...this.selectedTagIdSet]
+    })
   }
 }
 </script>
