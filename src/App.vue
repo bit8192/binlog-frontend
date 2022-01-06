@@ -44,8 +44,8 @@ import LoginPanel from "@/components/authorize/LoginPanel.vue";
 import NetworkError from "@/error/NetworkError";
 import AuthenticationService from "@/service/AuthenticationService";
 import UserDetail from "@/domain/UserDetail";
-import ChineseVerifyCode from "@/components/ChineseVerifyCode.vue";
-import {MUTATION_IS_HAPPY, MUTATION_SYSTEM_PROFILE, MUTATION_USER_INFO} from "./createStore";
+import {refreshVerifyCode, refreshVerifyCodeIfExpire} from "@/components/ChineseVerifyCode.vue";
+import {MUTATION_IS_HAPPY, MUTATION_IS_LOGGED, MUTATION_SYSTEM_PROFILE, MUTATION_USER_INFO} from "./createStore";
 
 library.add(faGithub)
 
@@ -78,7 +78,7 @@ export interface AppProvider{
   },
   watch: {
     showLoginDialog(value: boolean): void{
-      if(value) ChineseVerifyCode.refreshVerifyCodeIfExpire()
+      if(value) refreshVerifyCodeIfExpire()
     }
   }
 })
@@ -116,13 +116,14 @@ export default class App extends Vue{
   logged(userInfo: UserDetail): void{
     this.userInfo = userInfo
     this.$store.commit(MUTATION_USER_INFO, userInfo)
+    this.$store.commit(MUTATION_IS_LOGGED, true)
     this.showLoginDialog = false
   }
 
   async logout(): Promise<void>{
     await AuthenticationService.logout()
     //注销之后Session被清空，验证码需要重新拉取
-    ChineseVerifyCode.refreshVerifyCode()
+    refreshVerifyCode()
     this.userInfo = null
     this.showLoginDialog = true
     this.$store.commit(MUTATION_USER_INFO, null)

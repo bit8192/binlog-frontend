@@ -44,9 +44,9 @@
   <div class="markdown-editor-main">
     <codemirror
         ref="editor"
-        v-model="content"
+        v-model:value="content"
         :options="{mode: 'markdown', tabSize: 4, lineNumbers: true, theme: 'idea', foldGutter: true}"
-        :style="((editorWidth && isPreview) ? 'width: ' + editorWidth + 'px; ' : 'flex: 1; ') + (isFullscreen ? 'max-height: 100vh;' : '')"
+        :style="'font-size: 16px; ' + ((editorWidth && isPreview) ? 'width: ' + editorWidth + 'px; ' : 'flex: 1; ') + (isFullscreen ? 'max-height: 100vh;' : '')"
         @blur="onBlur"
     />
     <div class="markdown-editor-viewer-box" v-if="isPreview">
@@ -58,7 +58,7 @@
       <markdown
           class="markdown-editor-viewer"
           ref="viewer"
-          :content="content"
+          :source="content"
           :style="((previewWidth && isPreview) ? 'width: ' + previewWidth + 'px;' : 'flex: 1;')"
           :options="{markdownIt: {html: true}}"
       />
@@ -94,6 +94,9 @@ import {URL_NET_DISK_FILE} from "@/constants/UrlApiNetDiskFile";
 import NetDiskFileList from "@/components/net-disk-file/NetDiskFileList.vue";
 import Markdown from 'vue3-markdown-it';
 import Codemirror from 'codemirror-editor-vue3';
+import "codemirror/lib/codemirror.css";
+import "codemirror/mode/markdown/markdown.js";
+import "codemirror/theme/idea.css";
 
 library.add(
     faBold,

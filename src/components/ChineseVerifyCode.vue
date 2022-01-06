@@ -33,6 +33,23 @@ interface Point{
   x: number
   y: number
 }
+
+
+const instanceList: Array<ChineseVerifyCode> = []
+let verifyCodeTimestamp = new Date().getTime()
+export function refreshVerifyCode(): void{
+  verifyCodeTimestamp = new Date().getTime();
+  instanceList.forEach(i=>{
+    i.verifyCodeTimestamp = verifyCodeTimestamp;
+    i.points = []
+  })
+}
+export function refreshVerifyCodeIfExpire(): void{
+  if(new Date().getTime() - verifyCodeTimestamp > 600000){
+    refreshVerifyCode()
+  }
+}
+
 @Options({
   props: {
     minPointLen: {
@@ -46,34 +63,19 @@ interface Point{
   },
   data(): any{
     return {
-      verifyCodeTimestamp: ChineseVerifyCode.verifyCodeTimestamp,
+      verifyCodeTimestamp: verifyCodeTimestamp,
       points: [],
       verifyCodeUrl: URL_VERIFY_CODE,
     }
   },
   created() {
-    ChineseVerifyCode.instanceList.push(this)
+    instanceList.push(this)
   },
   beforeDestroy() {
-    ChineseVerifyCode.instanceList.splice(ChineseVerifyCode.instanceList.indexOf(this), 1)
+    instanceList.splice(instanceList.indexOf(this), 1)
   }
 })
 export default class ChineseVerifyCode extends Vue{
-  static instanceList: Array<ChineseVerifyCode> = []
-  static verifyCodeTimestamp = new Date().getTime()
-  static refreshVerifyCode(): void{
-    this.verifyCodeTimestamp = new Date().getTime();
-    this.instanceList.forEach(i=>{
-      i.verifyCodeTimestamp = this.verifyCodeTimestamp;
-      i.points = []
-    })
-  }
-  static refreshVerifyCodeIfExpire(): void{
-    if(new Date().getTime() - this.verifyCodeTimestamp > 600000){
-      this.refreshVerifyCode()
-    }
-  }
-
   minPointLen: number
   maxPointLen: number
   verifyCodeTimestamp: number
@@ -85,7 +87,7 @@ export default class ChineseVerifyCode extends Vue{
 
   refresh(): void{
     this.points = []
-    ChineseVerifyCode.refreshVerifyCode()
+    refreshVerifyCode()
   }
 
   onVerifyCodeClick(e: MouseEvent | any): void{

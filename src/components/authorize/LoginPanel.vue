@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import ChineseVerifyCode from "@/components/ChineseVerifyCode.vue";
+import ChineseVerifyCode, {refreshVerifyCodeIfExpire} from "@/components/ChineseVerifyCode.vue";
 import { Options, Vue } from 'vue-class-component';
 import CommonService from "@/service/CommonService";
 import QqAuthorizeButton from "@/components/authorize/QqAuthorizeButton.vue";
@@ -47,9 +47,9 @@ export default class LoginPanel extends Vue{
   // noinspection JSMethodCanBeStatic
   private onTabsClick(tab: any): void{
     if(tab.name === "username-password"){
-      ChineseVerifyCode.refreshVerifyCodeIfExpire()
+      refreshVerifyCodeIfExpire()
     }else if(tab.name === "register"){
-      ChineseVerifyCode.refreshVerifyCodeIfExpire()
+      refreshVerifyCodeIfExpire()
     }
   }
 

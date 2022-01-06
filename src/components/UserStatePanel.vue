@@ -81,7 +81,6 @@ export default class UserStatePanel extends Vue{
 
   data(): any{
     return {
-      userInfo: null,
       showChangePasswordDialog: false,
       passwordFormData: {password: "", repeat_password: ""},
       passwordFormRule: {

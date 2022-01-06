@@ -7,11 +7,12 @@
         </el-form-item>
         <el-form-item prop="articleClass">
           <el-input
-              :value="article.articleClass ? article.articleClass.title : ''"
+              :model-value="article.articleClass ? article.articleClass.title : ''"
               placeholder="类型"
               style="width: 100%"
-              @focus="()=>this.showArticleClassSelectDialog = true"
+              @click="()=>this.showArticleClassSelectDialog = true"
               @clear="()=>this.article.articleClass = null"
+              ref="articleClassInput"
               clearable
           />
         </el-form-item>
@@ -55,8 +56,8 @@
             @close="()=>(this.showArticleClassSelectDialog = false) || this.$refs.form.validateField('articleClass')"
         />
         <el-form-item>
-          <el-button type="success" size="lg" @click="submit">提交</el-button>
-          <el-button size="lg" @click="autoSave">储存到本地</el-button>
+          <el-button type="success" size="large" @click="submit">提交</el-button>
+          <el-button size="large" @click="autoSave">储存到本地</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -177,8 +178,11 @@ export default class ArticleEditView extends Vue{
    * 文章分类被选择
    */
   private onSelectArticleClass(articleClass: ArticleClassVo): void{
-    this.showArticleClassSelectDialog = false
-    this.article.articleClass = articleClass
+    this.showArticleClassSelectDialog = false;
+    this.article.articleClass = articleClass;
+    this.$nextTick(()=>{
+      (this.$refs.articleClassInput as any).blur();
+    });
   }
 
   private onSelectCover(file: NetDiskFile){

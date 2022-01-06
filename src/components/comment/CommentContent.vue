@@ -9,7 +9,8 @@ import {Options, Vue} from "vue-class-component";
 import UserInfo from "@/domain/UserInfo";
 import {REG_EXP_COMMENT_EXPRESSION, REG_EXP_MEMBERS} from "@/constants/RegExp";
 import {URL_EXPRESSION} from "@/constants/UrlApiExpression";
-import {Component, defineComponent, h} from "vue";
+import {Component, h, markRaw} from "vue";
+import {ElImage, ElButton} from "element-plus";
 
 @Options({
   props: {
@@ -80,7 +81,7 @@ export default class CommentContent extends Vue{
     for (let i = 0; i < result.length; i++) {
       const content = result[i];
       if(typeof content === "string"){
-        result[i] = defineComponent({
+        result[i] = markRaw({
           render: ()=>h("span", content)
         })
       }
@@ -98,7 +99,7 @@ export default class CommentContent extends Vue{
       regexp: /\n/g,
       replaceGroup: 0,
       isReplace: ()=>true,
-      replaceResult: ()=>defineComponent({
+      replaceResult: ()=>markRaw({
         render: ()=>h("br")
       })
     })
@@ -107,7 +108,7 @@ export default class CommentContent extends Vue{
       regexp: /^$/g,
       replaceGroup: 0,
       isReplace: ()=>true,
-      replaceResult: ()=>defineComponent({
+      replaceResult: ()=>markRaw({
         render: ()=>h("span", {class: "color-text-sub"}, "评论已删除")
       })
     })
@@ -121,8 +122,8 @@ export default class CommentContent extends Vue{
               return this.members.some(m=>m.username === matchResult[2])
             },
             replaceResult(matchResult: RegExpMatchArray): Component | string {
-              return defineComponent({
-                render: ()=>h("ElButton", {class: "comment-member mx-1", props: {type: "text"}}, "@" + matchResult[2])
+              return markRaw({
+                render: ()=>h(ElButton, {class: "comment-member mx-1", type: "text"}, ()=>"@" + matchResult[2])
               })
             }
           }
@@ -134,13 +135,11 @@ export default class CommentContent extends Vue{
       replaceGroup: 0,
       isReplace: ()=>true,
       replaceResult(matchResult: RegExpMatchArray): Component | string {
-        return defineComponent({
+        return markRaw({
           render: () => {
-            return h("ElImage", {
-              props: {
-                src: URL_EXPRESSION + '/' + decodeURIComponent(matchResult[1]),
-              }
-            }, [
+            return h(ElImage, {
+              src: URL_EXPRESSION + '/' + decodeURIComponent(matchResult[1]),
+            }, ()=>[
               h("span", {slot: "placeholder"}, matchResult[0]),
               h("span", {slot: "error"}, matchResult[0])
             ])

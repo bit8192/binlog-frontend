@@ -125,7 +125,7 @@ export default class ArticleCatalog extends Vue{
       }
     }
 
-    this.currentSectionId = currentElement?.id || null
+    this.currentSectionId = decodeURIComponent(currentElement?.id || "")
 
     if(this.currentSectionId) {
       //  自动滚动目录
@@ -178,7 +178,7 @@ export default class ArticleCatalog extends Vue{
       const section:Section = {
         label: header.textContent,
         nodeName: header.nodeName,
-        id: header.id,
+        id: decodeURIComponent(header.id),
         element: header,
         children: []
       }

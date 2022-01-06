@@ -75,7 +75,20 @@ library.add(faUser, faSolidThumbsUp, faRegularThumbsUp, faSolidThumbsDown, faReg
       required: true
     }
   },
-  inject: ['app']
+  inject: ['app'],
+  computed: {
+    userInfo(){
+      return this.$store.state.userInfo;
+    }
+  },
+  mounted(): void{
+    //注册滚动事件
+    if(document) document.addEventListener("scroll", this.onScroll)
+    this.loadCommentPage()
+  },
+  beforeDestroy(): void{
+    if(document) document.removeEventListener("scroll", this.onScroll)
+  }
 })
 export default class CommentList extends Vue{
   app!: AppProvider
@@ -102,29 +115,8 @@ export default class CommentList extends Vue{
       replySubCommentId: null,
       replyTargetUsername: null,
       replyContent: "",
-      userInfo: null,
       anonymousImg: require("@/assets/anonymous.webp")
     }
-  }
-
-  mounted(): void{
-    //注册滚动事件
-    if(document) document.addEventListener("scroll", this.onScroll)
-    this.userInfo = this.app.getLoggedUserInfo()
-    this.app.addUserInfoChangeListener(this.onUserInfoChange)
-    this.loadCommentPage()
-  }
-
-  beforeDestroy(): void{
-    if(document) document.removeEventListener("scroll", this.onScroll)
-    this.app.removeUserInfoChangeListener(this.onUserInfoChange)
-  }
-
-  /**
-   * 用户信息改变，即注销
-   */
-  onUserInfoChange(userInfo: UserInfo): void{
-    this.userInfo = userInfo
   }
 
   @Throttle()

@@ -83,7 +83,7 @@ import UploadFile from "@/domain/UploadFile";
 import {faGithub, faQq, faWeixin} from "@fortawesome/free-brands-svg-icons";
 import UserService from "@/service/UserService";
 import {REG_EXP_PHONE_NUM, REG_EXP_USERNAME, REG_EXP_WEBSITE} from "@/constants/RegExp";
-import ChineseVerifyCode from "@/components/ChineseVerifyCode.vue";
+import ChineseVerifyCode, { refreshVerifyCode } from "@/components/ChineseVerifyCode.vue";
 import {ElMessage} from "element-plus";
 
 library.add(faUser, faQq, faWeixin, faGithub)
@@ -159,7 +159,7 @@ export default class RegisterForm extends Vue{
         }
       }
     }finally {
-      ChineseVerifyCode.refreshVerifyCode()
+      refreshVerifyCode()
     }
   }
 }

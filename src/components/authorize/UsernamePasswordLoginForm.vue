@@ -25,6 +25,7 @@ import {Options, Vue} from "vue-class-component";
 import NotificationErrorHandler from "../../decorators/NotificationErrorHandler";
 import AuthenticationService from "../../service/AuthenticationService";
 import ChineseVerifyCode from "../ChineseVerifyCode.vue";
+import {refreshVerifyCode} from "@/components/ChineseVerifyCode.vue";
 
 @Options({
   components: {ChineseVerifyCode},
@@ -52,7 +53,7 @@ export default class UsernamePasswordLoginForm extends Vue{
         this.$emit("success")
       }
     }finally {
-      ChineseVerifyCode.refreshVerifyCode()
+      refreshVerifyCode()
     }
   }
 }

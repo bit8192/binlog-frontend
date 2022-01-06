@@ -8,15 +8,17 @@
       <slot/>
     </div>
     <el-menu mode="horizontal" router :default-active="currentPath" @select="onSelectMenu">
-      <template v-for="item in menuList.filter(i=>i.visible)">
-        <el-menu-item v-if="!item.children || !item.children.length" :key="item.title" :index="item.route">
-          <el-badge v-if="item.title === '消息' && unreadMessageCount && currentPath !== '/message'" :value="unreadMessageCount" style="line-height: initial">{{item.title}}</el-badge>
-          <span v-else>{{item.title}}</span>
-        </el-menu-item>
-        <el-sub-menu v-else :key="item.route" index="0">
-          <template #title>{{item.title}}</template>
-          <el-menu-item v-for="submenu in item.children" :key="submenu.title" :index="item.route">{{submenu.title}}</el-menu-item>
-        </el-sub-menu>
+      <template v-for="item in menuList">
+        <template v-if="item.visible">
+          <el-menu-item v-if="!item.children || !item.children.length" :key="item.title" :index="item.route">
+            <el-badge v-if="item.title === '消息' && unreadMessageCount && currentPath !== '/message'" :value="unreadMessageCount" style="line-height: initial">{{item.title}}</el-badge>
+            <span v-else>{{item.title}}</span>
+          </el-menu-item>
+          <el-sub-menu v-else :key="item.route" index="0">
+            <template #title>{{item.title}}</template>
+            <el-menu-item v-for="submenu in item.children" :key="submenu.title" :index="item.route">{{submenu.title}}</el-menu-item>
+          </el-sub-menu>
+        </template>
       </template>
     </el-menu>
   </div>
@@ -137,6 +139,7 @@ export default class NavMenu extends Vue{
       this.messageMenu.visible = false
       this.passwordMenu.visible = false
     }
+    this.menuList = this.menuList.concat();
   }
 
   /**

@@ -31,25 +31,25 @@
         <article-catalog ref="catalog" id="article-catalog" element="article" />
       </el-card>
       <div class="flex-5 flex-1-md width-100 article-container">
-        <markdown id="article" :content="info.content || ''" />
+        <markdown id="article" :source="info.content || ''" :html="true" />
       </div>
     </div>
 
     <el-card :class="'mt-1 transition-fade-in-enter-active' + ((($store.state.isLogged && loadingComments) || (!$store.state.isHappy && (loadingArticle || loadingCover))) ? ' transition-fade-in-enter' : ' transition-fade-in-enter-to')" :body-style="{padding: '5px 1em'}">
       <div class="flex-row justify-content-between align-items-center">
-        <el-button type="text" ref="agreeButton" :class="'article-action' + (this.info.isAgreed ? '' : ' color-text-sub ')" title="不错哦" @click="toggleAgree">
+        <el-button type="text" ref="agreeButton" :class="'article-action' + (this.info.isAgreed ? ' active' : '')" title="不错哦" @click="toggleAgree">
           <font-awesome-icon icon="thumbs-up" size="2x" />&nbsp;{{info.agreedNum}}
         </el-button>
-        <a :href="payImage" class="color-text-sub article-action" target="_blank" title="请我喝一杯Java">
+        <a :href="payImage" class="article-action" target="_blank" title="请我喝一杯Java">
           <font-awesome-icon icon="coffee" size="2x" />
         </a>
-        <el-button type="text" class="color-text-sub article-action" title="分享">
+        <el-button type="text" class="article-action" title="分享">
           <font-awesome-icon icon="share" size="2x"/>&nbsp;{{info.forwardingNum}}
         </el-button>
         <router-link :to="'edit/' + info.id" class="color-text-sub" v-if="info.createdUser && userInfo && info.createdUser.id === userInfo.id">
           <font-awesome-icon icon="edit" size="2x" />
         </router-link>
-        <el-button type="text" class="article-action color-text-sub" v-if="info.createdUser && userInfo && info.createdUser.id === userInfo.id" @click="deleteArticle">
+        <el-button type="text" class="article-action" v-if="info.createdUser && userInfo && info.createdUser.id === userInfo.id" @click="deleteArticle">
           <font-awesome-icon icon="trash-alt" size="2x" />
         </el-button>
       </div>
@@ -93,13 +93,18 @@ import Pageable from "@/domain/Pageable";
 import Page from "@/domain/Page";
 import {Comment} from "@/domain/Comment";
 import {ElMessage, ElMessageBox} from "element-plus";
-import {BinlogStore} from "@/createStore";
+import "highlight.js/styles/monokai.css";
 
 library.add(faTag, faThumbsUp, faShare, faCoffee, faUser, faEdit, faTrashAlt)
 
 @Options({
   components: {CommentReplyInput, EmptyData, CommentList, ErrorImage, ArticleCatalog, Markdown},
-  inject: ['app']
+  inject: ['app'],
+  computed: {
+    userInfo(){
+      return this.$store.state.userInfo;
+    }
+  }
 })
 export default class ArticleView extends Vue{
   info!: Article
@@ -143,7 +148,6 @@ export default class ArticleView extends Vue{
 
   async created() : Promise<void>{
     await this.loadArticle();
-    this.unWatchUserInfo = this.$store.watch((state: BinlogStore)=>state.userInfo, this.onUserInfoChange);
     await this.viewArticle();
     //没有封面则直接显示不用等待图片加载完成
     if(!this.info.cover){
@@ -174,14 +178,6 @@ export default class ArticleView extends Vue{
       viewedIds = viewedIds.substr(0, i)
       localStorage.setItem(LOCAL_STORAGE_KEY_VIEWED_ARTICLE_IDS, viewedIds)
     }
-  }
-
-  onUserInfoChange(userInfo: UserInfo): void{
-    this.userInfo = userInfo
-  }
-
-  beforeDestroy(): void{
-    this.unWatchUserInfo()
   }
 
   beforeRouteUpdate(): void{
@@ -309,6 +305,12 @@ export default class ArticleView extends Vue{
     margin-left: 0;
     padding: 1em;
   }
+}
+.article-action{
+  color: $color-text-sub;
+}
+.article-action.active{
+  color: $color-primary;
 }
 .article-action>span>svg{
   vertical-align: text-bottom;

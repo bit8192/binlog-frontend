@@ -42,7 +42,7 @@
       </div>
       <div class="tag-group" v-if="info.tags?.length">
         <router-link v-for="tag of info.tags" :key="tag.id" :to="'/?tagIds=' + tag.id">
-          <el-tag size="mini" effect="plain" class="bg-transparent">{{tag.title}}</el-tag>
+          <el-tag size="small" effect="plain" class="bg-transparent">{{tag.title}}</el-tag>
         </router-link>
       </div>
       <p class="article-item-describe color-text-content">

@@ -2,9 +2,7 @@
   <div>
     <el-dialog
         title="选择文章分类"
-        v-model="value"
-        class="article-class-select-dialog"
-        @close="e=>this.$emit('close', e)"
+        :model-value="modelValue"
     >
       <el-button size="small" @click="addArticleClass">添加</el-button>
       <el-tree ref="tree" :props="treeProps" node-key="id" :load="loadNode" @node-click="onSelect" :expand-on-click-node="false" lazy>
@@ -55,13 +53,13 @@ declare interface Data{
   addOrEdit: boolean //添加还是编辑： 添加true  编辑false
 }
 @Options({
+  emits: ['select', 'update:modelValue'],
   components: {ArticleClassForm, EmptyData},
   props: {
-    value: Boolean,
+    modelValue: Boolean,
   }
 })
 export default class ArticleClassSelect extends Vue{
-  value!: boolean
   showArticleClassDialog!: boolean
   //新增/编辑对象
   articleClass!: ArticleClass
@@ -89,6 +87,7 @@ export default class ArticleClassSelect extends Vue{
    */
   private onSelect(data: ArticleClassVo): void{
     this.$emit("select", Object.assign({}, data))
+    this.$emit("update:modelValue", false)
   }
 
   /**

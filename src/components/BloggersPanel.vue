@@ -83,8 +83,7 @@ export default class BloggersPanel extends Vue{
     this.unWatchUserInfo()
   }
 
-  onUserInfoChange(userInfo: UserInfo): void{
-    this.currentUserInfo = userInfo
+  onUserInfoChange(): void{
     this.loadBloggers()
   }
 
