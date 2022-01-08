@@ -13,7 +13,7 @@
           </ul>
         </el-timeline-item>
       </el-timeline>
-      <el-pagination layout="prev,pager,next" :current-page="pageable.page" :page-count="pageCount" :page-size="pageable.size" />
+      <el-pagination layout="prev,pager,next" :current-page="pageable.page + 1" :page-count="pageCount" @current-change="page=>gotoPage(page - 1)" />
     </el-card>
   </main>
 </template>

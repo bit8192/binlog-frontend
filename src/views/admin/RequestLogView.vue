@@ -44,7 +44,7 @@
       <el-checkbox v-model="excludeMe">除我之外</el-checkbox>
     </el-form-item>
     <el-form-item label="时间">
-      <el-date-picker v-model="dateRange" type="daterange" ranger-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" size="small" />
+      <el-date-picker v-model="dateRange" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" size="small" />
     </el-form-item>
     <el-form-item>
       <el-button size="small" icon="el-icon-search" @click="refresh" />

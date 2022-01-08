@@ -1,5 +1,5 @@
 <template>
-  <transition name="transition-from-top-fast">
+  <transition name="transition-from-top-fast" @before-enter="animationEnter" @after-leave="animationLeave">
     <div class="context-menu" tabindex="0" @blur="onContextMenuBlur" :style="'left:' + left + 'px; top: ' + top + 'px;'" v-show="show">
       <ul>
         <li :class="'context-menu-item ' + (items[key].disabled ? 'context-menu-item-disabled ' : '')" v-for="key in Object.keys(items)" :key="key" @click="()=>onClick(key, items[key])">{{items[key].title}}</li>
@@ -11,12 +11,8 @@
 <script lang="ts">
 import {Options, Vue} from "vue-class-component";
 import ElementUtils from "@/utils/ElementUtils";
+import CommonUtils from "@/utils/CommonUtils";
 
-declare interface Data{
-  left: number
-  top: number
-  show: boolean
-}
 @Options({
   props: {
     items: Object,
@@ -29,17 +25,19 @@ export default class ContextMenu extends Vue{
   el: HTMLElement
   menuParentElement: HTMLElement
   show!: boolean
+  animationResolve = CommonUtils.emptyFun
+  animationPromise = Promise.resolve()
 
-  data(): Data{
+  data(): any{
     return {
       left: 0,
       top: 0,
-      show: false
+      show: false,
     }
   }
 
   onContextMenuBlur(): void{
-    this.show = false
+    this.show = false;
   }
 
   mounted(): void{
@@ -54,17 +52,32 @@ export default class ContextMenu extends Vue{
     this.menuParentElement.removeEventListener("contextmenu", this.onContextMenu)
   }
 
+  animationEnter(): void{
+    this.animationPromise = new Promise(resolve => {
+      this.animationResolve = resolve;
+    });
+  }
+
+  animationLeave(): void{
+    this.animationResolve();
+    this.animationResolve = CommonUtils.emptyFun;
+    this.animationPromise = Promise.resolve();
+  }
+
   /**
    * 打开菜单事件
    * @param e
    */
-  onContextMenu(e: MouseEvent | any): void{
-    if(ElementUtils.inElement(e.target, this.el)) return
-    const parentPosition = ElementUtils.getElementPosition(this.menuParentElement)
-    this.left = e.clientX - parentPosition.offsetLeft
-    this.top = e.clientY - parentPosition.offsetTop
-    this.show = true
-    this.$nextTick(()=>this.el.focus())
+  async onContextMenu(e: MouseEvent | any): Promise<void>{
+    await this.animationPromise;
+    if(ElementUtils.inElement(e.target, this.el)) return;
+    const parentPosition = ElementUtils.getElementPosition(this.menuParentElement);
+    this.left = e.clientX - parentPosition.offsetLeft;
+    this.top = e.clientY - parentPosition.offsetTop;
+    this.show = true;
+    await this.$nextTick(()=>{
+      this.$el.focus();
+    })
   }
 
   /**
@@ -91,6 +104,7 @@ export interface ContextMenuItem{
   background-color: white;
   box-shadow: black 0 0 6px -2px;
   min-width: 100px;
+  tab-index: 0;
   ul{
     list-style: none;
     padding: 0;

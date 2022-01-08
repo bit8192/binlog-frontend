@@ -3,8 +3,14 @@
   <el-row :gutter="20">
     <el-col :span="6">
       <div class="d-flex mb-2">
-        <el-input suffix-icon="el-icon-search" size="small" clearable class="flex-1" v-model="groupKeywords" @change="refreshGroupPage" />
-        <el-button icon="el-icon-plus" size="small" class="ml-2" @click="addGroup" />
+        <el-input size="small" clearable class="flex-1" v-model="groupKeywords" @change="refreshGroupPage" >
+          <template #suffix>
+            <font-awesome-icon icon="search" class="height-100" />
+          </template>
+        </el-input>
+        <el-button size="small" class="ml-2" @click="addGroup" >
+          <font-awesome-icon icon="plus" />
+        </el-button>
       </div>
       <empty-data v-if="!groupPage.content.length" />
       <ul class="list-style-none station-list" v-else>
@@ -14,8 +20,12 @@
             <span class="fs-6 color-sub">{{group.remark}}</span>
           </div>
           <div>
-            <el-button type="text" icon="el-icon-edit" @click.stop="doEditGroup(group)" />
-            <el-button type="text" icon="el-icon-delete" @click.stop="deleteGroup(group)" />
+            <el-button type="text" @click.stop="doEditGroup(group)" >
+              <font-awesome-icon icon="edit" />
+            </el-button>
+            <el-button type="text" @click.stop="deleteGroup(group)" >
+              <font-awesome-icon icon="trash-alt" />
+            </el-button>
           </div>
         </li>
       </ul>
@@ -23,9 +33,17 @@
     </el-col>
     <el-col :span="18">
       <div class="d-flex flex-row align-items-center mb-3">
-        <el-input suffix-icon="el-icon-search" size="small" v-model="passwordKeywords" @change="refreshPasswordPage" />
-        <el-button type="primary" icon="el-icon-plus" size="small" class="ml-3" @click="addPassword" :disabled="!selectedGroup" />
-        <el-button type="primary" icon="el-icon-setting" size="small" class="ml-3" />
+        <el-input size="small" v-model="passwordKeywords" @change="refreshPasswordPage" >
+          <template #suffix>
+            <font-awesome-icon icon="search" class="height-100" />
+          </template>
+        </el-input>
+        <el-button type="primary" size="small" class="ml-3" @click="addPassword" :disabled="!selectedGroup" >
+          <font-awesome-icon icon="plus" />
+        </el-button>
+        <el-button type="primary" size="small" class="ml-3" >
+          <font-awesome-icon icon="cog" />
+        </el-button>
       </div>
       <empty-data v-if="!passwordPage.content.length" />
       <ul class="list-style-none" v-else>
@@ -36,11 +54,17 @@
                 <div class="d-flex flex-row align-items-center justify-content-between">
                   <div>
                     <span class="h4">{{password.title}}</span>&nbsp;&nbsp;&nbsp;
-                    <el-button type="text" icon="el-icon-document-copy" @click="copyTitle(password)" />
+                    <el-button type="text" @click="copyTitle(password)" >
+                      <font-awesome-icon :icon="['far', 'copy']" />
+                    </el-button>
                   </div>
                   <div>
-                    <el-button type="text" icon="el-icon-edit" @click="editPassword(password)" />
-                    <el-button type="text" icon="el-icon-delete" @click="deletePassword(password)" />
+                    <el-button type="text" @click="editPassword(password)" >
+                      <font-awesome-icon icon="edit" />
+                    </el-button>
+                    <el-button type="text" @click="deletePassword(password)" >
+                      <font-awesome-icon icon="trash-alt" />
+                    </el-button>
                   </div>
                 </div>
                 <span class="color-text-sub">{{password.encryptionRemark ? '' : password.remark}}</span>
@@ -48,12 +72,18 @@
             </template>
             <div>
               <span>{{password.username}}</span>
-              <el-button type="text" icon="el-icon-document-copy" class="ml-2" @click="copyUsername(password)" />
+              <el-button type="text" class="ml-2" @click="copyUsername(password)" >
+                <font-awesome-icon :icon="['far', 'copy']" />
+              </el-button>
             </div>
             <div>
               <span class="color-text-sub">{{ viewPasswordItem === password ? decryptedPassword : '●●●●●●●●●●●●●●●●●' }}</span>
-              <el-button type="text" icon="el-icon-view" class="ml-3" @click="viewPassword(password)" />
-              <el-button type="text" icon="el-icon-document-copy" class="ml-3" @click="copyPassword(password)" />
+              <el-button type="text" class="ml-3" @click="viewPassword(password)" >
+                <font-awesome-icon :icon="['far', viewPasswordItem === password ? 'eye-slash' : 'eye']" />
+              </el-button>
+              <el-button type="text" class="ml-3" @click="copyPassword(password)" >
+                <font-awesome-icon :icon="['far', 'copy']" />
+              </el-button>
             </div>
             <div class="color-text-sub fs-6">
               <span>{{password.createdDate}}</span>
@@ -107,6 +137,11 @@ import MainPasswordReader from "@/views/password/MainPasswordReader.vue";
 import CommonUtils from "@/utils/CommonUtils";
 import EmptyData from "@/components/EmptyData.vue";
 import {ElMessage, ElMessageBox} from "element-plus";
+import {library} from "@fortawesome/fontawesome-svg-core";
+import {faCog, faEdit, faPlus, faSearch, faTrashAlt} from "@fortawesome/free-solid-svg-icons";
+import {faCopy, faEye, faEyeSlash} from "@fortawesome/free-regular-svg-icons";
+
+library.add(faPlus, faEdit, faSearch, faTrashAlt, faCog, faCopy, faEye, faEyeSlash)
 
 @Options({
   name: "PasswordView",

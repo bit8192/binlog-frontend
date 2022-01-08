@@ -156,9 +156,9 @@ export default class NavMenu extends Vue{
    * 切换菜单事件
    * @param index 下标
    */
-  onSelectMenu(index: number): void{
+  async onSelectMenu(index: number): Promise<void>{
     if(this.menuList[index] !== this.messageMenu && this.$store.state.isLogged){
-      this.refreshUnreadMessageCount()
+      await this.refreshUnreadMessageCount();
     }
   }
 }

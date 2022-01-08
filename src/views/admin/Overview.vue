@@ -219,7 +219,7 @@
       </el-card>
     </div>
     <div>
-      <el-date-picker type="daterange" ranger-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" size="small" v-model="dateRange" @change="onDatePickerChange" class="mr-2" />
+      <el-date-picker type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" size="small" v-model="dateRange" @change="onDatePickerChange" class="mr-2" />
       <el-button type="text" @click="setDateRange('今天')">今天</el-button>
       <el-button type="text" @click="setDateRange('昨天')">昨天</el-button>
       <el-button type="text" @click="setDateRange('本周')">本周</el-button>

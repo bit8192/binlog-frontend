@@ -6,7 +6,7 @@
   .transition-from-#{$name}-leave-active{
     transition: opacity $speed-out $transition-fun, transform $speed-out $transition-fun;
   }
-  .transition-from-#{$name}-enter, .transition-from-#{$name}-leave-to{
+  .transition-from-#{$name}-enter-from, .transition-from-#{$name}-leave-to{
     opacity: 0;
     @if($direction == top or $direction == bottom){
       transform: translateY($distance);
@@ -14,7 +14,7 @@
       transform: translateX($distance);
     }
   }
-  .transition-from-#{$name}-enter-to, .transition-from-#{$name}-leave{
+  .transition-from-#{$name}-enter-to, .transition-from-#{$name}-leave-from{
     opacity: 1;
     @if($direction == top or $direction == bottom){
       transform: translateY(0);

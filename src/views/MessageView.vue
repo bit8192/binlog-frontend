@@ -11,7 +11,6 @@
           <span v-else>{{type.title}}</span>
         </li>
       </ul>
-      <!--suppress HtmlUnknownAttribute -->
       <div ref="messageList" class="flex-1 height-100 py-1" :v-infinite-scroll="loadMessage" :infinite-scroll-immediate="false" @scroll="onScroll" style="overflow-y: auto">
         <!--    文章评论    -->
         <template v-if="currentMsgType === articleCommentMsgType">
@@ -187,18 +186,9 @@ const DEFAULT_PAGE_SIZE = 20;
   components: {CommentReplyInput, MessageItem, EmptyData},
   inject: ['app'],
   mounted() :void{
-    this.refreshUnreadMessageCount()
-    this.unWatchUserInfo = this.$store.watch((store: BinlogStore)=> store.userInfo, this.onUserInfoChange)
-  },
-  created() :void{
-    const user = this.app.getLoggedUserInfo();
-    if(user && user.isBlogger){
-      this.articleCommentMsgType.visible = true;
-      this.leftMsgType.visible = true;
-      this.onSelectMessageType(this.articleCommentMsgType)
-    }else{
-      this.onSelectMessageType(this.replyMeMsgType)
-    }
+    this.onUserInfoChange(this.$store.state.userInfo);
+    this.refreshUnreadMessageCount();
+    this.unWatchUserInfo = this.$store.watch((store: BinlogStore)=> store.userInfo, this.onUserInfoChange);
   },
   beforeDestroy(): void{
     this.unWatchUserInfo();
@@ -237,7 +227,16 @@ export default class MessageView extends Vue{
   }
 
   onUserInfoChange(userInfo: UserInfo): void{
-    this.leftMsgType.visible = this.articleCommentMsgType.visible = userInfo && userInfo.isBlogger;
+    if(userInfo && userInfo.isBlogger){
+      this.articleCommentMsgType.visible = true;
+      this.leftMsgType.visible = true;
+      this.onSelectMessageType(this.articleCommentMsgType)
+    }else{
+      this.articleCommentMsgType.visible = false;
+      this.leftMsgType.visible = false;
+      this.onSelectMessageType(this.replyMeMsgType)
+    }
+    this.messageTypeList = this.messageTypeList.concat()
   }
 
   /**

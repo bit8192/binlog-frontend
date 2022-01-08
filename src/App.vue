@@ -80,6 +80,24 @@ export interface AppProvider{
     showLoginDialog(value: boolean): void{
       if(value) refreshVerifyCodeIfExpire()
     }
+  },
+  /**
+   * 异常处理
+   * @param error
+   */
+  errorCaptured(error: Error): boolean{
+    if(error instanceof NetworkError && error.response){
+      switch (error.response.status) {
+        case 401:
+          this.userInfo = null
+          this.showLoginDialog = true
+          break;
+        default:
+          break;
+      }
+      return true;
+    }
+    return false;
   }
 })
 export default class App extends Vue{
@@ -127,24 +145,6 @@ export default class App extends Vue{
     this.userInfo = null
     this.showLoginDialog = true
     this.$store.commit(MUTATION_USER_INFO, null)
-  }
-  /**
-   * 异常处理
-   * @param error
-   */
-  errorCaptured(error: Error): boolean{
-    if(error instanceof NetworkError && error.response){
-      switch (error.response.status) {
-        case 401:
-          this.userInfo = null
-          this.showLoginDialog = true
-          break;
-        default:
-          break;
-      }
-      return true;
-    }
-    return false;
   }
 }
 </script>

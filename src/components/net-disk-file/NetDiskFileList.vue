@@ -18,57 +18,61 @@
     </el-breadcrumb>
     <el-input placeholder="搜索" style="width: auto" size="small">
       <template #append>
-        <el-button icon="el-icon-search"/>
+        <el-button>
+          <font-awesome-icon icon="search" />
+        </el-button>
       </template>
     </el-input>
   </div>
-  <div ref="files" class="net-disk-file-view-files flex-1 flex-row flex-wrap align-items-start" @click="onBoxClick" @contextmenu="onBoxContextmenu" @paste="onPaste">
-    <template v-if="fileList.length">
-      <net-disk-file-item
-          v-for="file in fileList"
-          :key="file.id"
-          :file="file"
-          :rename="renameFileId === file.id"
-          :selected="selectedFileIds.has(file.id)"
-          @renameComplete="name=>onRenameComplete(file, name)"
-          @renameCancel="()=>onRenameCancel(file)"
-          @click="e=>onItemClick(e, file)"
-          @contextmenu="e=>onItemContextMenu(e, file)"
-          @dblclick="e=>onItemDblclick(e, file)"
-          class="mx-2 mb-2"
-      />
-    </template>
-    <empty-data v-else class="flex-1" />
-    <context-menu :items="menuItems" @click-item="onContextMenuItemClick" />
-    <el-dialog v-model="showUploadPanel" @close="showUploadPanel = false" append-to-body>
-      <net-disk-file-upload-panel
-          ref="uploadPanel"
-          :additional-permission="currentDirectory && currentDirectory.writable"
-          :parent-id="currentDirectory ? currentDirectory.id : null"
-          :available-file-system-type-list="(currentDirectory && currentDirectory.fileSystemTypeSet) || []"
-          @complete="onUploadComplete"
-      />
-    </el-dialog>
-    <el-dialog v-model="showMoveToDirSelectDialog" @close="showMoveToDirSelectDialog = false" append-to-body>
-      <net-disk-file-tree ref="moveToDirSelect" :is-directory="true" @clickItem="moveSelectedTo" :filter-fun="(file)=>file.id !== selectedFileIds.values().next().value" show-root />
-    </el-dialog>
-    <el-dialog v-model="showPropertiesDialog" @close="showPropertiesDialog = false" append-to-body>
-      <net-disk-file-properties :id="showPropertiesTargetId" v-if="showPropertiesTargetId" />
-    </el-dialog>
-    <el-dialog v-model="showFileSystemTypeSelectorDialog" @close="showFileSystemTypeSelectorDialog = false" append-to-body>
-      <template #title>
-        <h4>你想创建在哪里？</h4>
+  <div class="flex-1 position-relative" @contextmenu="onBoxContextmenu">
+    <div ref="files" class="net-disk-file-view-files flex-row flex-wrap align-items-start" @click="onBoxClick" @paste="onPaste">
+      <template v-if="fileList.length">
+        <net-disk-file-item
+            v-for="file in fileList"
+            :key="file.id"
+            :file="file"
+            :rename="renameFileId === file.id"
+            :selected="selectedFileIds.has(file.id)"
+            @renameComplete="name=>onRenameComplete(file, name)"
+            @renameCancel="()=>onRenameCancel(file)"
+            @click="e=>onItemClick(e, file)"
+            @contextmenu="e=>onItemContextMenu(e, file)"
+            @dblclick="e=>onItemDblclick(e, file)"
+            class="mx-2 mb-2"
+        />
       </template>
-      <div class="text-center">
-        <file-system-type-selector :file-system-type-list="(currentDirectory && currentDirectory.fileSystemTypeSet) || []" v-model="selectedFileSystemType" />
-      </div>
-      <template #footer>
-        <div>
-          <el-button @click="fileSystemTypeSelectCallback(false)">取消</el-button>
-          <el-button type="primary" @click="fileSystemTypeSelectCallback(true)">确定</el-button>
+      <empty-data v-else class="flex-1" />
+      <el-dialog v-model="showUploadPanel" @close="showUploadPanel = false" append-to-body>
+        <net-disk-file-upload-panel
+            ref="uploadPanel"
+            :additional-permission="currentDirectory && currentDirectory.writable"
+            :parent-id="currentDirectory ? currentDirectory.id : null"
+            :available-file-system-type-list="(currentDirectory && currentDirectory.fileSystemTypeSet) || []"
+            @complete="onUploadComplete"
+        />
+      </el-dialog>
+      <el-dialog v-model="showMoveToDirSelectDialog" @close="showMoveToDirSelectDialog = false" append-to-body>
+        <net-disk-file-tree ref="moveToDirSelect" :is-directory="true" @clickItem="moveSelectedTo" :filter-fun="(file)=>file.id !== selectedFileIds.values().next().value" show-root />
+      </el-dialog>
+      <el-dialog v-model="showPropertiesDialog" @close="showPropertiesDialog = false" append-to-body>
+        <net-disk-file-properties :id="showPropertiesTargetId" v-if="showPropertiesTargetId" />
+      </el-dialog>
+      <el-dialog v-model="showFileSystemTypeSelectorDialog" @close="showFileSystemTypeSelectorDialog = false" append-to-body>
+        <template #title>
+          <h4>你想创建在哪里？</h4>
+        </template>
+        <div class="text-center">
+          <file-system-type-selector :file-system-type-list="(currentDirectory && currentDirectory.fileSystemTypeSet) || []" v-model="selectedFileSystemType" />
         </div>
-      </template>
-    </el-dialog>
+        <template #footer>
+          <div>
+            <el-button @click="fileSystemTypeSelectCallback(false)">取消</el-button>
+            <el-button type="primary" @click="fileSystemTypeSelectCallback(true)">确定</el-button>
+          </div>
+        </template>
+      </el-dialog>
+    </div>
+    <context-menu :items="menuItems" @click-item="onContextMenuItemClick" />
   </div>
 </div>
 </template>
@@ -76,7 +80,7 @@
 <script lang="ts">
 import {Options, Vue} from "vue-class-component";
 import {library} from "@fortawesome/fontawesome-svg-core";
-import {faAngleLeft, faAngleRight} from "@fortawesome/free-solid-svg-icons";
+import {faAngleLeft, faAngleRight, faSearch} from "@fortawesome/free-solid-svg-icons";
 import NetDiskFile from "@/domain/NetDiskFile";
 import NetDiskFileService from "@/service/NetDiskFileService";
 import EmptyData from "@/components/EmptyData.vue";
@@ -88,7 +92,8 @@ import NetDiskFileProperties from "@/components/net-disk-file/NetDiskFilePropert
 import {FileSystemTypeEnum} from "@/domain/FileSystemTypeEnum";
 import FileSystemTypeSelector from "@/components/net-disk-file/FileSystemTypeSelector.vue";
 import {ElMessageBox} from "element-plus";
-library.add(faAngleLeft, faAngleRight)
+import Throttle from "@/decorators/Throttle";
+library.add(faAngleLeft, faAngleRight, faSearch)
 
 @Options({
   components: {
@@ -411,6 +416,7 @@ export default class NetDiskFileList extends Vue{
    * 双击事件
    * 进入目录或者下载文件
    */
+  @Throttle(50)
   private async onItemDblclick(e: TouchEvent, file: NetDiskFile): Promise<void>{
     if(e.ctrlKey) return
     if(file.isDirectory) {
@@ -502,6 +508,5 @@ export default class NetDiskFileList extends Vue{
 
 .net-disk-file-view-files{
   min-height: 100px;
-  position: relative;
 }
 </style>
