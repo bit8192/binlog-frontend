@@ -1,9 +1,7 @@
 <template>
-  <el-row class="container" type="flex" :gutter="10">
-    <el-col :md="18" :xs="24">
-      <article-page ref="articlePage" />
-    </el-col>
-    <el-col :md="6" :xs="24" class="home-panel-right">
+  <div class="container d-flex flex-row">
+    <article-page ref="articlePage" class="home-panel-left" />
+    <div class="home-panel-right">
       <user-state-panel class="mb-1" v-if="isHappy" />
       <bloggers-panel class="mb-1" />
       <div class="follow-panel">
@@ -17,8 +15,8 @@
           </a>
         </el-card>
       </div>
-    </el-col>
-  </el-row>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -63,11 +61,18 @@ export default class Home extends Vue{
   position: sticky;
   top: 1em;
 }
+.home-panel-left {
+  margin-right: 1em;
+  flex-grow: 1;
+}
 .home-panel-right{
 }
 @media screen and (max-width: $device-width-xs){
   .container{
-    flex-flow: column-reverse wrap;
+    flex-flow: column-reverse wrap !important;
+  }
+  .home-panel-left {
+    margin-right: unset;
   }
   .follow-panel{
     position: unset;

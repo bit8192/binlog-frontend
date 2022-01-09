@@ -277,6 +277,7 @@ export default class ArticleView extends Vue{
   position: sticky;
   top: 5px;
   bottom: 0;
+  min-width: 200px;
 }
 #article-catalog{
   max-height: calc(100vh - 2em);

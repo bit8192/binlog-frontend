@@ -121,7 +121,7 @@ export default class ChineseVerifyCode extends Vue{
    */
   getParams(): any{
     if(this.points.length < this.minPointLen){
-      throw new NotificationError("请完成验证码验证")
+      throw new NotificationError("请输入验证码")
     }
     return CommonUtils.map2obj(new Map(this.points.map((p, i)=>['point' + i, p.x + ',' + p.y])))
   }

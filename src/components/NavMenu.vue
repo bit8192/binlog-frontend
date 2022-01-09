@@ -7,7 +7,7 @@
     <div class="mx-1">
       <slot/>
     </div>
-    <el-menu mode="horizontal" router :default-active="currentPath" @select="onSelectMenu">
+    <el-menu id="nav-menu" mode="horizontal" router :default-active="currentPath" @select="onSelectMenu" menu-trigger="click">
       <template v-for="item in menuList">
         <template v-if="item.visible">
           <el-menu-item v-if="!item.children || !item.children.length" :key="item.title" :index="item.route">
@@ -178,14 +178,18 @@ $nav-padding-horizontal: 1em;
   padding-left: $nav-padding-horizontal;
   padding-right: $nav-padding-horizontal;
   @include background-nav;
-  .el-menu{
-    border-bottom: none;
-  }
+}
+#nav-menu{
+  flex-grow: 1;
+  overflow: hidden;
+  justify-content: end;
+  border-bottom: none;
 }
 
 @media (max-width: $device-width-md) {
   #nav-title{
     font-size: 1.5em;
+    word-break: keep-all;
   }
 }
 </style>

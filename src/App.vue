@@ -46,6 +46,8 @@ import AuthenticationService from "@/service/AuthenticationService";
 import UserDetail from "@/domain/UserDetail";
 import {refreshVerifyCode, refreshVerifyCodeIfExpire} from "@/components/ChineseVerifyCode.vue";
 import {MUTATION_IS_HAPPY, MUTATION_IS_LOGGED, MUTATION_SYSTEM_PROFILE, MUTATION_USER_INFO} from "./createStore";
+import NotificationError from "@/error/NotificationError";
+import {ElMessage} from "element-plus";
 
 library.add(faGithub)
 
@@ -96,6 +98,8 @@ export interface AppProvider{
           break;
       }
       return true;
+    }else if(error instanceof NotificationError){
+      ElMessage.error(error.tipMsg)
     }
     return false;
   }
@@ -143,8 +147,9 @@ export default class App extends Vue{
     //注销之后Session被清空，验证码需要重新拉取
     refreshVerifyCode()
     this.userInfo = null
-    this.showLoginDialog = true
     this.$store.commit(MUTATION_USER_INFO, null)
+    this.$store.commit(MUTATION_IS_LOGGED, false)
+    this.showLoginDialog = true
   }
 }
 </script>
